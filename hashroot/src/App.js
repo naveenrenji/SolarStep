@@ -8,6 +8,7 @@ import Homepage from "./components/Homepage/Homepage";
 import Layout from "./components/Layout";
 import {Login, Signup} from "./components/Authentication";
 import SolarDashboard from "./components/SolarDashboard/SolarDashboard";
+import NotFound from "./components/shared/NotFound";
 
 function App() {
   return (
@@ -25,7 +26,9 @@ function App() {
               </RequiresAuth>
             }
           />
+          <Route path="*" element={<NotFound />} />
         </Route>
+        <Route path="*" element={<NotFound />} />
       </Routes>
     </AuthProvider>
   );
