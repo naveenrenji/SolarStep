@@ -11,18 +11,21 @@ const Login = () => {
   const location = useLocation();
 
   const from = location.state?.from?.pathname;
+  const role = "ADMIN";
 
   const login = () => {
     // Make API call to verify and get user data
     // Once we get that data, call auth.signin and take them to
-    auth.signIn({firstName: "CS", lastName: "555"}, () => {
+    auth.signIn({ firstName: "CS", lastName: "555", role }, () => {
       // Send them back to the page they tried to visit when they were
       // redirected to the login page. Use { replace: true } so we don't create
       // another entry in the history stack for the login page.  This means that
       // when they get to the protected page and click the back button, they
       // won't end up back on the login page, which is also really nice for the
       // user experience.
-      navigate(from || "/", { replace: true });
+      navigate(role === "ADMIN" ? "/admin/create-user" : (from || "/"), {
+        replace: true,
+      });
     });
   };
 
