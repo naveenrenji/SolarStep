@@ -1,5 +1,6 @@
 import React from "react";
 import { Outlet, Route, Routes } from "react-router-dom";
+import 'bootstrap/dist/css/bootstrap.min.css';
 
 import "./App.css";
 import { AuthProvider, RequiresAuth } from "./hoc/Authentication";
