@@ -3,12 +3,14 @@ import { Outlet, Route, Routes } from "react-router-dom";
 
 import "./App.css";
 import { AuthProvider, RequiresAuth } from "./hoc/Authentication";
+import { USER_ROLES } from "./constants";
 
 import Homepage from "./components/Homepage/Homepage";
 import Layout from "./components/Layout";
 import { Login, Signup } from "./components/Authentication";
 import SolarDashboard from "./components/SolarDashboard/SolarDashboard";
 import NotFound from "./components/shared/NotFound";
+import AdminDashboard from "./components/Admin/Dashboard";
 
 function App() {
   return (
@@ -20,11 +22,12 @@ function App() {
           <Route
             path="/admin"
             element={
-              <RequiresAuth role="ADMIN">
+              <RequiresAuth role={USER_ROLES.ADMIN}>
                 <Outlet />
               </RequiresAuth>
             }
           >
+            <Route path="dashboard" element={<AdminDashboard />} />
             <Route path="create-user" element={<Signup />} />
           </Route>
           <Route
