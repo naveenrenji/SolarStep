@@ -1,7 +1,9 @@
 import React from "react";
 import { useLocation } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
+import { tempLogin } from "../../Backend/Users/users";
 import useAuth from "../../hooks/useAuth";
+
 
 const Login = () => {
   const auth = useAuth();
@@ -27,6 +29,7 @@ const Login = () => {
   return (
     <div>
       Login page<button onClick={login}>Login</button>
+      <button onClick={tempLogin}>Temp Login</button>
     </div>
   );
 };
