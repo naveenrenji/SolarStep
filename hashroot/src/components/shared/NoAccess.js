@@ -3,11 +3,7 @@ import Button from "react-bootstrap/Button";
 import Card from "react-bootstrap/Card";
 import { LinkContainer } from "react-router-bootstrap";
 
-import useAuth from "../../hooks/useAuth";
-
-const NotFound = () => {
-  const { user } = useAuth();
-
+const NoAccess = () => {
   return (
     <div
       style={{
@@ -22,13 +18,14 @@ const NotFound = () => {
       }}
     >
       <Card className="text-center" style={{ height: "fit-content" }}>
-        <Card.Header as="h5">Route does not exist</Card.Header>
+        <Card.Header as="h5">No Access</Card.Header>
         <Card.Body>
-          <Card.Text>The route you are looking for does not exist</Card.Text>
-          <LinkContainer to={!user ? "/" : "/dashboard"}>
-            <Button variant="primary">
-              Go to {!user ? "home" : "dashboard"}
-            </Button>
+          <Card.Text>
+            The route you are looking for does not exist or you dont have
+            access.
+          </Card.Text>
+          <LinkContainer to="/dashboard">
+            <Button variant="primary">Go to dashboard</Button>
           </LinkContainer>
         </Card.Body>
       </Card>
@@ -36,4 +33,4 @@ const NotFound = () => {
   );
 };
 
-export default NotFound;
+export default NoAccess;

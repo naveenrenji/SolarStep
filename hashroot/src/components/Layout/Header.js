@@ -4,16 +4,16 @@ import { LinkContainer } from "react-router-bootstrap";
 import Container from "react-bootstrap/Container";
 import Nav from "react-bootstrap/Nav";
 import Navbar from "react-bootstrap/Navbar";
+import Image from "react-bootstrap/Image";
+import Stack from "react-bootstrap/Stack";
 
 import useAuth from "../../hooks/useAuth";
+import { SolarStep } from "../../assets/images";
 import { USER_ROLES } from "../../constants";
 
 const Header = () => {
   let auth = useAuth();
   let navigate = useNavigate();
-
-  const dashboardLink =
-    auth?.user?.role === USER_ROLES.ADMIN ? "/admin/dashboard" : "dashboard";
 
   const signOut = () => {
     auth.signOut(() => navigate("/"));
@@ -22,7 +22,19 @@ const Header = () => {
   return (
     <Navbar bg="light" expand="lg">
       <Container>
-        <Navbar.Brand>Solar Step</Navbar.Brand>
+        <LinkContainer to="/">
+          <Navbar.Brand>
+            <Stack direction="horizontal" gap={2}>
+              <Image
+                roundedCircle
+                src={SolarStep}
+                className="img-thumbnail"
+                style={{ height: "40px" }}
+              />
+              Solar Step
+            </Stack>
+          </Navbar.Brand>
+        </LinkContainer>
         <Navbar.Toggle />
         <Navbar.Collapse className="justify-content-end">
           <Nav>
@@ -35,8 +47,34 @@ const Header = () => {
               </LinkContainer>
             ) : (
               <>
-                <LinkContainer to={dashboardLink}>
+                <LinkContainer to="/dashboard">
                   <Nav.Link>Dashboard</Nav.Link>
+                </LinkContainer>
+                {[
+                  USER_ROLES.CUSTOMER,
+                  USER_ROLES.SALES_REP,
+                  USER_ROLES.GENERAL_CONTRACTOR,
+                  USER_ROLES.WORKER,
+                ].includes(auth?.user?.role) ? (
+                  <LinkContainer to="/projects">
+                    <Nav.Link>Projects</Nav.Link>
+                  </LinkContainer>
+                ) : (
+                  <></>
+                )}
+                {[
+                  USER_ROLES.ADMIN,
+                  USER_ROLES.SALES_REP,
+                  USER_ROLES.GENERAL_CONTRACTOR,
+                ].includes(auth?.user?.role) ? (
+                  <LinkContainer to="/users">
+                    <Nav.Link>Users</Nav.Link>
+                  </LinkContainer>
+                ) : (
+                  <></>
+                )}
+                <LinkContainer to="/profile">
+                  <Nav.Link>Profile</Nav.Link>
                 </LinkContainer>
                 <Nav.Link onClick={signOut}>Sign out</Nav.Link>
               </>
