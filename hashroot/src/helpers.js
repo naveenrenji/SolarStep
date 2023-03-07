@@ -11,30 +11,35 @@ const checkName = (name) => {
       throw "Name cannot be an empty string.";
     }
   };
+
+const checkRole = (roles) => {
+  if(!roles || !Array.isArray(roles)){
+    throw "You must provide an array of Roles."
+  }
   
-  // checkAge function checks whether the age parameter is provided and is of type number and not equal to zero.
-  const checkAge = (age) => {
-    if (age === 0) {
-      throw "Age cannot be zero.";
+  if(roles.length === 0){
+    throw "You must provide at least one Role."
+  }
+  
+  for(let i in roles){
+    if(typeof(roles[i]) !== "string" || roles[i].trim().length === 0){
+      throw "One or more role is not a string or is an empty string."
     }
-    if (typeof age !== "number") {
-      throw "Age must be of type number.";
+    roles[i] = roles[i].trim(); 
+  }
+  const validRoles = ['Admin', 'Customer', 'SalesRep', 'GeneralContractor', 'Worker'];
+
+    if (!Array.isArray(roles)) {
+      throw new Error('Roles must be an array.');
+    }
+  
+    for (let i = 0; i < roles.length; i++) {
+      if (!validRoles.includes(roles[i])) {
+        throw new Error(`Invalid role: ${roles[i]}. Valid roles are: ${validRoles.join(', ')}.`);
+      }
     }
   };
-  
-  // checkOrganization function checks whether the organization parameter is provided, of type string and is not an empty string.
-  const checkOrganization = (organization) => {
-    if (!organization) {
-      throw "You must provide an organization for the user.";
-    }
-    if (typeof organization !== "string") {
-      throw "Organization must be of type string.";
-    }
-    if (organization.trim().length === 0) {
-      throw "Organization cannot be an empty string.";
-    }
-  };
-  
+
   // checkId function checks whether the id parameter is provided, of type string and is not an empty string.
   const checkId = (id) => {
     if (!id){
@@ -52,16 +57,23 @@ const checkName = (name) => {
     }
   };
 
-  const validateNewName = (newName) => {
-    if(!newName){
-      throw "You must provide a name for the band."
-    }
-    if(typeof(newName) !== "string"){
-      throw "Name must be of type string."
-    }
-    if(newName.trim().length === 0){
-      throw "name cannot be an empty string."
-    }
-  };
+  const checkEmail = (email) => {
 
-export {validateNewName, checkId, checkOrganization, checkName, checkAge}
+    if(!email){
+      throw "Email does not exist."
+    }
+
+    if(typeof(email) !== "string"){
+      throw "The email is not of type string."
+    }
+    email = email.trim()
+    if(email.length === 0){
+      throw "Email cannot be empty."
+    }
+    var validRegex = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/;
+    if (!(email.match(validRegex))) {
+      throw("Valid email address!");  
+    }
+  }
+
+export {checkId, checkRole, checkName, checkEmail}
