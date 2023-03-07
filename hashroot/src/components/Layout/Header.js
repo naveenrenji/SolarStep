@@ -23,9 +23,9 @@ const Header = () => {
     <Navbar bg="light" expand="lg">
       <Container>
         <Navbar.Brand>Solar Step</Navbar.Brand>
-        <Navbar.Toggle aria-controls="basic-navbar-nav" />
-        <Navbar.Collapse id="basic-navbar-nav" className="justify-content-end">
-          <Nav className="me-auto">
+        <Navbar.Toggle />
+        <Navbar.Collapse className="justify-content-end">
+          <Nav>
             <LinkContainer to="/">
               <Nav.Link>Homepage</Nav.Link>
             </LinkContainer>
