@@ -10,6 +10,8 @@ Done:
  */
 // The library that will do that hashing and comparison
 import bcryptjs from "bcryptjs"
+import { users } from "../config/mongoCollections.js";
+import {validateNewName, checkId, checkOrganization, checkName, checkAge} from "../helper.js"
 
 // Placebo function to check if user is in db
 const isUserInDb = (email) => {
@@ -46,3 +48,116 @@ export const tempLogin = (email, password) => {
 }
 // Just testing
 tempLogin("anmolzagrawal@gmail.com", "P4ssw0rd!")
+
+
+
+// database crud operations
+
+// CREATE
+const create = async (name, age, organization) => {
+  checkName(name);
+  checkAge(age);
+  checkOrganization(organization);
+
+  name = name.trim();
+  organization = organization.trim();
+
+  const user = {
+    name: name,
+    age: age,
+    website: website,
+    organization: organization,
+  };
+
+  user.age = age;
+
+  const usercollection = await users();
+  const result = await usercollection.insertOne(user);
+  const insertedId = result.insertedId;
+
+  const insertedBand = await bandsCollection.findOne({ _id: insertedId });
+  const end_user = {
+    _id: insertedBand._id.toString(),
+    name: insertedBand.name,
+    age: insertedBand.age,
+    organization: insertedBand.organization,
+  };
+  return finaldBand;
+};
+
+// READ ALL
+
+const getAll = async () => {
+    const usercollection = await users();
+    const userList = await usercollection.find({}).toArray();
+    if (userList.length === 0){
+      throw "Unable to retrieve all users."
+    }
+  
+    let finalUserList = userList.map(user=>({
+      _id: user._id.toString(),
+      name: user.name,
+      age: user.age,
+      organization: band.organization,
+    }));
+    return finalUserList;
+  };
+
+  // READ
+
+  const get = async (id) => {
+    checkId(id);
+    const usercollection = await users();
+    const single_user = await usercollection.findOne({_id: new ObjectId(id)});
+    if(!single_user){
+      throw "No user is found with that id."
+    }
+    single_user._id = single_user._id.toString();
+    return single_user;
+  };
+
+  const remove = async (id) => {
+    checkId(id);
+    
+  
+    const usercollection = await users();
+    const prevUser = await usercollection.findOne({_id: new ObjectId(id)})
+    
+  if (prevUser === null){
+    throw "The user does not exist."
+  }
+  const deletedUser = await bandsCollection.findOneAndDelete({_id: new ObjectId(id)})
+  
+  if(deletedUser.lastErrorObject.n === 0){
+    throw `Could not delete the with id of ${id}`;
+  }
+    return `${deletedUser.value.name} has been successfully deleted!`;
+  };
+
+const rename = async (id, newName) => {
+  checkId(id);
+  validateNewName(newName)
+
+  id = id.trim()
+  newName = newName.trim()
+
+  const bandsCollection = await bands();
+  const prevBand = await bandsCollection.findOne({_id: new ObjectId(id) }) 
+  
+  if (!prevBand){
+    throw "The band does not exist."
+  }
+  const newBand = await bandsCollection.findOneAndUpdate(
+    { _id: new ObjectId(id) },
+    {$set: {name: newName}},
+    {returnDocument: false}
+  ); 
+  if(newBand.lastErrorObject.n === 0){
+    throw `Could not rename the object with the id ${id}`;
+  }
+  const final = await get(id);
+  return final;
+};
+
+// exporting all functions to app.js
+export {create, remove, get, getAll }
