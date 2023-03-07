@@ -5,9 +5,11 @@ import AuthContext from "../../config/AuthContext";
 
 const AuthProvider = ({ children }) => {
   const [user, setUser] = useState();
+  const [appLoaded, setAppLoaded] = useState(false);
 
   useEffect(() => {
     setUser(getFromStorage(USER_LOCAL_STORAGE_KEY) || null);
+    setAppLoaded(true);
   }, []);
 
   const signIn = useCallback(async (loggedInUser, callback) => {
@@ -28,7 +30,9 @@ const AuthProvider = ({ children }) => {
   );
 
   return (
-    <AuthContext.Provider value={authValues}>{children}</AuthContext.Provider>
+    <AuthContext.Provider value={authValues}>
+      {appLoaded ? children : <>Loading</>}
+    </AuthContext.Provider>
   );
 };
 
