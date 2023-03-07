@@ -3,6 +3,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import Button from "react-bootstrap/Button";
 import Form from "react-bootstrap/Form";
 import Card from "react-bootstrap/Card";
+import Alert from "react-bootstrap/Alert";
 
 // import { tempLogin } from "../../Backend/Users/users";
 import { USER_ROLES } from "../../constants";
@@ -16,31 +17,37 @@ const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [validated, setValidated] = useState(false);
+  const [showAlert, setShowAlert] = useState(false);
 
   const from = location.state?.from?.pathname;
   const role = USER_ROLES.SALES_REP;
 
   const login = (e) => {
-    e.preventDefault();
-    setValidated(true);
-    if (!email || !password) {
-      return;
-    }
-    // TODO: API integration
-    // Make API call here to verify and get user data
-    // Once we get that data, call auth.signin
-    // tempLogin();
-    auth.signIn({ firstName: "CS", lastName: "555", role }, () => {
-      // Send them back to the page they tried to visit when they were
-      // redirected to the login page. Use { replace: true } so we don't create
-      // another entry in the history stack for the login page.  This means that
-      // when they get to the protected page and click the back button, they
-      // won't end up back on the login page, which is also really nice for the
-      // user experience.
-      navigate(from || "/dashboard", {
-        replace: true,
+    try {
+      e.preventDefault();
+      setValidated(true);
+      if (!email || !password) {
+        return;
+      }
+
+      // TODO: API integration
+      // Make API call here to verify and get user data
+      // Once we get that data, call auth.signin
+      // tempLogin();
+      auth.signIn({ firstName: "CS", lastName: "555", role }, () => {
+        // Send them back to the page they tried to visit when they were
+        // redirected to the login page. Use { replace: true } so we don't create
+        // another entry in the history stack for the login page.  This means that
+        // when they get to the protected page and click the back button, they
+        // won't end up back on the login page, which is also really nice for the
+        // user experience.
+        navigate(from || "/dashboard", {
+          replace: true,
+        });
       });
-    });
+    } catch (e) {
+      setShowAlert(true);
+    }
   };
 
   return (
@@ -49,6 +56,18 @@ const Login = () => {
         Login
       </Card.Header>
       <Card.Body>
+        {showAlert ? (
+          <Alert
+            variant="danger"
+            s
+            onClose={() => setShowAlert(false)}
+            dismissible
+          >
+            <span>Something went wrong</span>
+          </Alert>
+        ) : (
+          <></>
+        )}
         <Form noValidate validated={validated} onSubmit={login}>
           <Form.Group className="mb-3" controlId="formBasicEmail">
             <Form.Label>Email address</Form.Label>
