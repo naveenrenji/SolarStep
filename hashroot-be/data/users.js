@@ -13,11 +13,16 @@ import { users } from "../config/mongoCollections.js";
 
 const SALT_ROUNDS = 10;
 
-const isUserInDb = async (email) => {
-  const userCollection = await users();
-  const user = await userCollection.findOne({ email: email });
+export const userWithEmail = async (email) => {
+  const user = await getUserByEmail(email);
   if (user === null) throw "Either the email or password is invalid";
   user._id = user._id.toString();
+  return user;
+};
+
+const getUserByEmail = async (email) => {
+  const userCollection = await users();
+  const user = await userCollection.findOne({ email });
   return user;
 };
 
@@ -36,6 +41,9 @@ const createUser = async (firstName, lastName, password, email, role) => {
   firstName = firstName.trim();
   lastName = lastName.trim();
   email = email.trim();
+  if (getUserByEmail(email)) {
+    throw new Error("User already exists");
+  }
   const hashedPassword = await hashPassword(password);
   const user = { firstName, lastName, email, password: hashedPassword, role };
   const userCollection = await users();
@@ -96,7 +104,7 @@ const deleteUserById = async (id) => {
 const loginUser = async (email, password) => {
   email = checkEmail(email);
   password = checkPassword(password);
-  const user = await isUserInDb(email);
+  const user = await userWithEmail(email);
   let realPassword = user.password;
   let compareToMatch = await bcrypt.compare(password, realPassword);
   if (compareToMatch) {
