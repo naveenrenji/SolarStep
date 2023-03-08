@@ -3,22 +3,27 @@ import Form from "react-bootstrap/Form";
 import Card from "react-bootstrap/Card";
 import Button from "react-bootstrap/Button";
 import { USER_ROLES } from "../../constants";
-import { create } from "../../Backend/Users/users";
+import { createUserApi } from "../../api/users";
+import Alert from "react-bootstrap/Alret";
 
 const Signup = () => {
   const [email, setEmail] = useState("");
-  const [pass, setPass] = useState("");
-  const [firstname, setFirstName] = useState("");
-  const [lastname, setLastName] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
   const [role, setRole] = useState("");
+  const [showAlert, setShowAlert] = useState(false);
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    console.log(email);
-    await create(firstname, lastname, pass, email, [role])
+    try {
+      e.preventDefault();
+      console.log(email);
+      await createUserApi({ firstName, lastName, password, email, role });
+    } catch (e) {
+      setShowAlert(true);
+    }
   };
-
-
 
   return (
     <div>
@@ -27,12 +32,24 @@ const Signup = () => {
           Signup
         </Card.Header>
         <Card.Body>
+          {showAlert ? (
+            <Alert
+              variant="danger"
+              s
+              onClose={() => setShowAlert(false)}
+              dismissible
+            >
+              <span>Something went wrong</span>
+            </Alert>
+          ) : (
+            <></>
+          )}
           <Form onSubmit={handleSubmit}>
             <Form.Group className="mb-3" controlId="formBasicFirstName">
               <Form.Label>First Name</Form.Label>
               <Form.Control
-                value={firstname}
-                type="firstname"
+                value={firstName}
+                type="firstName"
                 onChange={(e) => setFirstName(e.target.value)}
                 placeholder="First Name"
               />
@@ -43,8 +60,8 @@ const Signup = () => {
             <Form.Group className="mb-3" controlId="formBasicLastName">
               <Form.Label>Last Name</Form.Label>
               <Form.Control
-                value={lastname}
-                type="lastname"
+                value={lastName}
+                type="lastName"
                 onChange={(e) => setLastName(e.target.value)}
                 placeholder="Last Name"
               />
@@ -67,9 +84,9 @@ const Signup = () => {
             <Form.Group className="mb-3" controlId="formBasicPassword">
               <Form.Label>Password</Form.Label>
               <Form.Control
-                value={pass}
+                value={password}
                 type="pass"
-                onChange={(e) => setPass(e.target.value)}
+                onChange={(e) => setPassword(e.target.value)}
                 placeholder="*********"
               />
               <Form.Control.Feedback type="invalid">
@@ -79,9 +96,9 @@ const Signup = () => {
             <Form.Group className="mb-3" controlId="formBasicConfirmPassword">
               <Form.Label> Confirm Password</Form.Label>
               <Form.Control
-                value={pass}
+                value={confirmPassword}
                 type="pass"
-                onChange={(e) => setPass(e.target.value)}
+                onChange={(e) => setConfirmPassword(e.target.value)}
                 placeholder="*********"
               />
               <Form.Control.Feedback type="invalid">
