@@ -1,5 +1,6 @@
-import bcryptjs from "bcryptjs";
+import bcrypt from "bcrypt";
 import { ObjectId } from "mongodb";
+import jwt from "jsonwebtoken";
 import {
   checkId,
   checkRole,
@@ -8,6 +9,7 @@ import {
   checkEmail,
   checkPassword,
 } from "../helpers.js";
+import { users } from "../config/mongoCollections.js";
 
 const SALT_ROUNDS = 10;
 
@@ -15,26 +17,27 @@ const isUserInDb = async (email) => {
   const userCollection = await users();
   const user = await userCollection.findOne({ email: email });
   if (user === null) throw "Either the email or password is invalid";
+  user._id = user._id.toString();
   return user;
 };
 
 const hashPassword = async (password) => {
-  const salt = await bcryptjs.genSalt(SALT_ROUNDS);
-  const hash = await bcryptjs.hash(password, salt);
+  const salt = await bcrypt.genSalt(SALT_ROUNDS);
+  const hash = await bcrypt.hash(password, salt);
   return hash;
 };
 
-const createUser = async (firstName, lastName, password, email, roles) => {
+const createUser = async (firstName, lastName, password, email, role) => {
   checkFname(firstName);
   checkLname(lastName);
   checkPassword(password);
-  checkRole(roles);
+  checkRole(role);
   checkEmail(email);
   firstName = firstName.trim();
   lastName = lastName.trim();
   email = email.trim();
   const hashedPassword = await hashPassword(password);
-  const user = { firstName, lastName, email, password: hashedPassword, roles };
+  const user = { firstName, lastName, email, password: hashedPassword, role };
   const userCollection = await users();
   const result = await userCollection.insertOne(user);
   const insertedId = result.insertedId;
@@ -43,8 +46,7 @@ const createUser = async (firstName, lastName, password, email, roles) => {
     _id: insertedUser._id.toString(),
     firstName: insertedUser.firstName,
     lastName: insertedUser.lastName,
-    password: insertedUser.password,
-    roles: insertedUser.roles,
+    role: insertedUser.role,
     email: insertedUser.email,
   };
   return endUser;
@@ -62,7 +64,7 @@ const getAllUsers = async () => {
     lastName: user.lastName,
     email: user.email,
     password: user.password,
-    roles: user.roles,
+    role: user.role,
   }));
   return finalUserList;
 };
@@ -94,15 +96,17 @@ const deleteUserById = async (id) => {
 const loginUser = async (email, password) => {
   email = checkEmail(email);
   password = checkPassword(password);
-  const user = isUserInDb(email);
+  const user = await isUserInDb(email);
   let realPassword = user.password;
-  let compareToMatch = await bcryptjs.compare(password, realPassword);
+  let compareToMatch = await bcrypt.compare(password, realPassword);
   if (compareToMatch) {
     return {
       _id: user._id,
       email: user.email,
-      Fname: user.Fname,
-      Lname: user.Lname,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      role: user.role,
+      accessToken: jwt.sign({ id: user._id, email: user.email }, "secret"),
     };
   } else {
     throw "Either the email or password is invalid";

@@ -37,12 +37,11 @@ const checkPassword = (password) => {
   if (password.trim().length < 8) {
     throw "Password cannot be less than 8 digits.";
   }
-  let hasNumber = false;
-  for (let i = 0; i < password.length; i++) {
-    if (isNaN(password.charAt(i))) {
-      throw "Password does not have a number.";
-    }
+  // Atleast one Number
+  if (!/\d/.test(password)) {
+    throw "Password does not have a number.";
   }
+  // Atleast one special character
   const specialChars = [
     "!",
     "@",
@@ -77,32 +76,34 @@ const checkPassword = (password) => {
   ];
   let hasSpecialChar = false;
   for (let i = 0; i < password.length; i++) {
-    if (!specialChars.includes(password.charAt(i))) {
-      throw "Password must have special characters included.";
+    if (specialChars.includes(password.charAt(i))) {
+      hasSpecialChar = true;
     }
+  }
+  if (!hasSpecialChar) {
+    throw "Password must have special characters included.";
   }
   let hasUpperCase = false;
   for (let i = 0; i < password.length; i++) {
-    if (!(password.charAt(i) === password.charAt(i).toUpperCase())) {
-      throw "Password must have upper case.";
+    if (password.charAt(i) === password.charAt(i).toUpperCase()) {
+      hasUpperCase = true;
     }
   }
+  if (!hasSpecialChar) {
+    throw "Password must have upper case.";
+  }
+  return password;
 };
 
-const checkRole = (roles) => {
-  if (!roles || !Array.isArray(roles)) {
-    throw "You must provide an array of Roles.";
+const checkRole = (role) => {
+  if (!role) {
+    throw "You must provide a First name for the user.";
   }
-
-  if (roles.length === 0) {
-    throw "You must provide at least one Role.";
+  if (typeof role !== "string") {
+    throw "First name must be of type string.";
   }
-
-  for (let i in roles) {
-    if (typeof roles[i] !== "string" || roles[i].trim().length === 0) {
-      throw "One or more role is not a string or is an empty string.";
-    }
-    roles[i] = roles[i].trim();
+  if (role.trim().length === 0) {
+    throw "First name cannot be an empty string.";
   }
   const validRoles = [
     "Admin",
@@ -112,16 +113,10 @@ const checkRole = (roles) => {
     "Worker",
   ];
 
-  if (!Array.isArray(roles)) {
-    throw new Error("Roles must be an array.");
-  }
-
-  for (let i = 0; i < roles.length; i++) {
-    if (!validRoles.includes(roles[i])) {
-      throw new Error(
-        `Invalid role: ${roles[i]}. Valid roles are: ${validRoles.join(", ")}.`
-      );
-    }
+  if (!validRoles.includes(role)) {
+    throw new Error(
+      `Invalid role: ${roles[i]}. Valid roles are: ${validRoles.join(", ")}.`
+    );
   }
 };
 
@@ -159,6 +154,7 @@ const checkEmail = (email) => {
   if (!email.match(validRegex)) {
     throw "Valid email address!";
   }
+  return email;
 };
 
 export {

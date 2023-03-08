@@ -9,7 +9,7 @@ router
   .get(async (req, res) => {
     try {
       const users = await userData.getAll();
-      res.json({ data: users });
+      res.json({ users });
     } catch (e) {
       res.status(404).json(e);
     }
@@ -25,9 +25,9 @@ router
         role
       );
 
-      res.json({ data: createdUser });
+      res.json({ user: createdUser });
     } catch (e) {
-      res.status(404).json(e);
+      res.status(400).json({ error: e?.toString() });
     }
   });
 
@@ -37,7 +37,7 @@ router
     try {
       req.params.id = validation.checkId(req.params.id);
       const user = await userData.getUserById(req.params.id);
-      res.json(user);
+      res.json({ user });
     } catch (e) {
       res.status(404).json(e);
     }

@@ -1,13 +1,16 @@
 import React from "react";
+import Stack from "react-bootstrap/Stack";
 
 import { USER_ROLES } from "../../constants";
 import useAuth from "../../hooks/useAuth";
 import NotFound from "../shared/NotFound";
 import ProjectsCard from "../shared/ProjectsCard";
 import UsersCard from "../shared/UsersCard";
+import WelcomeCard from "../shared/WelcomeCard";
 
-const Dashboard = () => {
+const DashboardCards = () => {
   const { user } = useAuth();
+
   switch (user?.role) {
     case USER_ROLES.ADMIN:
       return <UsersCard />;
@@ -25,6 +28,15 @@ const Dashboard = () => {
     default:
       return <NotFound />;
   }
+};
+
+const Dashboard = () => {
+  return (
+    <Stack gap={3}>
+      <WelcomeCard />
+      <DashboardCards />
+    </Stack>
+  );
 };
 
 export default Dashboard;

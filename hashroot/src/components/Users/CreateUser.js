@@ -4,7 +4,7 @@ import Card from "react-bootstrap/Card";
 import Button from "react-bootstrap/Button";
 import { USER_ROLES } from "../../constants";
 import { createUserApi } from "../../api/users";
-import Alert from "react-bootstrap/Alret";
+import Alert from "react-bootstrap/Alert";
 
 const Signup = () => {
   const [email, setEmail] = useState("");
@@ -14,12 +14,14 @@ const Signup = () => {
   const [lastName, setLastName] = useState("");
   const [role, setRole] = useState("");
   const [showAlert, setShowAlert] = useState(false);
+  const [showSuccessAlert, setShowSuccessAlert] = useState(false);
 
   const handleSubmit = async (e) => {
     try {
       e.preventDefault();
-      console.log(email);
+      setShowAlert(false);
       await createUserApi({ firstName, lastName, password, email, role });
+      setShowSuccessAlert(true);
     } catch (e) {
       setShowAlert(true);
     }
@@ -35,11 +37,21 @@ const Signup = () => {
           {showAlert ? (
             <Alert
               variant="danger"
-              s
               onClose={() => setShowAlert(false)}
               dismissible
             >
               <span>Something went wrong</span>
+            </Alert>
+          ) : (
+            <></>
+          )}
+          {showSuccessAlert ? (
+            <Alert
+              variant="success"
+              onClose={() => setShowSuccessAlert(false)}
+              dismissible
+            >
+              <span>Created user successfully</span>
             </Alert>
           ) : (
             <></>
