@@ -11,14 +11,14 @@ Done:
 // The library that will do that hashing and comparison
 import bcryptjs from "bcryptjs"
 import { users } from "../config/mongoCollections.js";
-import {checkId, checkRole, checkName, checkEmail} from "../helper.js"
+import {checkId, checkRole, checkLname, checkFname, checkEmail} from "../helper.js"
 
 // Placebo function to check if user is in db
 const isUserInDb = (email) => {
     if(email == "anmolzagrawal@gmail.com") {
-        return true
+        return true;
     }
-    return false
+    return false;
 }
 
 // Salt to hash password with
@@ -49,22 +49,24 @@ export const tempLogin = (email, password) => {
 // Just testing
 tempLogin("anmolzagrawal@gmail.com", "P4ssw0rd!")
 
-
-
-// database crud operations
-
 // CREATE
-const create = async (name, email, roles) => {
-  checkName(name);
+const create = async (firstName, lastName, password, email, roles) => {
+  
+  checkFname(firstName)
+  checkLname(lastName);
+  checkPassword(password);
   checkRole(roles);
   checkEmail(email);
 
-  name = name.trim();
+  firstName = firstName.trim();
+  lastName = lastName.trim();
   email = email.trim();
   
   const user = {
-    name: name,
+    firstName: firstName,
+    lastName: lastName,
     email: email,
+    password: password,
     roles: roles,
   };
 
@@ -76,7 +78,9 @@ const create = async (name, email, roles) => {
   const insertedUser = await usercollection.findOne({ _id: insertedId });
   const end_user = {
     _id: insertedUser._id.toString(),
-    name: insertedUser.name,
+    firstName: insertedUser.firstName,
+    lastName: insertedUser.lastName,
+    password: insertedUser.password,
     roles: insertedUser.roles,
     email: insertedUser.email,
   };
@@ -94,9 +98,11 @@ const getAll = async () => {
   
     let finalUserList = userList.map(user=>({
       _id: user._id.toString(),
-      name: user.name,
-      email: user.email,
-      roles: user.roles,
+      firstName: firstName,
+      lastName: lastName,
+      email: email,
+      password: password,
+      roles: roles,
     }));
     return finalUserList;
   };

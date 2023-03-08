@@ -1,16 +1,66 @@
 import { ObjectId } from "mongodb";
 
-const checkName = (name) => {
-    if (!name) {
-      throw "You must provide a name for the user.";
+const checkFname = (firstName) => {
+    if (!firstName) {
+      throw "You must provide a First name for the user.";
     }
-    if (typeof name !== "string") {
-      throw "Name must be of type string.";
+    if (typeof firstName !== "string") {
+      throw "First name must be of type string.";
     }
-    if (name.trim().length === 0) {
-      throw "Name cannot be an empty string.";
+    if (firstName.trim().length === 0) {
+      throw "First name cannot be an empty string.";
     }
   };
+
+  const checkLname = (lastName) => {
+    if (!lastName) {
+      throw "You must provide a last Name for the user.";
+    }
+    if (typeof lastName !== "string") {
+      throw "Last Name must be of type string.";
+    }
+    if (lastName.trim().length === 0) {
+      throw "Last Name cannot be an empty string.";
+    }
+  };
+
+  
+  const checkPassword = (password) => {
+    if (!password) {
+      throw "You must provide a password for the user.";
+    }
+    if (typeof password !== "string") {
+      throw "Password must be of type string.";
+    }
+    if (password.trim().length === 0) {
+      throw "Password cannot be an empty string.";
+    }
+    if (password.trim().length < 8) {
+      throw "Password cannot be less than 8 digits.";
+    }
+      let hasNumber = false;
+      for (let i = 0; i < password.length; i++) {
+        if (isNaN(password.charAt(i))) {
+          throw "Password does not have a number."
+          
+        }
+      }
+      const specialChars = ['!', '@', '#', '$', '%', '^', '&', '*', '(', ')', '-', '_', '+', '=', '[', ']', '{', '}', '|', '\\', ';', ':', '\'', '\"', ',', '.', '<', '>', '/', '?'];
+      let hasSpecialChar = false;
+      for (let i = 0; i < password.length; i++) {
+        if (!(specialChars.includes(password.charAt(i)))) {
+          throw "Password must have special characters included."
+        }
+      }
+      let hasUpperCase = false;
+      for (let i = 0; i < password.length; i++) {
+        if (!(password.charAt(i) === password.charAt(i).toUpperCase())) {
+          throw "Password must have upper case."
+        }
+      }
+    };
+  
+
 
 const checkRole = (roles) => {
   if(!roles || !Array.isArray(roles)){
@@ -27,7 +77,7 @@ const checkRole = (roles) => {
     }
     roles[i] = roles[i].trim(); 
   }
-  const validRoles = ['Admin', 'Customer', 'SalesRep', 'GeneralContractor', 'Worker'];
+  const validRoles = ['Admin', 'Customer', 'Sales Rep', 'General Contractor', 'Worker'];
 
     if (!Array.isArray(roles)) {
       throw new Error('Roles must be an array.');
@@ -76,4 +126,4 @@ const checkRole = (roles) => {
     }
   }
 
-export {checkId, checkRole, checkName, checkEmail}
+export {checkId, checkRole, checkLname, checkFname, checkEmail, checkPassword}
