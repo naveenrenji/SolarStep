@@ -10,7 +10,7 @@ Done:
  */
 // The library that will do that hashing and comparison
 import bcryptjs from "bcryptjs"
-import { users } from "../config/mongoCollections.js";
+import { users } from "../../config/mongoCollections.js";
 import {checkId, checkRole, checkLname, checkFname, checkEmail} from "../helper.js"
 
 // Placebo function to check if user is in db

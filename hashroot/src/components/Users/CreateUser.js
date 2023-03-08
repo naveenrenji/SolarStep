@@ -3,6 +3,7 @@ import Form from "react-bootstrap/Form";
 import Card from "react-bootstrap/Card";
 import Button from "react-bootstrap/Button";
 import { USER_ROLES } from "../../constants";
+import { create } from "../../Backend/Users/users";
 
 const Signup = () => {
   const [email, setEmail] = useState("");
@@ -11,10 +12,13 @@ const Signup = () => {
   const [lastname, setLastName] = useState("");
   const [role, setRole] = useState("");
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     console.log(email);
+    await create(firstname, lastname, pass, email, [role])
   };
+
+
 
   return (
     <div>
