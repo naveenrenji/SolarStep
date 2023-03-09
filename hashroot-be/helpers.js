@@ -1,27 +1,19 @@
 import { ObjectId } from "mongodb";
 
-const checkFname = (firstName) => {
-  if (!firstName) {
-    throw "You must provide a First name for the user.";
-  }
-  if (typeof firstName !== "string") {
-    throw "First name must be of type string.";
-  }
-  if (firstName.trim().length === 0) {
-    throw "First name cannot be an empty string.";
-  }
-};
-
-const checkLname = (lastName) => {
-  if (!lastName) {
-    throw "You must provide a last Name for the user.";
-  }
-  if (typeof lastName !== "string") {
-    throw "Last Name must be of type string.";
-  }
-  if (lastName.trim().length === 0) {
-    throw "Last Name cannot be an empty string.";
-  }
+const checkString = (strVal, varName) => {
+  if (!strVal) throw new Error(`Error: You must supply a ${varName}!`);
+  if (typeof strVal !== "string")
+    throw new Error(`Error: ${varName} must be a string!`);
+  strVal = strVal.trim();
+  if (strVal.length === 0)
+    throw new Error(
+      `Error: ${varName} cannot be an empty string or string with just spaces`
+    );
+  if (!isNaN(strVal))
+    throw new Error(
+      `Error: ${strVal} is not a valid value for ${varName} as it only contains digits`
+    );
+  return strVal;
 };
 
 const checkPassword = (password) => {
@@ -34,7 +26,7 @@ const checkPassword = (password) => {
   if (password.trim().length === 0) {
     throw "Password cannot be an empty string.";
   }
-  if (password.trim().length < 8) {
+  if (password.length < 8) {
     throw "Password cannot be less than 8 digits.";
   }
   // Atleast one Number
@@ -96,15 +88,7 @@ const checkPassword = (password) => {
 };
 
 const checkRole = (role) => {
-  if (!role) {
-    throw "You must provide a First name for the user.";
-  }
-  if (typeof role !== "string") {
-    throw "First name must be of type string.";
-  }
-  if (role.trim().length === 0) {
-    throw "First name cannot be an empty string.";
-  }
+  checkString(role);
   const validRoles = [
     "Admin",
     "Customer",
@@ -115,44 +99,28 @@ const checkRole = (role) => {
 
   if (!validRoles.includes(role)) {
     throw new Error(
-      `Invalid role: ${roles[i]}. Valid roles are: ${validRoles.join(", ")}.`
+      `Invalid role: ${role}. Valid roles are: ${validRoles.join(", ")}.`
     );
   }
 };
 
 // checkId function checks whether the id parameter is provided, of type string and is not an empty string.
 const checkId = (id) => {
-  if (!id) {
-    throw "id parameter is empty or not passed.";
-  }
-  if (typeof id !== "string") {
-    throw "Id must be a string.";
-  }
+  if (!id) throw `Error: You must provide a ${varName}`;
+  if (typeof id !== "string") throw `Error:${varName} must be a string`;
   id = id.trim();
-  if (id.length === 0) {
-    throw "id cannot be empty.";
-  }
-  if (!ObjectId.isValid(id)) {
-    throw "invalid object ID.";
-  }
+  if (id.length === 0)
+    throw `Error: ${varName} cannot be an empty string or just spaces`;
+  if (!ObjectId.isValid(id)) throw `Error: ${varName} invalid object ID`;
+  return id;
 };
 
 const checkEmail = (email) => {
-  if (!email) {
-    throw "Email does not exist.";
-  }
-
-  if (typeof email !== "string") {
-    throw "The email is not of type string.";
-  }
-  email = email.trim();
-  if (email.length === 0) {
-    throw "Email cannot be empty.";
-  }
+  checkString(email, "Email");
   var validRegex =
     /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/;
   if (!email.match(validRegex)) {
-    throw "Valid email address!";
+    throw "Invalid email address!";
   }
   return email;
 };
@@ -160,8 +128,7 @@ const checkEmail = (email) => {
 export {
   checkId,
   checkRole,
-  checkLname,
-  checkFname,
   checkEmail,
   checkPassword,
+  checkString,
 };

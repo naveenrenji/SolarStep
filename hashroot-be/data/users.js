@@ -4,10 +4,9 @@ import jwt from "jsonwebtoken";
 import {
   checkId,
   checkRole,
-  checkLname,
-  checkFname,
   checkEmail,
   checkPassword,
+  checkString,
 } from "../helpers.js";
 import { users } from "../config/mongoCollections.js";
 
@@ -33,11 +32,12 @@ const hashPassword = async (password) => {
 };
 
 const createUser = async (firstName, lastName, password, email, role) => {
-  checkFname(firstName);
-  checkLname(lastName);
+  checkString(firstName, "First name");
+  checkString(lastName, "Last name");
   checkPassword(password);
   checkRole(role);
   checkEmail(email);
+
   firstName = firstName.trim();
   lastName = lastName.trim();
   email = email.trim();
