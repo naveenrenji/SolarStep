@@ -18,7 +18,7 @@ const Login = () => {
   const [validated, setValidated] = useState(false);
   const [showAlert, setShowAlert] = useState(false);
 
-  const from = location.state?.from?.pathname;;
+  const from = location.state?.from?.pathname;
 
   const login = async (e) => {
     try {
@@ -46,7 +46,7 @@ const Login = () => {
   };
 
   return (
-    <Card style={{ marginTop: "32px", width: "24rem" }} className="mx-auto">
+    <Card style={{ width: "24rem" }} className="mx-auto">
       <Card.Header as="h5" className="text-center">
         Login
       </Card.Header>

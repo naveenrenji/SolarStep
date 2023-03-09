@@ -2,11 +2,14 @@ import React, { useState } from "react";
 import Form from "react-bootstrap/Form";
 import Card from "react-bootstrap/Card";
 import Button from "react-bootstrap/Button";
-import { USER_ROLES } from "../../constants";
-import { createUserApi } from "../../api/users";
 import Alert from "react-bootstrap/Alert";
 
+import { createUserApi } from "../../api/users";
+import { getCreateUserRoleList } from "../../utils/user";
+import useAuth from "../../hooks/useAuth";
+
 const Signup = () => {
+  const { user } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -29,7 +32,7 @@ const Signup = () => {
 
   return (
     <div>
-      <Card style={{ marginTop: "32px", width: "24rem" }} className="mx-auto">
+      <Card style={{ width: "24rem" }} className="mx-auto">
         <Card.Header as="h5" className="text-center">
           Signup
         </Card.Header>
@@ -123,7 +126,7 @@ const Signup = () => {
                 onChange={(e) => setRole(e.target.value)}
               >
                 <option>Select the Role</option>
-                {Object.values(USER_ROLES).map((opt) => (
+                {getCreateUserRoleList(user?.role).map((opt) => (
                   <option key={opt} value={opt}>
                     {opt}
                   </option>
@@ -134,7 +137,7 @@ const Signup = () => {
             <div className="d-grid gap-2">
               <Button variant="primary" type="submit">
                 Create User
-              </Button>{" "}
+              </Button>
             </div>
           </Form>
         </Card.Body>

@@ -6,7 +6,13 @@ const Layout = () => {
   return (
     <div>
       <Header />
-      <Container style={{ marginTop: "2rem" }}>
+      <Container
+        style={{
+          marginTop: "calc(66px + 2rem)",
+          marginBottom: "2rem",
+          overflow: "scroll",
+        }}
+      >
         <Outlet />
       </Container>
     </div>
