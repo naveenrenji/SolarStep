@@ -5,9 +5,8 @@ import Form from "react-bootstrap/Form";
 import Card from "react-bootstrap/Card";
 import Alert from "react-bootstrap/Alert";
 
-// import { tempLogin } from "../../Backend/Users/users";
-import { USER_ROLES } from "../../constants";
 import useAuth from "../../hooks/useAuth";
+import { loginApi } from "../../api/auth";
 
 const Login = () => {
   const auth = useAuth();
@@ -19,10 +18,9 @@ const Login = () => {
   const [validated, setValidated] = useState(false);
   const [showAlert, setShowAlert] = useState(false);
 
-  const from = location.state?.from?.pathname;
-  const role = USER_ROLES.SALES_REP;
+  const from = location.state?.from?.pathname;;
 
-  const login = (e) => {
+  const login = async (e) => {
     try {
       e.preventDefault();
       setValidated(true);
@@ -30,11 +28,8 @@ const Login = () => {
         return;
       }
 
-      // TODO: API integration
-      // Make API call here to verify and get user data
-      // Once we get that data, call auth.signin
-      // tempLogin();
-      auth.signIn({ firstName: "CS", lastName: "555", role }, () => {
+      const user = await loginApi({ email, password });
+      auth.signIn(user, () => {
         // Send them back to the page they tried to visit when they were
         // redirected to the login page. Use { replace: true } so we don't create
         // another entry in the history stack for the login page.  This means that
