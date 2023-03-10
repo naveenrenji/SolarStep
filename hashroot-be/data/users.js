@@ -41,7 +41,7 @@ const createUser = async (firstName, lastName, password, email, role) => {
   firstName = firstName.trim();
   lastName = lastName.trim();
   email = email.trim();
-  if (getUserByEmail(email)) {
+  if (await getUserByEmail(email)) {
     throw new Error("User already exists");
   }
   const hashedPassword = await hashPassword(password);
