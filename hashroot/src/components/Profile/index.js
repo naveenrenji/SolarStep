@@ -1,7 +1,8 @@
 import React from "react";
+import RouteHeader from "../shared/RouteHeader";
 
 const Profile = () => {
-  return <div>Profile</div>;
+  return <RouteHeader headerText="Profile" />;
 };
 
 export default Profile;

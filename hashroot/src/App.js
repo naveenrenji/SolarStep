@@ -1,10 +1,8 @@
 import React from "react";
 import { Outlet, Route, Routes } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
-import "bootstrap/dist/css/bootstrap.min.css";
+import "./App.scss";
 
-import "./App.css";
 import { AuthProvider, RequiresAuth } from "./hoc/Authentication";
 import { USER_ROLES } from "./constants";
 

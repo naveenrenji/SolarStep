@@ -1,7 +1,8 @@
 import React from "react";
+import RouteHeader from "../shared/RouteHeader";
 
 const Projects = () => {
-  return <div>Projects page</div>;
+  return <RouteHeader headerText="Projects" />;
 };
 
 export default Projects;

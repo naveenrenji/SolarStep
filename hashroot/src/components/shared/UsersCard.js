@@ -6,7 +6,7 @@ import { LinkContainer } from "react-router-bootstrap";
 
 const UsersCard = () => {
   return (
-    <Card className="text-center ">
+    <Card className="text-center shadow-sm">
       <Card.Header as="h5">Users</Card.Header>
       <Card.Body>
         <Stack gap={3}>
