@@ -17,7 +17,7 @@ const NoAccess = () => {
         width: "100vw",
       }}
     >
-      <Card className="text-center" style={{ height: "fit-content" }}>
+      <Card className="text-center shadow-sm" style={{ height: "fit-content" }}>
         <Card.Header as="h5">No Access</Card.Header>
         <Card.Body>
           <Card.Text>

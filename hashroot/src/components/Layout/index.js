@@ -4,18 +4,18 @@ import Header from "./Header";
 
 const Layout = () => {
   return (
-    <div>
+    <>
       <Header />
       <Container
         style={{
           marginTop: "calc(66px + 2rem)",
-          marginBottom: "2rem",
-          overflow: "scroll",
+          paddingBottom: "2rem",
+          overflow: "auto",
         }}
       >
         <Outlet />
       </Container>
-    </div>
+    </>
   );
 };
 

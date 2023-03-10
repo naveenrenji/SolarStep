@@ -34,7 +34,9 @@ const Dashboard = () => {
   return (
     <Stack gap={3}>
       <WelcomeCard />
-      <DashboardCards />
+      <Stack gap={3} style={{ marginBottom: "16px" }}>
+        <DashboardCards />
+      </Stack>
     </Stack>
   );
 };

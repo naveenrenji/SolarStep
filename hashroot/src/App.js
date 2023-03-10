@@ -1,8 +1,8 @@
 import React from "react";
 import { Outlet, Route, Routes } from "react-router-dom";
-import "bootstrap/dist/css/bootstrap.min.css";
+import { ToastContainer } from "react-toastify";
+import "./App.scss";
 
-import "./App.css";
 import { AuthProvider, RequiresAuth } from "./hoc/Authentication";
 import { USER_ROLES } from "./constants";
 
@@ -97,6 +97,7 @@ function App() {
         </Route>
         <Route path="*" element={<NotFound />} />
       </Routes>
+      <ToastContainer autoClose={5000} />
     </AuthProvider>
   );
 }
