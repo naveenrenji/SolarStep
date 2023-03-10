@@ -10,7 +10,7 @@ import useAuth from "../../hooks/useAuth";
 const ProjectsCard = () => {
   const { user } = useAuth();
   return (
-    <Card className="text-center">
+    <Card className="text-center ">
       <Card.Header as="h5">Projects</Card.Header>
       <Card.Body>
         <Stack gap={3}>

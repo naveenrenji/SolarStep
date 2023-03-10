@@ -20,7 +20,7 @@ const Header = () => {
   };
 
   return (
-    <Navbar bg="light" expand="lg" fixed="top">
+    <Navbar bg="light" expand="lg" fixed="top" className="shadow-sm">
       <Container>
         <LinkContainer to="/">
           <Navbar.Brand>

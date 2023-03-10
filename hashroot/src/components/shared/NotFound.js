@@ -21,7 +21,7 @@ const NotFound = () => {
         width: "100vw",
       }}
     >
-      <Card className="text-center" style={{ height: "fit-content" }}>
+      <Card className="text-center shadow-sm" style={{ height: "fit-content" }}>
         <Card.Header as="h5">Route does not exist</Card.Header>
         <Card.Body>
           <Card.Text>The route you are looking for does not exist</Card.Text>

@@ -2,11 +2,11 @@ import React, { useState } from "react";
 import Form from "react-bootstrap/Form";
 import Card from "react-bootstrap/Card";
 import Button from "react-bootstrap/Button";
-import Alert from "react-bootstrap/Alert";
 
 import { createUserApi } from "../../api/users";
 import { getCreateUserRoleList } from "../../utils/user";
 import useAuth from "../../hooks/useAuth";
+import { toast } from "react-toastify";
 
 const Signup = () => {
   const { user } = useAuth();
@@ -16,49 +16,26 @@ const Signup = () => {
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [role, setRole] = useState("");
-  const [showAlert, setShowAlert] = useState(false);
-  const [showSuccessAlert, setShowSuccessAlert] = useState(false);
 
   const handleSubmit = async (e) => {
     try {
       e.preventDefault();
-      setShowAlert(false);
       await createUserApi({ firstName, lastName, password, email, role });
-      setShowSuccessAlert(true);
+      toast("User created successfully", { type: toast.TYPE.SUCCESS });
     } catch (e) {
-      setShowAlert(true);
+      toast(e?.response?.data?.error || e?.message || "Something went wrong", {
+        type: toast.TYPE.ERROR,
+      });
     }
   };
 
   return (
     <div>
-      <Card style={{ width: "24rem" }} className="mx-auto">
+      <Card style={{ width: "24rem" }} className="mx-auto shadow-sm">
         <Card.Header as="h5" className="text-center">
-          Signup
+          Create a User
         </Card.Header>
         <Card.Body>
-          {showAlert ? (
-            <Alert
-              variant="danger"
-              onClose={() => setShowAlert(false)}
-              dismissible
-            >
-              <span>Something went wrong</span>
-            </Alert>
-          ) : (
-            <></>
-          )}
-          {showSuccessAlert ? (
-            <Alert
-              variant="success"
-              onClose={() => setShowSuccessAlert(false)}
-              dismissible
-            >
-              <span>Created user successfully</span>
-            </Alert>
-          ) : (
-            <></>
-          )}
           <Form onSubmit={handleSubmit}>
             <Form.Group className="mb-3" controlId="formBasicFirstName">
               <Form.Label>First Name</Form.Label>
@@ -125,7 +102,7 @@ const Signup = () => {
                 value={role}
                 onChange={(e) => setRole(e.target.value)}
               >
-                <option>Select the Role</option>
+                <option>Select a role</option>
                 {getCreateUserRoleList(user?.role).map((opt) => (
                   <option key={opt} value={opt}>
                     {opt}

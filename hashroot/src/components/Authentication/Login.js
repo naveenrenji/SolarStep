@@ -3,7 +3,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import Button from "react-bootstrap/Button";
 import Form from "react-bootstrap/Form";
 import Card from "react-bootstrap/Card";
-import Alert from "react-bootstrap/Alert";
+import { toast } from "react-toastify";
 
 import useAuth from "../../hooks/useAuth";
 import { loginApi } from "../../api/auth";
@@ -16,7 +16,6 @@ const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [validated, setValidated] = useState(false);
-  const [showAlert, setShowAlert] = useState(false);
 
   const from = location.state?.from?.pathname;
 
@@ -41,28 +40,18 @@ const Login = () => {
         });
       });
     } catch (e) {
-      setShowAlert(true);
+      toast(e?.response?.data?.error || e?.message || "Something went wrong", {
+        type: toast.TYPE.ERROR,
+      });
     }
   };
 
   return (
-    <Card style={{ width: "24rem" }} className="mx-auto">
+    <Card style={{ width: "24rem" }} className="mx-auto shadow-sm">
       <Card.Header as="h5" className="text-center">
         Login
       </Card.Header>
       <Card.Body>
-        {showAlert ? (
-          <Alert
-            variant="danger"
-            s
-            onClose={() => setShowAlert(false)}
-            dismissible
-          >
-            <span>Something went wrong</span>
-          </Alert>
-        ) : (
-          <></>
-        )}
         <Form noValidate validated={validated} onSubmit={login}>
           <Form.Group className="mb-3" controlId="formBasicEmail">
             <Form.Label>Email address</Form.Label>
@@ -108,4 +97,4 @@ const Login = () => {
   );
 };
 
-export default Login;
+export default React.memo(Login);
