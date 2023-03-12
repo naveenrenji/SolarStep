@@ -1,4 +1,5 @@
 import { ObjectId } from "mongodb";
+import { USER_ROLES } from "./constants";
 
 const checkString = (strVal, varName) => {
   if (!strVal) throw new Error(`Error: You must supply a ${varName}!`);
@@ -89,13 +90,7 @@ const checkPassword = (password) => {
 
 const checkRole = (role) => {
   checkString(role);
-  const validRoles = [
-    "Admin",
-    "Customer",
-    "Sales Rep",
-    "General Contractor",
-    "Worker",
-  ];
+  const validRoles = Object.values(USER_ROLES);
 
   if (!validRoles.includes(role)) {
     throw new Error(
@@ -125,10 +120,4 @@ const checkEmail = (email) => {
   return email;
 };
 
-export {
-  checkId,
-  checkRole,
-  checkEmail,
-  checkPassword,
-  checkString,
-};
+export { checkId, checkRole, checkEmail, checkPassword, checkString };

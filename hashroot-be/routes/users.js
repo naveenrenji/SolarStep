@@ -1,35 +1,46 @@
 import { Router } from "express";
+import { USER_ROLES } from "../constants.js";
 import { userData } from "../data/index.js";
-// import validation from "../data/validation.js";
+import authorizeRequest from "../middleware/authorizeRequest.js";
 
 const router = Router();
 
 router
   .route("/")
-  .get(async (req, res) => {
-    try {
-      const users = await userData.getAll();
-      res.json({ users });
-    } catch (e) {
-      res.status(404).json(e);
+  .get(
+    authorizeRequest(
+      Object.values(USER_ROLES) - [USER_ROLES.CUSTOMER, USER_ROLES.WORKER]
+    ),
+    async (_, res) => {
+      try {
+        const users = await userData.getAll();
+        res.json({ users });
+      } catch (e) {
+        res.status(404).json({ error: e?.toString() });
+      }
     }
-  })
-  .post(async (req, res) => {
-    try {
-      const { firstName, lastName, password, email, role } = req.body;
-      const createdUser = await userData.createUser(
-        firstName,
-        lastName,
-        password,
-        email,
-        role
-      );
+  )
+  .post(
+    authorizeRequest(
+      Object.values(USER_ROLES) - [USER_ROLES.CUSTOMER, USER_ROLES.WORKER]
+    ),
+    async (req, res) => {
+      try {
+        const { firstName, lastName, password, email, role } = req.body;
+        const createdUser = await userData.createUser(
+          firstName,
+          lastName,
+          password,
+          email,
+          role
+        );
 
-      res.json({ user: createdUser });
-    } catch (e) {
-      res.status(400).json({ error: e?.toString() });
+        res.json({ user: createdUser });
+      } catch (e) {
+        res.status(400).json({ error: e?.toString() });
+      }
     }
-  });
+  );
 
 router
   .route("/:id")
@@ -39,14 +50,18 @@ router
       const user = await userData.getUserById(req.params.id);
       res.json({ user });
     } catch (e) {
-      res.status(404).json(e);
+      res.status(404).json({ error: e?.toString() });
     }
   })
-  .post(async (req, res) => {
-    res.send(`POST request to http://localhost:3000/users/${req.params.id}`);
+  .patch(async (req, res) => {
+    res.send(`PATCH request to http://localhost:3000/users/${req.params.id}`);
   })
   .delete(async (req, res) => {
     res.send(`DELETE request to http://localhost:3000/users/${req.params.id}`);
   });
+
+router.route("/me").get(async (req, res) => {
+  res.status(404).json({ error: "Route not defined yet" });
+});
 
 export default router;
