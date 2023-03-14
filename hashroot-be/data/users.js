@@ -99,6 +99,7 @@ const searchUsers = async ({ text, roles }) => {
         },
       ],
     })
+    .limit(10)
     .toArray();
 
   if (userList.length === 0) {

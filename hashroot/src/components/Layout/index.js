@@ -8,9 +8,9 @@ const Layout = () => {
       <Header />
       <Container
         style={{
-          marginTop: "calc(66px + 2rem)",
+          paddingTop: "calc(66px + 2rem)",
           paddingBottom: "2rem",
-          overflow: "auto",
+          height: "100vh"
         }}
       >
         <Outlet />
