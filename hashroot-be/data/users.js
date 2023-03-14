@@ -7,6 +7,7 @@ import {
   checkEmail,
   checkPassword,
   checkString,
+  checkRolesArray,
 } from "../helpers.js";
 import { users } from "../config/mongoCollections.js";
 
@@ -41,7 +42,7 @@ const createUser = async (firstName, lastName, password, email, role) => {
   firstName = firstName.trim();
   lastName = lastName.trim();
   email = email.trim();
-  if (getUserByEmail(email)) {
+  if (await getUserByEmail(email)) {
     throw new Error("User already exists");
   }
   const hashedPassword = await hashPassword(password);
@@ -71,10 +72,45 @@ const getAllUsers = async () => {
     firstName: user.firstName,
     lastName: user.lastName,
     email: user.email,
-    password: user.password,
     role: user.role,
   }));
   return finalUserList;
+};
+
+const searchUsers = async ({ text, roles }) => {
+  if (roles?.length) {
+    checkRolesArray(roles);
+  }
+  if (text) {
+    checkString(text);
+  }
+  const textRegex = new RegExp(text);
+  const userCollection = await users();
+  const userList = await userCollection
+    .find({
+      $and: [
+        { role: { $in: roles } },
+        {
+          $or: [
+            { email: textRegex },
+            { firstName: textRegex },
+            { lastName: textRegex },
+          ],
+        },
+      ],
+    })
+    .toArray();
+
+  if (userList.length === 0) {
+    throw new Error("Unable to retrieve all users.");
+  }
+  return userList.map((user) => ({
+    _id: user._id.toString(),
+    firstName: user.firstName,
+    lastName: user.lastName,
+    email: user.email,
+    role: user.role,
+  }));
 };
 
 const getUserById = async (id) => {
@@ -121,4 +157,11 @@ const loginUser = async (email, password) => {
   }
 };
 
-export { deleteUserById, getUserById, getAllUsers, createUser, loginUser };
+export {
+  deleteUserById,
+  getUserById,
+  getAllUsers,
+  createUser,
+  loginUser,
+  searchUsers,
+};

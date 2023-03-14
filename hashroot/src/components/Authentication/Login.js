@@ -1,12 +1,13 @@
 import React, { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import Button from "react-bootstrap/Button";
 import Form from "react-bootstrap/Form";
 import Card from "react-bootstrap/Card";
 import { toast } from "react-toastify";
 
 import useAuth from "../../hooks/useAuth";
 import { loginApi } from "../../api/auth";
+
+import SubmitButton from "../shared/SubmitButton";
 
 const Login = () => {
   const auth = useAuth();
@@ -16,18 +17,21 @@ const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [validated, setValidated] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const from = location.state?.from?.pathname;
 
   const login = async (e) => {
     try {
       e.preventDefault();
+      setLoading(true);
       setValidated(true);
       if (!email || !password) {
         return;
       }
 
       const user = await loginApi({ email, password });
+      setLoading(false);
       auth.signIn(user, () => {
         // Send them back to the page they tried to visit when they were
         // redirected to the login page. Use { replace: true } so we don't create
@@ -43,6 +47,7 @@ const Login = () => {
       toast(e?.response?.data?.error || e?.message || "Something went wrong", {
         type: toast.TYPE.ERROR,
       });
+      setLoading(false);
     }
   };
 
@@ -82,9 +87,9 @@ const Login = () => {
             </Form.Control.Feedback>
           </Form.Group>
           <div className="d-grid gap-2">
-            <Button variant="primary" type="submit">
+            <SubmitButton type="submit" variant="primary" loading={loading}>
               Submit
-            </Button>
+            </SubmitButton>
             <Form.Text className="text-muted">
               Don't have an account yet?{" "}
               <a href="mailto:admin@solarstep.com">Click here</a> to contact our

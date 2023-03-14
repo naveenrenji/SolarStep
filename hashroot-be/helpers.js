@@ -1,4 +1,5 @@
 import { ObjectId } from "mongodb";
+import { USER_ROLES } from "./constants.js";
 
 const checkString = (strVal, varName) => {
   if (!strVal) throw new Error(`Error: You must supply a ${varName}!`);
@@ -89,19 +90,20 @@ const checkPassword = (password) => {
 
 const checkRole = (role) => {
   checkString(role);
-  const validRoles = [
-    "Admin",
-    "Customer",
-    "Sales Rep",
-    "General Contractor",
-    "Worker",
-  ];
+  const validRoles = Object.values(USER_ROLES);
 
   if (!validRoles.includes(role)) {
     throw new Error(
       `Invalid role: ${role}. Valid roles are: ${validRoles.join(", ")}.`
     );
   }
+};
+
+const checkRolesArray = (roles) => {
+  return roles.map((role) => {
+    checkRole(role);
+    return role.trim();
+  });
 };
 
 // checkId function checks whether the id parameter is provided, of type string and is not an empty string.
@@ -128,6 +130,7 @@ const checkEmail = (email) => {
 export {
   checkId,
   checkRole,
+  checkRolesArray,
   checkEmail,
   checkPassword,
   checkString,

@@ -12,9 +12,13 @@ $theme-colors: (
   --bs-card-border-color: lightgrey;
 }
 
-.btn-primary {
-  --bs-btn-color: white;
+.btn {
   --bs-btn-hover-color: white;
+  --bs-btn-disabled-color: white;
+  &.btn-primary, &.btn-secondary {
+    --bs-btn-color: white;
+    --bs-btn-hover-color: white;
+  }
 }
 
 .navbar {
@@ -27,6 +31,15 @@ $theme-colors: (
         text-decoration: underline;
         text-decoration-color: rgb(240, 177, 85);
       }
+    }
+  }
+}
+
+.modal {
+  .modal-header {
+    background: rgb(81, 156, 195);
+    .modal-title {
+      color: white;
     }
   }
 }

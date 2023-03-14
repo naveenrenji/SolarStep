@@ -14,3 +14,15 @@ export const createUserApi = async (body) => {
   });
   return user;
 };
+
+export const searchUsersApi = async (body) => {
+  const { text, roles } = body;
+
+  const {
+    data: { users },
+  } = await http.post("/users/search", {
+    text,
+    roles,
+  });
+  return users;
+};
