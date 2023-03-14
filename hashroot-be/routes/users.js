@@ -13,7 +13,7 @@ router
     ),
     async (_, res) => {
       try {
-        const users = await userData.getAll();
+        const users = await userData.getAllUsers();
         res.json({ users });
       } catch (e) {
         res.status(404).json({ error: e?.toString() });
@@ -62,6 +62,19 @@ router
 
 router.route("/me").get(async (req, res) => {
   res.status(404).json({ error: "Route not defined yet" });
+});
+
+router.route("/search").post(authorizeRequest(), async (req, res) => {
+  try {
+    const { text, roles } = req.body;
+    if (!text && !roles?.length) {
+      return res.status(404).json({ error: "Text/Role params are required" });
+    }
+    const users = await userData.searchUsers({ text, roles });
+    res.json({ users });
+  } catch (e) {
+    res.status(404).json({ error: e?.toString() });
+  }
 });
 
 export default router;
