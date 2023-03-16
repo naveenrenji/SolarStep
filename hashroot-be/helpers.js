@@ -127,6 +127,15 @@ const checkEmail = (email) => {
   return email;
 };
 
+const checkObject = (obj, varName) => {
+  if (typeof obj !== "object" || Array.isArray(obj) || obj === null) {
+    throw `Error: ${varName} is not an object`;
+  }
+  if (!Object.keys(obj).length) {
+    throw `Error: ${varName} object is empty`;
+  }
+};
+
 export {
   checkId,
   checkRole,
@@ -134,4 +143,5 @@ export {
   checkEmail,
   checkPassword,
   checkString,
+  checkObject,
 };

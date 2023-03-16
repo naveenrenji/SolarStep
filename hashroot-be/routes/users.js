@@ -32,7 +32,8 @@ router
           lastName,
           password,
           email,
-          role
+          role,
+          req.user
         );
 
         res.json({ user: createdUser });

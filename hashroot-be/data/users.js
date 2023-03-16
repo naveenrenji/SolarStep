@@ -8,6 +8,7 @@ import {
   checkPassword,
   checkString,
   checkRolesArray,
+  checkObject,
 } from "../helpers.js";
 import { users } from "../config/mongoCollections.js";
 
@@ -32,12 +33,20 @@ const hashPassword = async (password) => {
   return hash;
 };
 
-const createUser = async (firstName, lastName, password, email, role) => {
+const createUser = async (
+  firstName,
+  lastName,
+  password,
+  email,
+  role,
+  createdBy
+) => {
   checkString(firstName, "First name");
   checkString(lastName, "Last name");
   checkPassword(password);
   checkRole(role);
   checkEmail(email);
+  checkObject(createdBy);
 
   firstName = firstName.trim();
   lastName = lastName.trim();
@@ -46,7 +55,14 @@ const createUser = async (firstName, lastName, password, email, role) => {
     throw new Error("User already exists");
   }
   const hashedPassword = await hashPassword(password);
-  const user = { firstName, lastName, email, password: hashedPassword, role };
+  const user = {
+    firstName,
+    lastName,
+    email,
+    password: hashedPassword,
+    role,
+    createdById: createdBy._id,
+  };
   const userCollection = await users();
   const result = await userCollection.insertOne(user);
   const insertedId = result.insertedId;
@@ -73,6 +89,7 @@ const getAllUsers = async () => {
     lastName: user.lastName,
     email: user.email,
     role: user.role,
+    canEdit: true,
   }));
   return finalUserList;
 };
