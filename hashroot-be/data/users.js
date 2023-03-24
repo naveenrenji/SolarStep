@@ -35,14 +35,16 @@ const getUserObject = (
 
 export const userWithEmail = async (email) => {
   const user = await getUserByEmail(email);
-  if (user === null) throw "Either the email or password is invalid";
+  if (user === null) throw "Either the email or password is invalid.";
   user._id = user._id.toString();
   return user;
 };
 
 const getUserByEmail = async (email) => {
   const userCollection = await users();
+  console.log(userCollection);
   const user = await userCollection.findOne({ email });
+  console.log(user);
   return user;
 };
 
@@ -361,4 +363,5 @@ export {
   loginUser,
   searchUsers,
   updateUserWithId,
+  hashPassword,
 };
