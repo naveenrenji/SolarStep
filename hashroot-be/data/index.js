@@ -1,1 +1,7 @@
-export * as userData from "./users.js";
+const projectsData = require('./projects');
+const usersData = require('./users');
+
+module.exports = {
+    projects: projectsData,
+    users: usersData
+};
