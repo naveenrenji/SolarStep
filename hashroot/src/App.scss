@@ -10,6 +10,9 @@ $theme-colors: (
   --bs-card-cap-bg: rgb(81, 156, 195);
   --bs-card-cap-color: white;
   --bs-card-border-color: lightgrey;
+  &.card-warning {
+    --bs-card-cap-bg: rgb(240, 177, 85);
+  }
 }
 
 .btn {

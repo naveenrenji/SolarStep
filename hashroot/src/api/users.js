@@ -26,3 +26,10 @@ export const searchUsersApi = async (body) => {
   });
   return users;
 };
+
+export const getAllUsersApi = async () => {
+  const {
+    data: { users },
+  } = await http.get("/users");
+  return users;
+};
