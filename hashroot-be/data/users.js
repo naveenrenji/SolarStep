@@ -11,6 +11,7 @@ import {
   checkObject,
 } from "../helpers.js";
 import { users } from "../config/mongoCollections.js";
+import { USER_ROLES } from "../constants.js";
 
 const SALT_ROUNDS = 10;
 
@@ -77,9 +78,16 @@ const createUser = async (
   return endUser;
 };
 
-const getAllUsers = async () => {
+const getAllUsers = async (currentUser) => {
+  if (!currentUser?._id) {
+    throw new Error("Current User is required");
+  }
+  const findArgs = {};
+  if ([USER_ROLES.GENERAL_CONTRACTOR].includes(currentUser.role)) {
+    findArgs.createdById = currentUser._id;
+  }
   const userCollection = await users();
-  const userList = await userCollection.find({}).toArray();
+  const userList = await userCollection.find(findArgs).toArray();
   if (userList.length === 0) {
     throw new Error("Unable to retrieve all users.");
   }
@@ -89,7 +97,9 @@ const getAllUsers = async () => {
     lastName: user.lastName,
     email: user.email,
     role: user.role,
-    canEdit: true,
+    canEdit:
+      currentUser.role === USER_ROLES.ADMIN ||
+      user.createdById === currentUser._id,
   }));
   return finalUserList;
 };
