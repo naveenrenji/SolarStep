@@ -8,12 +8,14 @@ const router = Router();
 router
   .route("/")
   .get(
-    authorizeRequest(
-      Object.values(USER_ROLES) - [USER_ROLES.CUSTOMER, USER_ROLES.WORKER]
-    ),
-    async (_, res) => {
+    authorizeRequest([
+      USER_ROLES.ADMIN,
+      USER_ROLES.SALES_REP,
+      USER_ROLES.GENERAL_CONTRACTOR,
+    ]),
+    async (req, res) => {
       try {
-        const users = await userData.getAllUsers();
+        const users = await userData.getAllUsers(req.user);
         res.json({ users });
       } catch (e) {
         res.status(404).json({ error: e?.toString() });
@@ -21,9 +23,11 @@ router
     }
   )
   .post(
-    authorizeRequest(
-      Object.values(USER_ROLES) - [USER_ROLES.CUSTOMER, USER_ROLES.WORKER]
-    ),
+    authorizeRequest([
+      USER_ROLES.ADMIN,
+      USER_ROLES.SALES_REP,
+      USER_ROLES.GENERAL_CONTRACTOR,
+    ]),
     async (req, res) => {
       try {
         const { firstName, lastName, password, email, role } = req.body;
@@ -32,7 +36,8 @@ router
           lastName,
           password,
           email,
-          role
+          role,
+          req.user
         );
 
         res.json({ user: createdUser });

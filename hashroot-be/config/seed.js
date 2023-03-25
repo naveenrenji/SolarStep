@@ -8,7 +8,8 @@ try {
     "SS",
     "Password@123",
     "admin@solarstep.com",
-    USER_ROLES.ADMIN
+    USER_ROLES.ADMIN,
+    { _id: 0 }
   );
   console.log("Admin User Created!", {
     email: "admin@solarstep.com",

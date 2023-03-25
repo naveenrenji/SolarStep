@@ -8,8 +8,10 @@ import {
   checkPassword,
   checkString,
   checkRolesArray,
+  checkObject,
 } from "../helpers.js";
 import { users } from "../config/mongoCollections.js";
+import { USER_ROLES } from "../constants.js";
 
 const SALT_ROUNDS = 10;
 
@@ -32,12 +34,20 @@ const hashPassword = async (password) => {
   return hash;
 };
 
-const createUser = async (firstName, lastName, password, email, role) => {
+const createUser = async (
+  firstName,
+  lastName,
+  password,
+  email,
+  role,
+  createdBy
+) => {
   checkString(firstName, "First name");
   checkString(lastName, "Last name");
   checkPassword(password);
   checkRole(role);
   checkEmail(email);
+  checkObject(createdBy);
 
   firstName = firstName.trim();
   lastName = lastName.trim();
@@ -46,7 +56,14 @@ const createUser = async (firstName, lastName, password, email, role) => {
     throw new Error("User already exists");
   }
   const hashedPassword = await hashPassword(password);
-  const user = { firstName, lastName, email, password: hashedPassword, role };
+  const user = {
+    firstName,
+    lastName,
+    email,
+    password: hashedPassword,
+    role,
+    createdById: createdBy._id,
+  };
   const userCollection = await users();
   const result = await userCollection.insertOne(user);
   const insertedId = result.insertedId;
@@ -61,9 +78,16 @@ const createUser = async (firstName, lastName, password, email, role) => {
   return endUser;
 };
 
-const getAllUsers = async () => {
+const getAllUsers = async (currentUser) => {
+  if (!currentUser?._id) {
+    throw new Error("Current User is required");
+  }
+  const findArgs = {};
+  if ([USER_ROLES.GENERAL_CONTRACTOR].includes(currentUser.role)) {
+    findArgs.createdById = currentUser._id;
+  }
   const userCollection = await users();
-  const userList = await userCollection.find({}).toArray();
+  const userList = await userCollection.find(findArgs).toArray();
   if (userList.length === 0) {
     throw new Error("Unable to retrieve all users.");
   }
@@ -73,6 +97,9 @@ const getAllUsers = async () => {
     lastName: user.lastName,
     email: user.email,
     role: user.role,
+    canEdit:
+      currentUser.role === USER_ROLES.ADMIN ||
+      user.createdById === currentUser._id,
   }));
   return finalUserList;
 };
