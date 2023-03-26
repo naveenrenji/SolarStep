@@ -50,18 +50,11 @@ const Header = () => {
                 <LinkContainer to="/dashboard">
                   <Nav.Link>Dashboard</Nav.Link>
                 </LinkContainer>
-                {[
-                  USER_ROLES.CUSTOMER,
-                  USER_ROLES.SALES_REP,
-                  USER_ROLES.GENERAL_CONTRACTOR,
-                  USER_ROLES.WORKER,
-                ].includes(auth?.user?.role) ? (
-                  <LinkContainer to="/projects">
-                    <Nav.Link>Projects</Nav.Link>
-                  </LinkContainer>
-                ) : (
-                  <></>
-                )}
+
+                <LinkContainer to="/projects">
+                  <Nav.Link>Projects</Nav.Link>
+                </LinkContainer>
+
                 {[
                   USER_ROLES.ADMIN,
                   USER_ROLES.SALES_REP,

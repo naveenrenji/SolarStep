@@ -64,14 +64,7 @@ function App() {
             <Route
               index
               element={
-                <RequiresAuth
-                  roles={[
-                    USER_ROLES.CUSTOMER,
-                    USER_ROLES.SALES_REP,
-                    USER_ROLES.GENERAL_CONTRACTOR,
-                    USER_ROLES.WORKER,
-                  ]}
-                >
+                <RequiresAuth>
                   <Projects />
                 </RequiresAuth>
               }
@@ -79,7 +72,7 @@ function App() {
             <Route
               path="create"
               element={
-                <RequiresAuth roles={[USER_ROLES.SALES_REP]}>
+                <RequiresAuth roles={[USER_ROLES.SALES_REP, USER_ROLES.ADMIN]}>
                   <CreateProject />
                 </RequiresAuth>
               }

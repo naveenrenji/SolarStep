@@ -111,7 +111,7 @@ const searchUsers = async ({ text, roles }) => {
   if (text) {
     checkString(text);
   }
-  const textRegex = new RegExp(text);
+  const textRegex = new RegExp(text, 'i');
   const userCollection = await users();
   const userList = await userCollection
     .find({
