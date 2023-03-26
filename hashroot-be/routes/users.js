@@ -1,8 +1,7 @@
 import { Router } from "express";
 import { USER_ROLES } from "../constants.js";
 import authorizeRequest from "../middleware/authorizeRequest.js";
-const data = require('../data');
-const userData = data.users;
+import { userData } from "../data/index.js";
 
 const router = Router();
 

@@ -1,20 +1,38 @@
-const mongoCollections = require("../config/mongoCollections");
-const projects = mongoCollections.projects;
-const ObjectId = require("mongodb").ObjectId;
-const helpers = require("../helpers");
+import { ObjectId } from "mongodb";
 
-const createProject = async (userId, username, projectName, address) => {
+import { projects } from "../config/mongoCollections.js";
+import * as helpers from "../helpers.js";
+import { PAGE_LIMIT, PROJECT_STATUSES, USER_ROLES } from "../constants.js";
+import { getUserById } from "./users.js";
+
+const createProject = async (currentUser, userId, projectName, address) => {
+  if (!currentUser) throw "User not logged in";
+
   userId = helpers.checkId(userId);
-  username = helpers.checkString(username);
-  projectName = helpers.checkString(projectName);
+  if (projectName) {
+    projectName = helpers.checkString(projectName);
+  }
   address = helpers.checkString(address);
+
+  const user = await getUserById(userId);
 
   const projectCollection = await projects();
   const newProject = {
-    userId: userId,
-    username: username,
-    projectName: projectName,
-    address: address,
+    user: {
+      _id: new ObjectId(user?._id),
+      email: user?.email,
+    },
+    projectName,
+    address,
+    salesRep: {
+      _id: new ObjectId(currentUser?._id),
+      email: currentUser?.email,
+    },
+    generalContractorId: {},
+    workers: [],
+    status: PROJECT_STATUSES.CREATED,
+    createdAt: new Date(),
+    updatedAt: new Date(),
   };
 
   const insertInfo = await projectCollection.insertOne(newProject);
@@ -41,28 +59,44 @@ const getProjectById = async (id) => {
   return project;
 };
 
-const getAllProjects = async (page) => {
-  if (!page) {
-    page = 1;
-  }
-  page = parseInt(page);
-  let limit = 50;
+const getPaginatedProjects = async (currentUser, page, search) => {
+  if (!currentUser) throw "User not logged in";
+
+  page = parseInt(page || 1);
+  let limit = PAGE_LIMIT;
   let skip = (page - 1) * limit;
+  const findQuery = {};
+  if (currentUser.role === USER_ROLES.CUSTOMER) {
+    findQuery["user._id"] = currentUser._id;
+  } else if (currentUser.role === USER_ROLES.GENERAL_CONTRACTOR) {
+    findQuery["generalContractor._id"] = currentUser._id;
+  } else if (currentUser.role === USER_ROLES.WORKER) {
+    findQuery["workers._id"] = currentUser._id;
+  } else if (currentUser.role === USER_ROLES.SALES_REP) {
+    findQuery["salesRep._id"] = currentUser._id;
+  }
+
+  if (search) {
+    const textRegex = new RegExp(search);
+    findQuery["$or"] = [
+      { _id: textRegex },
+      { projectName: textRegex },
+      { "user.email": textRegex },
+    ];
+  }
+
   const projectCollection = await projects();
-  const projectList = await projectCollection
-    .find()
+  const totalCount = await projectCollection.find(findQuery).count();
+  const projectsList = await projectCollection
+    .find(findQuery)
     .skip(skip)
     .limit(limit)
     .toArray();
-  if (!projectList) throw "Could not get all projects";
-  if (projectList.length == 0) {
-    if (page > 1) throw "No more projects for the requested page";
-    return [];
-  }
-  projectList.forEach((element) => {
+  if (!projects) throw "Could not get all projects";
+  projectsList.forEach((element) => {
     element._id = element._id.toString();
   });
-  return projectList;
+  return { projects: projectsList, totalPages: Math.ceil(totalCount / limit) };
 };
 
 const getEveryProject = async () => {
@@ -149,11 +183,11 @@ const deleteProject = async (id, userId) => {
   return `${projectExists.projectName} has been successfully deleted!`;
 };
 
-module.exports = {
+export {
   createProject,
   deleteProject,
   updateProject,
   getProjectById,
-  getAllProjects,
+  getPaginatedProjects,
   getEveryProject,
 };

@@ -1,6 +1,6 @@
 import userRoutes from "./users.js";
 import authRoutes from "./auth.js";
-import projectRoutes from "./projects";
+import projectRoutes from "./projects.js";
 import authenticateRequest from "../middleware/authenticateRequest.js";
 
 const configureRoutes = (app) => {

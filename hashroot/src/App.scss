@@ -1,8 +1,6 @@
-$theme-colors: (
-  "primary": rgb(81, 156, 195),
-  "secondary": rgb(240, 177, 85),
-  "success": rgb(164, 201, 92)
-);
+$primary: rgb(81, 156, 195);
+$secondary: rgb(240, 177, 85);
+$success: rgb(164, 201, 92);
 
 @import "bootstrap/scss/bootstrap.scss";
 
@@ -12,6 +10,15 @@ $theme-colors: (
   --bs-card-border-color: lightgrey;
   &.card-warning {
     --bs-card-cap-bg: rgb(240, 177, 85);
+  }
+}
+
+form {
+  .form-label {
+    // color: rgb(81, 156, 195);
+  &[aria-required="true"]::before {
+      content: "*";
+    }
   }
 }
 

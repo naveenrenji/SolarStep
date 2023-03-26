@@ -13,7 +13,6 @@ const DashboardCards = () => {
 
   switch (user?.role) {
     case USER_ROLES.ADMIN:
-      return <UsersCard />;
     case USER_ROLES.GENERAL_CONTRACTOR:
     case USER_ROLES.SALES_REP:
       return (

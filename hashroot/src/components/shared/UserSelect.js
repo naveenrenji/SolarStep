@@ -83,7 +83,7 @@ const UserSelect = ({ roles = Object.values(USER_ROLES), onSelect }) => {
       value={value}
       onChange={(opt) => {
         setValue(opt);
-        onSelect && onSelect(opt?.value);
+        onSelect && onSelect(opt);
       }}
     />
   );

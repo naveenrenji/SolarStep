@@ -17,3 +17,7 @@ export const getCreateUserRoleList = (role) => {
       return [];
   }
 };
+
+export const stringifyAddress = (address) => {
+  return `${address.streetAddress}, ${address.city}, ${address.state}, ${address.zipCode}`;
+};
