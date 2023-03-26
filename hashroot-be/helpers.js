@@ -134,6 +134,16 @@ const checkObject = (obj, varName) => {
   if (!Object.keys(obj).length) {
     throw `Error: ${varName} object is empty`;
   }
+  return obj;
+};
+
+const checkAddress = (address) => {
+  address = checkObject(address, "Address");
+  if (!address.streetAddress) throw "Error: Street Address is required";
+  if (!address.city) throw "Error: City is required";
+  if (!address.state) throw "Error: State is required";
+  if (!address.zipCode) throw "Error: Zip Code is required";
+  return address;
 };
 
 export {
@@ -144,4 +154,5 @@ export {
   checkPassword,
   checkString,
   checkObject,
+  checkAddress,
 };

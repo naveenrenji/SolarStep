@@ -9,7 +9,6 @@ import { useNavigate } from "react-router-dom";
 import { createProjectApi } from "../../api/projects";
 
 import { USER_ROLES } from "../../constants";
-import { stringifyAddress } from "../../utils/user";
 
 import AddressModal from "../shared/AddressModal";
 import SubmitButton from "../shared/SubmitButton";
@@ -38,7 +37,7 @@ const CreateProject = () => {
       await createProjectApi({
         projectName,
         userId: userOption?.value,
-        address: stringifyAddress(address),
+        address,
       });
       toast("Project created successfully", { type: toast.TYPE.SUCCESS });
       navigate("/projects")

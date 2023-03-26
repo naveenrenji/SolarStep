@@ -12,7 +12,7 @@ const createProject = async (currentUser, userId, projectName, address) => {
   if (projectName) {
     projectName = helpers.checkString(projectName);
   }
-  address = helpers.checkString(address);
+  address = helpers.checkAddress(address);
 
   const user = await getUserById(userId);
 
@@ -77,26 +77,47 @@ const getPaginatedProjects = async (currentUser, page, search) => {
   }
 
   if (search) {
-    const textRegex = new RegExp(search);
-    findQuery["$or"] = [
-      { _id: textRegex },
-      { projectName: textRegex },
-      { "user.email": textRegex },
+    const textRegex = new RegExp(search, 'i');
+    findQuery["$and"] = [
+      {
+        $or: [
+          { _id: textRegex },
+          { projectName: textRegex },
+          { "user.email": textRegex },
+        ],
+      },
     ];
   }
 
   const projectCollection = await projects();
-  const totalCount = await projectCollection.find(findQuery).count();
-  const projectsList = await projectCollection
-    .find(findQuery)
-    .skip(skip)
-    .limit(limit)
-    .toArray();
-  if (!projects) throw "Could not get all projects";
-  projectsList.forEach((element) => {
+
+  const aggregateRes = projectCollection.aggregate([
+    { $match: findQuery },
+    {
+      $facet: {
+        metadata: [{ $count: "total" }],
+        data: [
+          { $sort: { createdAt: -1 } },
+          { $skip: skip },
+          { $limit: limit },
+        ], // add projection here wish you re-shape the docs
+      },
+    },
+  ]);
+
+  let res;
+  for await (const doc of aggregateRes) {
+    res = doc;
+  }
+
+  if (!res) throw "Could not get all projects";
+  res.data.forEach((element) => {
     element._id = element._id.toString();
   });
-  return { projects: projectsList, totalPages: Math.ceil(totalCount / limit) };
+  return {
+    projects: res.data,
+    totalPages: Math.ceil((res.metadata[0]?.total || 0) / limit),
+  };
 };
 
 const getEveryProject = async () => {

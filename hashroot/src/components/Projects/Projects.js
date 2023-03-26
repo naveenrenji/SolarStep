@@ -96,7 +96,7 @@ const Projects = () => {
                   <tr key={project._id}>
                     <td>{project._id}</td>
                     <td>{project.projectName}</td>
-                    <td>{project.address}</td>
+                    <td>{project.address?.streetAddress}</td>
                     <td>{project.user.email}</td>
                     <td>
                       <Button variant="link">View</Button>&nbsp;
