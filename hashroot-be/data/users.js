@@ -11,7 +11,7 @@ import {
   checkObject,
 } from "../helpers.js";
 import { users } from "../config/mongoCollections.js";
-import { USER_ROLES } from "../constants.js";
+import { USER_ROLES, PAGE_LIMIT } from "../constants.js";
 
 const SALT_ROUNDS = 10;
 
@@ -63,6 +63,7 @@ const createUser = async (
     password: hashedPassword,
     role,
     createdById: createdBy._id,
+    createdAt: new Date(),
   };
   const userCollection = await users();
   const result = await userCollection.insertOne(user);
@@ -78,30 +79,71 @@ const createUser = async (
   return endUser;
 };
 
-const getAllUsers = async (currentUser) => {
-  if (!currentUser?._id) {
-    throw new Error("Current User is required");
+const getPaginatedUsers = async (currentUser, page, search, roles) => {
+  if (!currentUser) throw "User not logged in";
+
+  if (roles && roles.length) {
+    checkRolesArray(roles);
   }
-  const findArgs = {};
+
+  page = parseInt(page || 1);
+  let limit = PAGE_LIMIT;
+  let skip = (page - 1) * limit;
+  const findQuery = {};
   if ([USER_ROLES.GENERAL_CONTRACTOR].includes(currentUser.role)) {
-    findArgs.createdById = currentUser._id;
+    findQuery.createdById = currentUser._id;
   }
+
+  if (roles?.length && !search) {
+    findQuery.role = { $in: roles };
+  } else if (search) {
+    const textRegex = new RegExp(search, "i");
+    findQuery["$and"] = [
+      {
+        $or: [
+          { email: textRegex },
+          { firstName: textRegex },
+          { lastName: textRegex },
+        ],
+      },
+    ];
+    if (roles?.length) {
+      findQuery["$and"].push({ role: { $in: roles } });
+    }
+  }
+
   const userCollection = await users();
-  const userList = await userCollection.find(findArgs).toArray();
-  if (userList.length === 0) {
-    throw new Error("Unable to retrieve all users.");
+
+  const aggregateRes = userCollection.aggregate([
+    { $match: findQuery },
+    {
+      $facet: {
+        metadata: [{ $count: "total" }],
+        data: [
+          //{ $sort: { createdAt: -1 } },
+          { $skip: skip },
+          { $limit: limit },
+        ], // add projection here wish you re-shape the docs
+      },
+    },
+  ]);
+
+  let res;
+  for await (const doc of aggregateRes) {
+    res = doc;
   }
-  const finalUserList = userList.map((user) => ({
-    _id: user._id.toString(),
-    firstName: user.firstName,
-    lastName: user.lastName,
-    email: user.email,
-    role: user.role,
-    canEdit:
+
+  if (!res) throw "Could not get all users";
+  res.data.forEach((element) => {
+    element._id = element._id.toString();
+    element.canEdit =
       currentUser.role === USER_ROLES.ADMIN ||
-      user.createdById === currentUser._id,
-  }));
-  return finalUserList;
+      user.createdById === currentUser._id;
+  });
+  return {
+    users: res.data,
+    totalPages: Math.ceil((res.metadata[0]?.total || 0) / limit),
+  };
 };
 
 const searchUsers = async ({ text, roles }) => {
@@ -111,7 +153,7 @@ const searchUsers = async ({ text, roles }) => {
   if (text) {
     checkString(text);
   }
-  const textRegex = new RegExp(text, 'i');
+  const textRegex = new RegExp(text, "i");
   const userCollection = await users();
   const userList = await userCollection
     .find({
@@ -188,7 +230,7 @@ const loginUser = async (email, password) => {
 export {
   deleteUserById,
   getUserById,
-  getAllUsers,
+  getPaginatedUsers,
   createUser,
   loginUser,
   searchUsers,

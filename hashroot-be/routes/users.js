@@ -15,8 +15,19 @@ router
     ]),
     async (req, res) => {
       try {
-        const users = await userData.getAllUsers(req.user);
-        res.json({ users });
+        const { page, search, roles } = req.params;
+        if (page !== "") {
+          if (page <= 0) {
+            throw "negative page number or zero page number not allowed";
+          }
+        }
+        const { users, totalPages } = await userData.getPaginatedUsers(
+          req.user,
+          page,
+          search,
+          roles
+        );
+        res.json({ users, totalPages });
       } catch (e) {
         res.status(404).json({ error: e?.toString() });
       }
