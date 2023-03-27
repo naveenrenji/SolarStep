@@ -16,5 +16,5 @@ try {
     password: "Password@123",
   });
 } catch (error) {
-  console.log("Could not create admin user", e);
+  console.log("Could not create admin user", error);
 }
