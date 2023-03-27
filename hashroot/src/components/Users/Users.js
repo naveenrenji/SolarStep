@@ -1,4 +1,3 @@
-<<<<<<< Updated upstream
 import React, { useEffect, useState } from "react";
 import Button from "react-bootstrap/Button";
 import Table from "react-bootstrap/Table";
@@ -8,9 +7,6 @@ import { USER_ROLES } from "../../constants";
 import ErrorCard from "../shared/ErrorCard";
 import ListPagination from "../shared/ListPagination";
 import Loader from "../shared/Loader";
-=======
-import React, { useState, useEffect } from 'react';
->>>>>>> Stashed changes
 import RouteHeader from "../shared/RouteHeader";
 import SearchAndCreateBar from "../shared/SearchAndCreateBar";
 
@@ -140,4 +136,4 @@ const Users = () => {
   );
 };
 
-
+export default Users;
