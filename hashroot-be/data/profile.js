@@ -1,26 +1,48 @@
 import { ObjectId } from "mongodb";
 import { users } from "../config/mongoCollections.js";
-import { checkId } from "../helpers.js";
-import { hashPassword } from "./users.js"
+import { checkId, checkPassword, checkString } from "../helpers.js";
+import { comparePasswords, hashPassword } from "./users.js"
 
 
-const updateUserById = async (id, updates) => {
-    checkId(id);
-    const userCollection = await users();
-    const result = await userCollection.updateOne(
-      { _id: new ObjectId(id) },
-      {
-        $set: {
-          firstName: updates.firstName,
-          lastName: updates.lastName,
-          password: await hashPassword(updates.password),
-        },
+const updateUserById = async (user, updates) => {
+    checkId(user._id);
+    const {firstName, lastName, oldPassword, newPassword} = updates
+    checkString(firstName, "firstName")
+    checkString(lastName, "lastName")
+    if ((newPassword && !oldPassword) || (oldPassword && !newPassword)) {
+      throw new Error("Old and New passwords are required together.")
+    }
+    const userToUpdate = {firstName, lastName}
+    if (newPassword && oldPassword) {
+      let compareToMatch = await comparePasswords(oldPassword, user.password);
+      let compareNewPassword = await comparePasswords(newPassword, user.password);
+      if (compareNewPassword) {
+        throw new Error("New and Old passwords are the same")
       }
+      if (compareToMatch) {
+        checkPassword(newPassword)
+        userToUpdate.password = await hashPassword(newPassword)
+      }
+      else {
+        throw new Error("Incorrect Password entered")
+      }
+
+    }
+    const userCollection = await users();
+    const result = await userCollection.findOneAndUpdate(
+      { _id: new ObjectId(user._id) },
+      {
+        $set: userToUpdate,
+      },
+      {returnDocument:"after"}
     );
   
-    if (result.modifiedCount === 0) {
-      throw new Error(`Could not update user with id of ${id}.`);
+    if (result.lastErrorObject.n === 0) {
+      throw new Error(`Could not update user with id of ${user._id}.`);
     }
   
-    return `${result.modifiedCount} user has been successfully updated!`;
+    result.value._id = result.value._id.toString()
+    return {_id: result.value._id, firstName: result.value.firstName, lastName: result.value.lastName}
   };
+
+  export {updateUserById}

@@ -265,12 +265,16 @@ const deleteUserById = async (currentUser, id) => {
   return true;
 };
 
+const comparePasswords = async (enteredPassword, encryptedPassword) => {
+  return await bcrypt.compare(enteredPassword, encryptedPassword)
+}
+
 const loginUser = async (email, password) => {
   email = checkEmail(email);
   password = checkPassword(password);
   const user = await userWithEmail(email);
   let realPassword = user.password;
-  let compareToMatch = await bcrypt.compare(password, realPassword);
+  let compareToMatch = await comparePasswords(password, realPassword);
   if (compareToMatch) {
     return {
       ...getUserObject(user, ["_id", "email", "firstName", "lastName", "role"]),
@@ -364,4 +368,5 @@ export {
   searchUsers,
   updateUserWithId,
   hashPassword,
+  comparePasswords,
 };
