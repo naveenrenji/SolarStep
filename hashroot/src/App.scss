@@ -55,6 +55,10 @@ form {
       color: white;
     }
   }
+  .modal-body {
+    max-height: 75vh;
+    overflow-y: auto;
+  }
 }
 
 a {

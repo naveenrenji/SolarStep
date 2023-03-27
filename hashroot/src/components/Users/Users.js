@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import Button from "react-bootstrap/esm/Button";
 import Table from "react-bootstrap/Table";
 import { FaEdit, FaRegWindowMaximize } from "react-icons/fa";
 import { MdDeleteForever } from "react-icons/md";
@@ -119,36 +120,46 @@ const Users = () => {
                     <td>{user.email}</td>
                     <td>{user.role}</td>
                     <td>
-                      <FaRegWindowMaximize
+                      <Button
+                        variant="link"
                         onClick={() => {
                           setShowViewUserModal(true);
                           setSelectedUser(user);
                         }}
                         title="View"
-                        className="m-1"
+                        className="m-1 p-0"
                         style={{ cursor: "pointer" }}
-                      />
+                      >
+                        <FaRegWindowMaximize />
+                      </Button>
                       &nbsp;
                       {user.canEdit ? (
                         <>
-                          <FaEdit
+                          <Button
+                            variant="link"
                             title="Edit"
                             onClick={() => {
                               setShowEditUserModal(true);
                               setSelectedUser(user);
                             }}
-                            className="m-1"
+                            className="m-1 p-0"
                             style={{ cursor: "pointer" }}
-                          />
-                          <MdDeleteForever
+                          >
+                            <FaEdit />
+                          </Button>
+                          &nbsp;
+                          <Button
+                            variant="link"
                             title="Delete"
                             onClick={() => {
                               setShowDeleteUserModal(true);
                               setSelectedUser(user);
                             }}
-                            className="m-1"
+                            className="m-1 p-0"
                             style={{ cursor: "pointer" }}
-                          />
+                          >
+                            <MdDeleteForever />
+                          </Button>
                         </>
                       ) : (
                         <></>
@@ -171,7 +182,7 @@ const Users = () => {
             handlePageClick={handlePageClick}
             loading={pageLoading}
           />
-          {showViewUserModal && selectedUser && (
+          {showViewUserModal && selectedUser ? (
             <ViewUserModal
               show={showViewUserModal}
               onClose={() => {
@@ -180,12 +191,14 @@ const Users = () => {
               }}
               user={selectedUser}
             />
+          ) : (
+            <></>
           )}
-          {showEditUserModal && selectedUser && (
+          {showEditUserModal && selectedUser ? (
             <EditUserModal
               show={showEditUserModal}
               onClose={() => {
-                setShowViewUserModal(false);
+                setShowEditUserModal(false);
                 setSelectedUser();
               }}
               user={selectedUser}
@@ -197,8 +210,10 @@ const Users = () => {
                 );
               }}
             />
+          ) : (
+            <></>
           )}
-          {showDeleteUserModal && selectedUser && (
+          {showDeleteUserModal && selectedUser ? (
             <DeleteConfirmationModal
               show={showDeleteUserModal}
               onClose={() => {
@@ -215,6 +230,8 @@ const Users = () => {
                 );
               }}
             />
+          ) : (
+            <></>
           )}
         </div>
       )}
