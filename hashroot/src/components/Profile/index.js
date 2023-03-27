@@ -1,12 +1,20 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import RouteHeader from "../shared/RouteHeader";
+import { updateProfile } from "../../api/users";
+import useAuth from "../../hooks/useAuth"
 
 const Profile = () => {
+  const auth = useAuth()
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [oldPassword, setOldPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmNewPassword, setConfirmNewPassword] = useState("");
+
+  useEffect(() => {
+    setFirstName(auth?.user?.firstName)
+    setLastName(auth?.user?.lastName)
+  }, [auth?.user])
 
   const handleFirstNameChange = (e) => {
     setFirstName(e.target.value);
@@ -28,8 +36,11 @@ const Profile = () => {
     setConfirmNewPassword(e.target.value);
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    const body = {firstName, lastName, oldPassword, newPassword}
+    const user = await updateProfile(body);
+    auth.updateProfile(user)
     // handle form submission here
   };
 
