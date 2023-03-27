@@ -1,7 +1,7 @@
 import http from "./http";
 
 export const createProjectApi = async (body) => {
-  const { projectName, userId, address } = body;
+  const { projectName, userId, address, salesRepId } = body;
 
   const {
     data: { project },
@@ -9,6 +9,7 @@ export const createProjectApi = async (body) => {
     projectName,
     userId,
     address,
+    salesRepId,
   });
   return project;
 };
@@ -21,4 +22,3 @@ export const getPaginatedProjectsApi = async (params) => {
   } = await http.get("/projects", { params: { page, search, statuses } });
   return { projects, totalPages };
 };
-

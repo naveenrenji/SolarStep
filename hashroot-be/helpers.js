@@ -107,7 +107,7 @@ const checkRolesArray = (roles) => {
 };
 
 // checkId function checks whether the id parameter is provided, of type string and is not an empty string.
-const checkId = (id) => {
+const checkId = (id, varName) => {
   if (!id) throw `Error: You must provide a ${varName}`;
   if (typeof id !== "string") throw `Error:${varName} must be a string`;
   id = id.trim();

@@ -10,10 +10,28 @@ import {
   checkRolesArray,
   checkObject,
 } from "../helpers.js";
-import { users } from "../config/mongoCollections.js";
+import { users, projects } from "../config/mongoCollections.js";
 import { USER_ROLES, PAGE_LIMIT } from "../constants.js";
 
 const SALT_ROUNDS = 10;
+
+const getUserObject = (
+  user,
+  keys = [
+    "_id",
+    "firstName",
+    "lastName",
+    "email",
+    "role",
+    "createdAt",
+    "createdById",
+  ]
+) => {
+  return keys.reduce((acc, key) => {
+    acc[key] = key === "_id" ? user[key].toString() : user[key];
+    return acc;
+  }, {});
+};
 
 export const userWithEmail = async (email) => {
   const user = await getUserByEmail(email);
@@ -69,14 +87,13 @@ const createUser = async (
   const result = await userCollection.insertOne(user);
   const insertedId = result.insertedId;
   const insertedUser = await userCollection.findOne({ _id: insertedId });
-  const endUser = {
-    _id: insertedUser._id.toString(),
-    firstName: insertedUser.firstName,
-    lastName: insertedUser.lastName,
-    role: insertedUser.role,
-    email: insertedUser.email,
-  };
-  return endUser;
+  return getUserObject(insertedUser, [
+    "_id",
+    "email",
+    "role",
+    "firstName",
+    "lastName",
+  ]);
 };
 
 const getPaginatedUsers = async (currentUser, page, search, roles) => {
@@ -108,7 +125,11 @@ const getPaginatedUsers = async (currentUser, page, search, roles) => {
     ];
   }
 
-  if (Object.keys(userSpecificQuery).length || Object.keys(rolesQuery).length || Object.keys(searchQuery).length) {
+  if (
+    Object.keys(userSpecificQuery).length ||
+    Object.keys(rolesQuery).length ||
+    Object.keys(searchQuery).length
+  ) {
     matchQuery["$and"] = [];
     if (Object.keys(userSpecificQuery).length) {
       matchQuery["$and"].push(userSpecificQuery);
@@ -143,14 +164,14 @@ const getPaginatedUsers = async (currentUser, page, search, roles) => {
   }
 
   if (!res) throw "Could not get all users";
-  res.data.forEach((element) => {
-    element._id = element._id.toString();
-    element.canEdit =
-      currentUser.role === USER_ROLES.ADMIN ||
-      user.createdById === currentUser._id;
-  });
+
   return {
-    users: res.data,
+    users: res.data.map((user) => ({
+      ...getUserObject(user, ["_id", "email", "role", "firstName", "lastName"]),
+      canEdit:
+        currentUser.role === USER_ROLES.ADMIN ||
+        user.createdById === currentUser._id,
+    })),
     totalPages: Math.ceil((res.metadata[0]?.total || 0) / limit),
   };
 };
@@ -183,13 +204,9 @@ const searchUsers = async ({ text, roles }) => {
   if (userList.length === 0) {
     throw new Error("Unable to retrieve all users.");
   }
-  return userList.map((user) => ({
-    _id: user._id.toString(),
-    firstName: user.firstName,
-    lastName: user.lastName,
-    email: user.email,
-    role: user.role,
-  }));
+  return userList.map((user) =>
+    getUserObject(user, ["_id", "email", "role", "firstName", "lastName"])
+  );
 };
 
 const getUserById = async (id) => {
@@ -204,16 +221,46 @@ const getUserById = async (id) => {
   return user;
 };
 
-const deleteUserById = async (id) => {
+const deleteUserById = async (currentUser, id) => {
   checkId(id);
-  const userCollection = await users();
-  const user = await userCollection.findOneAndDelete({ _id: new ObjectId(id) });
+  if ([USER_ROLES.CUSTOMER, USER_ROLES.WORKER].includes(currentUser.role)) {
+    throw new Error("Cannot delete any user.");
+  }
+  const user = await getUserById(id);
+  if (currentUser.role !== USER_ROLES.ADMIN) {
+    if (user.role === USER_ROLES.ADMIN) {
+      throw new Error("Cannot delete admin user.");
+    }
+    if (user.createdById !== currentUser._id) {
+      throw new Error("Cannot delete user created by other user.");
+    }
+  }
+  if (user.role !== USER_ROLES.ADMIN) {
+    const projectsQuery = {};
+    if (user.role === USER_ROLES.GENERAL_CONTRACTOR) {
+      projectsQuery["generalContractor._id"] = new ObjectId(id);
+    } else if (user.role === USER_ROLES.WORKER) {
+      projectsQuery["workers._id"] = new ObjectId(id);
+    } else if (user.role === USER_ROLES.SALES_REP) {
+      projectsQuery["salesRep._id"] = new ObjectId(id);
+    } else if (user.role === USER_ROLES.CUSTOMER) {
+      projectsQuery["user._id"] = new ObjectId(id);
+    }
+    const projectCollection = await projects();
+    const projectsCount = await projectCollection.find(projectsQuery).count();
+    if (projectsCount && projectsCount > 0) {
+      throw new Error("Cannot delete user with projects.");
+    }
+  }
 
-  if (!user.value) {
+  const userCollection = await users();
+  const res = await userCollection.findOneAndDelete({ _id: new ObjectId(id) });
+
+  if (!res.value) {
     throw new Error(`Could not delete user with id of ${id}.`);
   }
 
-  return `${user.value.firstName} has been successfully deleted!`;
+  return true;
 };
 
 const loginUser = async (email, password) => {
@@ -224,16 +271,86 @@ const loginUser = async (email, password) => {
   let compareToMatch = await bcrypt.compare(password, realPassword);
   if (compareToMatch) {
     return {
-      _id: user._id,
-      email: user.email,
-      firstName: user.firstName,
-      lastName: user.lastName,
-      role: user.role,
+      ...getUserObject(user, ["_id", "email", "firstName", "lastName", "role"]),
       accessToken: jwt.sign({ id: user._id, email: user.email }, "secret"),
     };
   } else {
     throw "Either the email or password is invalid";
   }
+};
+
+const updateUserWithId = async (
+  currentUser,
+  id,
+  firstName,
+  lastName,
+  oldPassword,
+  newPassword
+) => {
+  if ([USER_ROLES.CUSTOMER, USER_ROLES.WORKER].includes(currentUser.role)) {
+    throw new Error("Cannot update any user.");
+  }
+  id = checkId(id, "User Id");
+  const user = await getUserById(id);
+  if (currentUser.role !== USER_ROLES.ADMIN) {
+    if (user.role === USER_ROLES.ADMIN) {
+      throw new Error("Cannot update admin user.");
+    }
+    if (user.createdById !== currentUser._id) {
+      throw new Error("Cannot update user created by other user.");
+    }
+  }
+
+  firstName = checkString(firstName, "First Name");
+  lastName = checkString(lastName, "Last Name");
+  const updatedUserData = {
+    firstName,
+    lastName,
+  };
+  if (!oldPassword && newPassword) {
+    throw new Error("Please enter old password");
+  }
+  if (oldPassword && !newPassword) {
+    throw new Error("Please enter new password");
+  }
+  if (oldPassword && newPassword) {
+    oldPassword = checkPassword(oldPassword);
+    newPassword = checkPassword(newPassword);
+
+    const user = await getUserById(id);
+    const compareToMatch = await bcrypt.compare(oldPassword, user.password);
+    if (!compareToMatch) {
+      throw new Error("Old password is incorrect");
+    }
+    const newPasswordMatch = await bcrypt.compare(newPassword, user.password);
+    if (newPasswordMatch) {
+      throw new Error("New password cannot be same as old password");
+    }
+    updatedUserData.password = await hashPassword(newPassword);
+  }
+  const userCollection = await users();
+  const updatedInfo = await userCollection.findOneAndUpdate(
+    { _id: new ObjectId(id) },
+    { $set: updatedUserData },
+    { returnDocument: "after" }
+  );
+
+  if (updatedInfo.lastErrorObject.n !== 1 || !updatedInfo.value) {
+    throw new Error("Could not update user");
+  }
+
+  return {
+    ...getUserObject(updatedInfo.value, [
+      "_id",
+      "email",
+      "firstName",
+      "lastName",
+      "role",
+    ]),
+    canEdit:
+      currentUser.role === USER_ROLES.ADMIN ||
+      updatedInfo.value.createdById === currentUser._id,
+  };
 };
 
 export {
@@ -243,4 +360,5 @@ export {
   createUser,
   loginUser,
   searchUsers,
+  updateUserWithId,
 };

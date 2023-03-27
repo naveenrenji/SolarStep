@@ -1,6 +1,7 @@
 import { Router } from "express";
 import { projectsData } from "../data/index.js";
 import { USER_ROLES } from "../constants.js";
+import * as helpers from "../helpers.js";
 import authorizeRequest from "../middleware/authorizeRequest.js";
 
 const router = Router();
@@ -19,18 +20,10 @@ router
         req.user,
         page,
         search,
-        statuses,
+        statuses
       );
       res.status(200).json({
-        projects: projects.map((projectItem) => ({
-          _id: projectItem._id,
-          name: projectItem.name,
-          address: projectItem.address,
-          user: projectItem.user,
-          status: projectItem.status,
-          salesRep: projectItem.salesRep,
-          projectName: projectItem.projectName,
-        })),
+        projects,
         totalPages,
       });
     } catch (e) {
@@ -44,10 +37,15 @@ router
     async (req, res) => {
       const projectData = req.body;
       try {
-        let { userId, projectName, address } = projectData;
+        let { userId, projectName, address, salesRepId } = projectData;
+        if (req.user.role === USER_ROLES.ADMIN) {
+          helpers.checkId(salesRepId, "Sales Rep Id");
+        } else {
+          salesRepId = req.user._id;
+        }
         const project = await projectsData.createProject(
-          req.user,
           userId,
+          salesRepId,
           projectName,
           address
         );

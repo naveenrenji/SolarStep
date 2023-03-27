@@ -1,14 +1,16 @@
 import React, { useEffect, useState } from "react";
-import Button from "react-bootstrap/Button";
 import Table from "react-bootstrap/Table";
-import ViewProjectModal from "../shared/ViewProjectModal";
+import { FaEdit, FaRegWindowMaximize } from "react-icons/fa";
+
 import { getPaginatedProjectsApi } from "../../api/projects";
+import { PROJECT_STATUSES } from "../../constants";
+
 import ErrorCard from "../shared/ErrorCard";
 import ListPagination from "../shared/ListPagination";
 import Loader from "../shared/Loader";
 import RouteHeader from "../shared/RouteHeader";
 import SearchAndCreateBar from "../shared/SearchAndCreateBar";
-import { PROJECT_STATUSES } from "../../constants";
+import ViewProjectModal from "../shared/ViewProjectModal";
 
 const Projects = () => {
   const [projects, setProjects] = useState([]);
@@ -21,7 +23,7 @@ const Projects = () => {
   const [selectedStatuses, setSelectedStatuses] = useState([]);
 
   const [showProjectModal, setShowProjectModal] = useState(false);
-  const [viewProject, setViewProject] = useState();
+  const [selectedProject, setSelectedProject] = useState();
   const mounted = React.useRef(false);
 
   useEffect(() => {
@@ -81,7 +83,7 @@ const Projects = () => {
       ) : (
         <div>
           <SearchAndCreateBar
-            searchPlaceholder="id, name, email"
+            searchPlaceholder="Name, User Email"
             createButtonText="+ Create a project"
             createLink="/projects/create"
             onSearch={handleSubmit}
@@ -109,17 +111,22 @@ const Projects = () => {
                     <td>{project.address?.streetAddress}</td>
                     <td>{project.user.email}</td>
                     <td>
-                      <Button
+                      <FaRegWindowMaximize
                         variant="link"
                         onClick={() => {
                           setShowProjectModal(true);
-                          setViewProject(project);
+                          setSelectedProject(project);
                         }}
-                      >
-                        View
-                      </Button>
+                        title="View"
+                        className="m-1"
+                        style={{ cursor: "pointer" }}
+                      />
                       &nbsp;
-                      <Button variant="link">Edit</Button>
+                      <FaEdit
+                        title="Edit"
+                        className="m-1"
+                        style={{ cursor: "pointer" }}
+                      />
                     </td>
                   </tr>
                 ))
@@ -138,13 +145,13 @@ const Projects = () => {
             handlePageClick={handlePageClick}
             loading={pageLoading}
           />
-          {showProjectModal && viewProject ? (
+          {showProjectModal && selectedProject ? (
             <ViewProjectModal
-              project={viewProject}
+              project={selectedProject}
               show={showProjectModal}
               onClose={() => {
                 setShowProjectModal(false);
-                setViewProject();
+                setSelectedProject();
               }}
             />
           ) : (
