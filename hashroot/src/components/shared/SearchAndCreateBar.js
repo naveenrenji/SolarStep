@@ -26,6 +26,13 @@ const SearchAndCreateBar = ({
     );
   };
 
+  const clearFilters = (e) => {
+    e.preventDefault();
+    setSearch("");
+    setSelectedOptions([]);
+    onSearch("", undefined);
+  };
+
   return (
     <div className="mt-3 mb-3 d-sm-flex justify-content-sm-between">
       <Form onSubmit={handleSubmit}>
@@ -55,6 +62,9 @@ const SearchAndCreateBar = ({
           )}
           <Button variant="primary" onClick={handleSubmit}>
             Search
+          </Button>
+          <Button variant="link" onClick={clearFilters}>
+            Clear filters
           </Button>
         </Stack>
       </Form>

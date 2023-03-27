@@ -4,67 +4,56 @@ import Modal from "react-bootstrap/Modal";
 import ListGroup from "react-bootstrap/ListGroup";
 import Stack from "react-bootstrap/Stack";
 
-const ViewProjectModal = ({ project, show, onClose }) => {
+const ViewUserModal = ({ user, show, onClose }) => {
   return (
     <Modal show={show} onHide={onClose}>
       <Modal.Header closeButton closeVariant="white">
-        <Modal.Title as="h5">Project {project._id}</Modal.Title>
+        <Modal.Title as="h5">User {user._id}</Modal.Title>
       </Modal.Header>
       <Modal.Body>
         <ListGroup variant="flush">
           <ListGroup.Item>
             <Stack gap={1}>
               <div>
-                <b>Project ID</b>
+                <b>User ID</b>
               </div>
-              <div>{project._id}</div>
+              <div>{user._id}</div>
             </Stack>
           </ListGroup.Item>
           <ListGroup.Item>
             <Stack gap={1}>
               <div>
-                <b>Address:</b>
+                <b>First Name:</b>
               </div>
               <div>
-                {project.address.streetAddress}, {project.address.city},{" "}
-                {project.address.state}, {project.address.zipCode}
+                {user.firstName}
               </div>
             </Stack>
           </ListGroup.Item>
           <ListGroup.Item>
             <Stack gap={1}>
               <div>
-                <b>Sales Rep Email</b>
+                <b>Last Name:</b>
               </div>
-              <div>{project.salesRep.email}</div>
+              <div>
+                {user.firstName}
+              </div>
             </Stack>
           </ListGroup.Item>
           <ListGroup.Item>
             <Stack gap={1}>
               <div>
-                <b>User Email: </b>
+                <b>Email</b>
               </div>
-              <div>{project.user.email}</div>
+              <div>{user.email}</div>
             </Stack>
           </ListGroup.Item>
-          {project.generalContractor ? (
-            <ListGroup.Item>
-              <Stack gap={1}>
-                <div>
-                  <b>General Contractor Email</b>
-                </div>
-                <div>{project.generalContractor.email}</div>
-              </Stack>
-            </ListGroup.Item>
-          ) : (
-            <></>
-          )}
           <ListGroup.Item>
             <Stack gap={1}>
               <div>
-                <b>Status:</b>
+                <b>Role:</b>
               </div>
-              <div>{project.status}</div>
+              <div>{user.role}</div>
             </Stack>
           </ListGroup.Item>
         </ListGroup>
@@ -78,4 +67,4 @@ const ViewProjectModal = ({ project, show, onClose }) => {
   );
 };
 
-export default ViewProjectModal;
+export default ViewUserModal;

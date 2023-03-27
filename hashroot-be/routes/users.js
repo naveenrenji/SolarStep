@@ -62,23 +62,52 @@ router
   .route("/:id")
   .get(async (req, res) => {
     try {
-      req.params.id = validation.checkId(req.params.id);
       const user = await userData.getUserById(req.params.id);
       res.json({ user });
     } catch (e) {
       res.status(404).json({ error: e?.toString() });
     }
   })
-  .patch(async (req, res) => {
-    res.send(`PATCH request to http://localhost:3000/users/${req.params.id}`);
-  })
-  .delete(async (req, res) => {
-    res.send(`DELETE request to http://localhost:3000/users/${req.params.id}`);
-  });
-
-router.route("/me").get(async (req, res) => {
-  res.status(404).json({ error: "Route not defined yet" });
-});
+  .patch(
+    authorizeRequest([
+      USER_ROLES.ADMIN,
+      USER_ROLES.SALES_REP,
+      USER_ROLES.GENERAL_CONTRACTOR,
+    ]),
+    async (req, res) => {
+      try {
+        const { id } = req.params;
+        const { firstName, lastName, oldPassword, newPassword } = req.body;
+        const user = await userData.updateUserWithId(
+          req.user,
+          id,
+          firstName,
+          lastName,
+          oldPassword,
+          newPassword
+        );
+        res.json({ user });
+      } catch (e) {
+        res.status(404).json({ error: e?.toString() });
+      }
+    }
+  )
+  .delete(
+    authorizeRequest([
+      USER_ROLES.ADMIN,
+      USER_ROLES.SALES_REP,
+      USER_ROLES.GENERAL_CONTRACTOR,
+    ]),
+    async (req, res) => {
+      try {
+        const { id } = req.params;
+        await userData.deleteUserById(req.user, id);
+        res.json({ userId: id, deleted: true });
+      } catch (e) {
+        res.status(404).json({ error: e?.toString() });
+      }
+    }
+  );
 
 router.route("/search").post(authorizeRequest(), async (req, res) => {
   try {

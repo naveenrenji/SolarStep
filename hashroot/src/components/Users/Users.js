@@ -1,14 +1,18 @@
 import React, { useEffect, useState } from "react";
-import Button from "react-bootstrap/Button";
 import Table from "react-bootstrap/Table";
+import { FaEdit, FaRegWindowMaximize } from "react-icons/fa";
+import { MdDeleteForever } from "react-icons/md";
 
-import { getPaginatedUsersApi } from "../../api/users";
+import { deleteUserApi, getPaginatedUsersApi } from "../../api/users";
 import { USER_ROLES } from "../../constants";
+import DeleteConfirmationModal from "../shared/DeleteConfirmationModal";
+import EditUserModal from "../shared/EditUserModal";
 import ErrorCard from "../shared/ErrorCard";
 import ListPagination from "../shared/ListPagination";
 import Loader from "../shared/Loader";
 import RouteHeader from "../shared/RouteHeader";
 import SearchAndCreateBar from "../shared/SearchAndCreateBar";
+import ViewUserModal from "../shared/ViewUserModal";
 
 const Users = () => {
   const [users, setUsers] = useState([]);
@@ -19,6 +23,11 @@ const Users = () => {
   const [pageLoading, setPageLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [selectedRoles, setSelectedRoles] = useState([]);
+
+  const [showViewUserModal, setShowViewUserModal] = useState(false);
+  const [showEditUserModal, setShowEditUserModal] = useState(false);
+  const [showDeleteUserModal, setShowDeleteUserModal] = useState(false);
+  const [selectedUser, setSelectedUser] = useState([]);
 
   const mounted = React.useRef(false);
 
@@ -80,7 +89,7 @@ const Users = () => {
       ) : (
         <div>
           <SearchAndCreateBar
-            searchPlaceholder="id, name, email"
+            searchPlaceholder="Name, Email"
             createButtonText="+ Create a User"
             createLink="/users/create"
             onSearch={handleSubmit}
@@ -110,8 +119,40 @@ const Users = () => {
                     <td>{user.email}</td>
                     <td>{user.role}</td>
                     <td>
-                      <Button variant="link">View</Button>&nbsp;
-                      <Button variant="link">Edit</Button>
+                      <FaRegWindowMaximize
+                        onClick={() => {
+                          setShowViewUserModal(true);
+                          setSelectedUser(user);
+                        }}
+                        title="View"
+                        className="m-1"
+                        style={{ cursor: "pointer" }}
+                      />
+                      &nbsp;
+                      {user.canEdit ? (
+                        <>
+                          <FaEdit
+                            title="Edit"
+                            onClick={() => {
+                              setShowEditUserModal(true);
+                              setSelectedUser(user);
+                            }}
+                            className="m-1"
+                            style={{ cursor: "pointer" }}
+                          />
+                          <MdDeleteForever
+                            title="Delete"
+                            onClick={() => {
+                              setShowDeleteUserModal(true);
+                              setSelectedUser(user);
+                            }}
+                            className="m-1"
+                            style={{ cursor: "pointer" }}
+                          />
+                        </>
+                      ) : (
+                        <></>
+                      )}
                     </td>
                   </tr>
                 ))
@@ -130,6 +171,51 @@ const Users = () => {
             handlePageClick={handlePageClick}
             loading={pageLoading}
           />
+          {showViewUserModal && selectedUser && (
+            <ViewUserModal
+              show={showViewUserModal}
+              onClose={() => {
+                setShowViewUserModal(false);
+                setSelectedUser();
+              }}
+              user={selectedUser}
+            />
+          )}
+          {showEditUserModal && selectedUser && (
+            <EditUserModal
+              show={showEditUserModal}
+              onClose={() => {
+                setShowViewUserModal(false);
+                setSelectedUser();
+              }}
+              user={selectedUser}
+              afterSave={(updatedUser) => {
+                setUsers((state) =>
+                  state.map((user) =>
+                    user._id === updatedUser._id ? updatedUser : user
+                  )
+                );
+              }}
+            />
+          )}
+          {showDeleteUserModal && selectedUser && (
+            <DeleteConfirmationModal
+              show={showDeleteUserModal}
+              onClose={() => {
+                setShowDeleteUserModal(false);
+                setSelectedUser();
+              }}
+              title="Delete User"
+              message="Are you sure you want to delete this user?"
+              item={selectedUser}
+              onConfirm={deleteUserApi}
+              afterDelete={(deletedUser) => {
+                setUsers((state) =>
+                  state.filter((user) => user._id !== deletedUser._id)
+                );
+              }}
+            />
+          )}
         </div>
       )}
     </div>

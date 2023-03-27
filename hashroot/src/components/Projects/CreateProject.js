@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import Form from "react-bootstrap/Form";
 import Card from "react-bootstrap/Card";
 import Button from "react-bootstrap/Button";
@@ -9,6 +9,7 @@ import { useNavigate } from "react-router-dom";
 import { createProjectApi } from "../../api/projects";
 
 import { USER_ROLES } from "../../constants";
+import useAuth from "../../hooks/useAuth";
 
 import AddressModal from "../shared/AddressModal";
 import SubmitButton from "../shared/SubmitButton";
@@ -16,11 +17,19 @@ import UserSelect from "../shared/UserSelect";
 
 const CreateProject = () => {
   const navigate = useNavigate();
+  const auth = useAuth();
+
   const [loading, setLoading] = useState("");
   const [projectName, setProjectName] = useState("");
   const [userOption, setUserOption] = useState({});
+  const [salesRepOption, setSalesRepOption] = useState({});
   const [address, setAddress] = useState({});
   const [showAddressModal, setShowAddressModal] = useState(false);
+
+  const isAdmin = useMemo(
+    () => auth.user.role === USER_ROLES.ADMIN,
+    [auth.user]
+  );
 
   const handleSubmit = async (e) => {
     try {
@@ -28,6 +37,10 @@ const CreateProject = () => {
       e.preventDefault();
       if (!userOption?.value) {
         toast("Please select a user", { type: toast.TYPE.ERROR });
+        return;
+      }
+      if (isAdmin && !salesRepOption?.value) {
+        toast("Please select a sales rep", { type: toast.TYPE.ERROR });
         return;
       }
       if (!Object.keys(address).length) {
@@ -38,9 +51,10 @@ const CreateProject = () => {
         projectName,
         userId: userOption?.value,
         address,
+        ...(isAdmin ? { salesRepId: salesRepOption?.value } : {}), // if admin, add salesRepId, else don't add anything
       });
       toast("Project created successfully", { type: toast.TYPE.SUCCESS });
-      navigate("/projects")
+      navigate("/projects");
     } catch (e) {
       toast(e?.response?.data?.error || e?.message || "Something went wrong", {
         type: toast.TYPE.ERROR,
@@ -74,6 +88,15 @@ const CreateProject = () => {
                 roles={[USER_ROLES.CUSTOMER]}
               />
             </Form.Group>
+            {isAdmin && (
+              <Form.Group className="mb-3" controlId="formBasicFirstName">
+                <Form.Label aria-required>Select a Sales Rep</Form.Label>
+                <UserSelect
+                  onSelect={setSalesRepOption}
+                  roles={[USER_ROLES.SALES_REP]}
+                />
+              </Form.Group>
+            )}
 
             <Form.Group className="mb-3">
               <Form.Label aria-required>Address</Form.Label>

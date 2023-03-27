@@ -5,16 +5,16 @@ import * as helpers from "../helpers.js";
 import { PAGE_LIMIT, PROJECT_STATUSES, USER_ROLES } from "../constants.js";
 import { getUserById } from "./users.js";
 
-const createProject = async (currentUser, userId, projectName, address) => {
-  if (!currentUser) throw "User not logged in";
-
+const createProject = async (userId, salesRepId, projectName, address) => {
   userId = helpers.checkId(userId);
+  salesRepId = helpers.checkId(salesRepId);
   if (projectName) {
     projectName = helpers.checkString(projectName);
   }
   address = helpers.checkAddress(address);
 
   const user = await getUserById(userId);
+  const salesRep = await getUserById(salesRepId);
 
   const projectCollection = await projects();
   const newProject = {
@@ -25,10 +25,10 @@ const createProject = async (currentUser, userId, projectName, address) => {
     projectName,
     address,
     salesRep: {
-      _id: new ObjectId(currentUser?._id),
-      email: currentUser?.email,
+      _id: new ObjectId(salesRep?._id),
+      email: salesRep?.email,
     },
-    generalContractorId: {},
+    generalContractor: {},
     workers: [],
     status: PROJECT_STATUSES.CREATED,
     createdAt: new Date(),
@@ -87,8 +87,11 @@ const getPaginatedProjects = async (currentUser, page, search, statuses) => {
   if (search) {
     const textRegex = new RegExp(search, "i");
     searchQuery["$or"] = [
-      { _id: textRegex },
       { projectName: textRegex },
+      { "address.streetAddress": textRegex },
+      { "address.city": textRegex },
+      { "address.state": textRegex },
+      { "address.zipCode": textRegex },
       { "user.email": textRegex },
     ];
   }

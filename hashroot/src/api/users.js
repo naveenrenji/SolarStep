@@ -27,13 +27,6 @@ export const searchUsersApi = async (body) => {
   return users;
 };
 
-export const getAllUsersApi = async () => {
-  const {
-    data: { users },
-  } = await http.get("/users");
-  return users;
-};
-
 export const getPaginatedUsersApi = async (params) => {
   const { page, search, roles } = params;
 
@@ -41,4 +34,23 @@ export const getPaginatedUsersApi = async (params) => {
     data: { users, totalPages },
   } = await http.get("/users", { params: { page, search, roles } });
   return { users, totalPages };
+};
+
+export const updateUserApi = async (userId, body) => {
+  const { firstName, lastName, oldPassword, newPassword } = body;
+
+  const {
+    data: { user },
+  } = await http.patch(`/users/${userId}`, {
+    firstName,
+    lastName,
+    oldPassword,
+    newPassword,
+  });
+  return user;
+};
+
+export const deleteUserApi = async (user) => {
+  await http.delete(`/users/${user._id}`);
+  return true;
 };
