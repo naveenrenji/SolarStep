@@ -3,6 +3,7 @@ import Button from "react-bootstrap/Button";
 import Table from "react-bootstrap/Table";
 
 import { getPaginatedUsersApi } from "../../api/users";
+import { USER_ROLES } from "../../constants";
 import ErrorCard from "../shared/ErrorCard";
 import ListPagination from "../shared/ListPagination";
 import Loader from "../shared/Loader";
@@ -17,6 +18,7 @@ const Users = () => {
   const [loading, setLoading] = useState(true);
   const [pageLoading, setPageLoading] = useState(true);
   const [search, setSearch] = useState("");
+  const [selectedRoles, setSelectedRoles] = useState([]);
 
   const mounted = React.useRef(false);
 
@@ -28,16 +30,17 @@ const Users = () => {
 
   useEffect(() => {
     if (mounted.current) {
-      fetchUsers(currentPage, search);
+      fetchUsers(currentPage, search, selectedRoles);
     }
-  }, [currentPage, search]);
+  }, [currentPage, search, selectedRoles]);
 
-  const fetchUsers = async (page, searchTxt) => {
+  const fetchUsers = async (page, searchTxt, roles) => {
     try {
       setPageLoading(true);
       const response = await getPaginatedUsersApi({
         page,
         search: searchTxt,
+        roles,
       });
       setUsers(response.users);
       setTotalPages(response.totalPages);
@@ -54,9 +57,10 @@ const Users = () => {
     setCurrentPage(page);
   };
 
-  const handleSubmit = (searchTxt) => {
+  const handleSubmit = (searchTxt, selectedRoles) => {
     setCurrentPage(1);
     setSearch(searchTxt);
+    setSelectedRoles(selectedRoles);
   };
 
   useEffect(() => {
@@ -80,6 +84,10 @@ const Users = () => {
             createButtonText="+ Create a User"
             createLink="/users/create"
             onSearch={handleSubmit}
+            options={Object.values(USER_ROLES).map((role) => ({
+              value: role,
+              label: role,
+            }))}
           />
           <Table striped responsive>
             <thead>

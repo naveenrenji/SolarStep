@@ -29,6 +29,9 @@ form {
     --bs-btn-color: white;
     --bs-btn-hover-color: white;
   }
+  &.btn-link {
+    --bs-btn-hover-color: $primary;
+  }
 }
 
 .navbar {

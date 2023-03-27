@@ -35,10 +35,10 @@ export const getAllUsersApi = async () => {
 };
 
 export const getPaginatedUsersApi = async (params) => {
-  const { page, search } = params;
+  const { page, search, roles } = params;
 
   const {
     data: { users, totalPages },
-  } = await http.get("/users", { params: { page, search } });
+  } = await http.get("/users", { params: { page, search, roles } });
   return { users, totalPages };
 };

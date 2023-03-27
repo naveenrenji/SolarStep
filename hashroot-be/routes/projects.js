@@ -9,7 +9,7 @@ router
   .route("/")
   .get(async (req, res) => {
     try {
-      let { page, search } = req.query;
+      let { page, search, statuses } = req.query;
       if (page !== "") {
         if (page <= 0) {
           throw "negative page number or zero page number not allowed";
@@ -18,7 +18,8 @@ router
       const { projects, totalPages } = await projectsData.getPaginatedProjects(
         req.user,
         page,
-        search
+        search,
+        statuses,
       );
       res.status(200).json({
         projects: projects.map((projectItem) => ({

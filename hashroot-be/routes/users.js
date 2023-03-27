@@ -15,7 +15,7 @@ router
     ]),
     async (req, res) => {
       try {
-        const { page, search, roles } = req.params;
+        const { page, search, roles } = req.query;
         if (page !== "") {
           if (page <= 0) {
             throw "negative page number or zero page number not allowed";

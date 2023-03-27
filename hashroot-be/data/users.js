@@ -89,38 +89,47 @@ const getPaginatedUsers = async (currentUser, page, search, roles) => {
   page = parseInt(page || 1);
   let limit = PAGE_LIMIT;
   let skip = (page - 1) * limit;
-  const findQuery = {};
+  const matchQuery = {};
+  const userSpecificQuery = {};
   if ([USER_ROLES.GENERAL_CONTRACTOR].includes(currentUser.role)) {
-    findQuery.createdById = currentUser._id;
+    userSpecificQuery.createdById = currentUser._id;
+  }
+  const rolesQuery = {};
+  if (roles?.length) {
+    rolesQuery.role = { $in: roles };
+  }
+  const searchQuery = {};
+  if (search) {
+    const textRegex = new RegExp(search, "i");
+    searchQuery["$or"] = [
+      { email: textRegex },
+      { firstName: textRegex },
+      { lastName: textRegex },
+    ];
   }
 
-  if (roles?.length && !search) {
-    findQuery.role = { $in: roles };
-  } else if (search) {
-    const textRegex = new RegExp(search, "i");
-    findQuery["$and"] = [
-      {
-        $or: [
-          { email: textRegex },
-          { firstName: textRegex },
-          { lastName: textRegex },
-        ],
-      },
-    ];
-    if (roles?.length) {
-      findQuery["$and"].push({ role: { $in: roles } });
+  if (Object.keys(userSpecificQuery).length || Object.keys(rolesQuery).length || Object.keys(searchQuery).length) {
+    matchQuery["$and"] = [];
+    if (Object.keys(userSpecificQuery).length) {
+      matchQuery["$and"].push(userSpecificQuery);
+    }
+    if (Object.keys(rolesQuery).length) {
+      matchQuery["$and"].push(rolesQuery);
+    }
+    if (Object.keys(searchQuery).length) {
+      matchQuery["$and"].push(searchQuery);
     }
   }
 
   const userCollection = await users();
 
   const aggregateRes = userCollection.aggregate([
-    { $match: findQuery },
+    { $match: matchQuery },
     {
       $facet: {
         metadata: [{ $count: "total" }],
         data: [
-          //{ $sort: { createdAt: -1 } },
+          { $sort: { createdAt: -1 } },
           { $skip: skip },
           { $limit: limit },
         ], // add projection here wish you re-shape the docs

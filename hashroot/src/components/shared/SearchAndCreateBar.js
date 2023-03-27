@@ -2,8 +2,8 @@ import React, { useState } from "react";
 import Button from "react-bootstrap/esm/Button";
 import Stack from "react-bootstrap/esm/Stack";
 import Form from "react-bootstrap/esm/Form";
+import Select from "react-select";
 import { LinkContainer } from "react-router-bootstrap";
-
 
 const SearchAndCreateBar = ({
   searchPlaceholder,
@@ -11,19 +11,26 @@ const SearchAndCreateBar = ({
   onSearch,
   onCreate,
   createLink,
+  options,
 }) => {
   const [search, setSearch] = useState("");
+  const [selectedOptions, setSelectedOptions] = useState([]);
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    onSearch(search);
+    onSearch(
+      search,
+      selectedOptions?.length
+        ? selectedOptions.map(({ value }) => value)
+        : undefined
+    );
   };
 
   return (
     <div className="mt-3 mb-3 d-sm-flex justify-content-sm-between">
       <Form onSubmit={handleSubmit}>
         <Stack direction="horizontal" gap={3}>
-          <Form.Group controlId="formBasicEmail">
+          <Form.Group controlId="searchText">
             <Form.Control
               type="text"
               placeholder={searchPlaceholder}
@@ -32,6 +39,20 @@ const SearchAndCreateBar = ({
               autoComplete="off"
             />
           </Form.Group>
+          {options?.length ? (
+            <Form.Group controlId="select">
+              <Select
+                closeMenuOnSelect={false}
+                defaultValue={[]}
+                isMulti
+                options={options}
+                value={selectedOptions}
+                onChange={setSelectedOptions}
+              />
+            </Form.Group>
+          ) : (
+            <></>
+          )}
           <Button variant="primary" onClick={handleSubmit}>
             Search
           </Button>
@@ -39,7 +60,7 @@ const SearchAndCreateBar = ({
       </Form>
       {createLink ? (
         <LinkContainer to={createLink}>
-          <Button variant="primary">{createButtonText}</Button>
+          <Button variant="link">{createButtonText}</Button>
         </LinkContainer>
       ) : (
         <Button variant="primary" onClick={onCreate}>
