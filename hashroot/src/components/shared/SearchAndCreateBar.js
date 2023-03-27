@@ -4,6 +4,7 @@ import Stack from "react-bootstrap/esm/Stack";
 import Form from "react-bootstrap/esm/Form";
 import { LinkContainer } from "react-router-bootstrap";
 
+
 const SearchAndCreateBar = ({
   searchPlaceholder,
   createButtonText,
