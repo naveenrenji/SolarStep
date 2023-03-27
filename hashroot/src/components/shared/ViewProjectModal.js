@@ -14,7 +14,14 @@ const ViewProjectModal = ({ project, show, onClose }) => {
       </Modal.Header>
       <Modal.Body>
         <ListGroup variant="flush">
-          <ListGroup.Item>{project._id}</ListGroup.Item>
+          <ListGroup.Item>
+          <Stack gap={1}>
+            <div><b>Project ID</b>
+            </div>
+            <div>
+              {project._id}</div>
+              </Stack>
+              </ListGroup.Item>
           <ListGroup.Item>
             <Stack gap={1}>
               <div>
@@ -41,6 +48,16 @@ const ViewProjectModal = ({ project, show, onClose }) => {
               </div>
               <div>{project.user.email}</div>
             </Stack>
+          </ListGroup.Item>
+          <ListGroup.Item>
+          <Stack gap={1}>
+              <div>
+                <b>Status:</b>
+              </div>
+              <div>
+                {project.status}{" "}
+              </div>
+              </Stack>
           </ListGroup.Item>
         </ListGroup>
       </Modal.Body>
