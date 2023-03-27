@@ -59,34 +59,55 @@ const getProjectById = async (id) => {
   return project;
 };
 
-const getPaginatedProjects = async (currentUser, page, search) => {
+const getPaginatedProjects = async (currentUser, page, search, statuses) => {
   if (!currentUser) throw "User not logged in";
 
   page = parseInt(page || 1);
   let limit = PAGE_LIMIT;
   let skip = (page - 1) * limit;
+
   const findQuery = {};
+  const roleSpecificQuery = {};
   if (currentUser.role === USER_ROLES.CUSTOMER) {
-    findQuery["user._id"] = currentUser._id;
+    roleSpecificQuery["user._id"] = new ObjectId(currentUser._id);
   } else if (currentUser.role === USER_ROLES.GENERAL_CONTRACTOR) {
-    findQuery["generalContractor._id"] = currentUser._id;
+    roleSpecificQuery["generalContractor._id"] = new ObjectId(currentUser._id);
   } else if (currentUser.role === USER_ROLES.WORKER) {
-    findQuery["workers._id"] = currentUser._id;
+    roleSpecificQuery["workers._id"] = new ObjectId(currentUser._id);
   } else if (currentUser.role === USER_ROLES.SALES_REP) {
-    findQuery["salesRep._id"] = currentUser._id;
+    roleSpecificQuery["salesRep._id"] = new ObjectId(currentUser._id);
   }
 
+  const statusesQuery = {};
+  if (statuses?.length) {
+    statusesQuery.status = { $in: statuses };
+  }
+
+  const searchQuery = {};
   if (search) {
-    const textRegex = new RegExp(search, 'i');
-    findQuery["$and"] = [
-      {
-        $or: [
-          { _id: textRegex },
-          { projectName: textRegex },
-          { "user.email": textRegex },
-        ],
-      },
+    const textRegex = new RegExp(search, "i");
+    searchQuery["$or"] = [
+      { _id: textRegex },
+      { projectName: textRegex },
+      { "user.email": textRegex },
     ];
+  }
+
+  if (
+    Object.keys(roleSpecificQuery).length > 0 ||
+    Object.keys(searchQuery).length > 0 ||
+    Object.keys(statusesQuery).length > 0
+  ) {
+    findQuery["$and"] = [];
+    if (Object.keys(roleSpecificQuery).length > 0) {
+      findQuery["$and"].push(roleSpecificQuery);
+    }
+    if (Object.keys(searchQuery).length > 0) {
+      findQuery["$and"].push(searchQuery);
+    }
+    if (Object.keys(statusesQuery).length > 0) {
+      findQuery["$and"].push(statusesQuery);
+    }
   }
 
   const projectCollection = await projects();

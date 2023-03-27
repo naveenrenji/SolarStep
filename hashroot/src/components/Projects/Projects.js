@@ -8,6 +8,7 @@ import ListPagination from "../shared/ListPagination";
 import Loader from "../shared/Loader";
 import RouteHeader from "../shared/RouteHeader";
 import SearchAndCreateBar from "../shared/SearchAndCreateBar";
+import { PROJECT_STATUSES } from "../../constants";
 
 const Projects = () => {
   const [projects, setProjects] = useState([]);
@@ -17,6 +18,8 @@ const Projects = () => {
   const [loading, setLoading] = useState(true);
   const [pageLoading, setPageLoading] = useState(true);
   const [search, setSearch] = useState("");
+  const [selectedStatuses, setSelectedStatuses] = useState([]);
+
   const [showProjectModal, setShowProjectModal] = useState(false);
   const [viewProject, setViewProject] = useState();
   const mounted = React.useRef(false);
@@ -29,16 +32,17 @@ const Projects = () => {
 
   useEffect(() => {
     if (mounted.current) {
-      fetchProjects(currentPage, search);
+      fetchProjects(currentPage, search, selectedStatuses);
     }
-  }, [currentPage, search]);
+  }, [currentPage, search, selectedStatuses]);
 
-  const fetchProjects = async (page, searchTxt) => {
+  const fetchProjects = async (page, searchTxt, statuses) => {
     try {
       setPageLoading(true);
       const response = await getPaginatedProjectsApi({
         page,
         search: searchTxt,
+        statuses,
       });
       setProjects(response.projects);
       setTotalPages(response.totalPages);
@@ -54,9 +58,10 @@ const Projects = () => {
     setCurrentPage(page);
   };
 
-  const handleSubmit = (searchTxt) => {
+  const handleSubmit = (searchTxt, statuses) => {
     setCurrentPage(1);
     setSearch(searchTxt);
+    setSelectedStatuses(statuses);
   };
 
   useEffect(() => {
@@ -80,6 +85,10 @@ const Projects = () => {
             createButtonText="+ Create a project"
             createLink="/projects/create"
             onSearch={handleSubmit}
+            options={Object.values(PROJECT_STATUSES).map((status) => ({
+              label: status,
+              value: status,
+            }))}
           />
           <Table striped responsive>
             <thead>

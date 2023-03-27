@@ -33,3 +33,12 @@ export const getAllUsersApi = async () => {
   } = await http.get("/users");
   return users;
 };
+
+export const getPaginatedUsersApi = async (params) => {
+  const { page, search, roles } = params;
+
+  const {
+    data: { users, totalPages },
+  } = await http.get("/users", { params: { page, search, roles } });
+  return { users, totalPages };
+};

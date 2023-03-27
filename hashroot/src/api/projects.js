@@ -14,11 +14,11 @@ export const createProjectApi = async (body) => {
 };
 
 export const getPaginatedProjectsApi = async (params) => {
-  const { page, search } = params;
+  const { page, search, statuses } = params;
 
   const {
     data: { projects, totalPages },
-  } = await http.get("/projects", { params: { page, search } });
+  } = await http.get("/projects", { params: { page, search, statuses } });
   return { projects, totalPages };
 };
 
