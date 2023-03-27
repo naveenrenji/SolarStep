@@ -21,3 +21,4 @@ export const getPaginatedProjectsApi = async (params) => {
   } = await http.get("/projects", { params: { page, search } });
   return { projects, totalPages };
 };
+

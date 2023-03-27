@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import Button from "react-bootstrap/Button";
 import Table from "react-bootstrap/Table";
-
+import ViewProjectModal from "../shared/ViewProjectModal";
 import { getPaginatedProjectsApi } from "../../api/projects";
 import ErrorCard from "../shared/ErrorCard";
 import ListPagination from "../shared/ListPagination";
@@ -17,7 +17,8 @@ const Projects = () => {
   const [loading, setLoading] = useState(true);
   const [pageLoading, setPageLoading] = useState(true);
   const [search, setSearch] = useState("");
-
+  const [showProjectModal, setShowProjectModal] = useState(false);
+  const [viewProject, setViewProject] = useState();
   const mounted = React.useRef(false);
 
   useEffect(() => {
@@ -99,7 +100,16 @@ const Projects = () => {
                     <td>{project.address?.streetAddress}</td>
                     <td>{project.user.email}</td>
                     <td>
-                      <Button variant="link">View</Button>&nbsp;
+                      <Button
+                        variant="link"
+                        onClick={() => {
+                          setShowProjectModal(true);
+                          setViewProject(project);
+                        }}
+                      >
+                        View
+                      </Button>
+                      &nbsp;
                       <Button variant="link">Edit</Button>
                     </td>
                   </tr>
@@ -119,6 +129,18 @@ const Projects = () => {
             handlePageClick={handlePageClick}
             loading={pageLoading}
           />
+          {showProjectModal && viewProject ? (
+            <ViewProjectModal
+              project={viewProject}
+              show={showProjectModal}
+              onClose={() => {
+                setShowProjectModal(false);
+                setViewProject();
+              }}
+            />
+          ) : (
+            <></>
+          )}
         </div>
       )}
     </div>
