@@ -42,9 +42,7 @@ export const userWithEmail = async (email) => {
 
 const getUserByEmail = async (email) => {
   const userCollection = await users();
-  console.log(userCollection);
   const user = await userCollection.findOne({ email });
-  console.log(user);
   return user;
 };
 
@@ -324,11 +322,11 @@ const updateUserWithId = async (
     newPassword = checkPassword(newPassword);
 
     const user = await getUserById(id);
-    const compareToMatch = await bcrypt.compare(oldPassword, user.password);
+    const compareToMatch = await comparePasswords(oldPassword, user.password);
     if (!compareToMatch) {
       throw new Error("Old password is incorrect");
     }
-    const newPasswordMatch = await bcrypt.compare(newPassword, user.password);
+    const newPasswordMatch = await comparePasswords(newPassword, user.password);
     if (newPasswordMatch) {
       throw new Error("New password cannot be same as old password");
     }
