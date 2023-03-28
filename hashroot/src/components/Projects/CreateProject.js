@@ -33,7 +33,6 @@ const CreateProject = () => {
 
   const handleSubmit = async (e) => {
     try {
-      setLoading(true);
       e.preventDefault();
       if (!userOption?.value) {
         toast("Please select a user", { type: toast.TYPE.ERROR });
@@ -47,6 +46,7 @@ const CreateProject = () => {
         toast("Please add an address", { type: toast.TYPE.ERROR });
         return;
       }
+      setLoading(true);
       await createProjectApi({
         projectName,
         userId: userOption?.value,

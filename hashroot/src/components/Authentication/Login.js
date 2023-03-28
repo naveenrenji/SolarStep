@@ -24,11 +24,11 @@ const Login = () => {
   const login = async (e) => {
     try {
       e.preventDefault();
-      setLoading(true);
       setValidated(true);
       if (!email || !password) {
         return;
       }
+      setLoading(true);
 
       const user = await loginApi({ email, password });
       setLoading(false);

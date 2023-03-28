@@ -25,8 +25,32 @@ const Signup = () => {
 
   const handleSubmit = async (e) => {
     try {
-      setLoading(true);
       e.preventDefault();
+      if (!firstName) {
+        toast("Please enter first name", { type: toast.TYPE.ERROR });
+        return;
+      }
+      if (!lastName) {
+        toast("Please enter last name", { type: toast.TYPE.ERROR });
+        return;
+      }
+      if (!email) {
+        toast("Please enter first name", { type: toast.TYPE.ERROR });
+        return;
+      }
+      if (!password) {
+        toast("Please enter last name", { type: toast.TYPE.ERROR });
+        return;
+      }
+      if (!confirmPassword) {
+        toast("Please enter first name", { type: toast.TYPE.ERROR });
+        return;
+      }
+      if (!role) {
+        toast("Please enter last name", { type: toast.TYPE.ERROR });
+        return;
+      }
+      setLoading(true);
       await createUserApi({ firstName, lastName, password, email, role });
       toast("User created successfully", { type: toast.TYPE.SUCCESS });
       navigate("/users");
