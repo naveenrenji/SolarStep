@@ -24,9 +24,18 @@ const AuthProvider = ({ children }) => {
     callback();
   }, []);
 
+  const updateProfile = useCallback(async (updatedUser, callback) => {
+    const userFromStorage = getFromStorage(USER_LOCAL_STORAGE_KEY);
+    setUser(state => ({...state, ...updatedUser}));
+    setToStorage(USER_LOCAL_STORAGE_KEY, {...userFromStorage, ...updatedUser});
+    if (callback) {
+      callback()
+    }
+  }, []);
+
   const authValues = useMemo(
-    () => ({ user, signIn, signOut }),
-    [user, signIn, signOut]
+    () => ({ user, signIn, signOut , updateProfile}),
+    [user, signIn, signOut, updateProfile]
   );
 
   return (

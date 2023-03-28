@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { USER_ROLES } from "../constants.js";
+import { userData, profileData } from "../data/index.js";
 import authorizeRequest from "../middleware/authorizeRequest.js";
-import { userData } from "../data/index.js";
 
 const router = Router();
 
@@ -121,5 +121,18 @@ router.route("/search").post(authorizeRequest(), async (req, res) => {
     res.status(404).json({ error: e?.toString() });
   }
 });
+
+router.route("/profile").put(authorizeRequest(), async (req ,res) => {
+  try {
+    const {firstName, lastName, oldPassword, newPassword} = req.body
+    if ((oldPassword && !newPassword) || (newPassword && !oldPassword)) {
+      throw new Error("Old and New passwords are required together.")
+    }
+    const user = await profileData.updateUserById(req.user, {firstName, lastName, oldPassword, newPassword})
+    res.json({user})
+  } catch (error) {
+    res.status(404).json({ error: error?.toString() });
+  }
+})
 
 export default router;

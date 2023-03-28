@@ -35,7 +35,7 @@ const getUserObject = (
 
 export const userWithEmail = async (email) => {
   const user = await getUserByEmail(email);
-  if (user === null) throw "Either the email or password is invalid";
+  if (user === null) throw "Either the email or password is invalid.";
   user._id = user._id.toString();
   return user;
 };
@@ -263,12 +263,16 @@ const deleteUserById = async (currentUser, id) => {
   return true;
 };
 
+const comparePasswords = async (enteredPassword, encryptedPassword) => {
+  return await bcrypt.compare(enteredPassword, encryptedPassword)
+}
+
 const loginUser = async (email, password) => {
   email = checkEmail(email);
   password = checkPassword(password);
   const user = await userWithEmail(email);
   let realPassword = user.password;
-  let compareToMatch = await bcrypt.compare(password, realPassword);
+  let compareToMatch = await comparePasswords(password, realPassword);
   if (compareToMatch) {
     return {
       ...getUserObject(user, ["_id", "email", "firstName", "lastName", "role"]),
@@ -318,11 +322,11 @@ const updateUserWithId = async (
     newPassword = checkPassword(newPassword);
 
     const user = await getUserById(id);
-    const compareToMatch = await bcrypt.compare(oldPassword, user.password);
+    const compareToMatch = await comparePasswords(oldPassword, user.password);
     if (!compareToMatch) {
       throw new Error("Old password is incorrect");
     }
-    const newPasswordMatch = await bcrypt.compare(newPassword, user.password);
+    const newPasswordMatch = await comparePasswords(newPassword, user.password);
     if (newPasswordMatch) {
       throw new Error("New password cannot be same as old password");
     }
@@ -361,4 +365,6 @@ export {
   loginUser,
   searchUsers,
   updateUserWithId,
+  hashPassword,
+  comparePasswords,
 };

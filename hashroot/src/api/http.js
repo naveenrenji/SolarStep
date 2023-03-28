@@ -4,7 +4,7 @@ import { getFromStorage } from "../utils";
 
 const http = axios.create({
   baseURL: "http://localhost:3001/api/",
-  timeout: 1000,
+  timeout: 10000,
 });
 
 http.interceptors.request.use(

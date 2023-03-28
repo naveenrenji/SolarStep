@@ -15,6 +15,17 @@ export const createUserApi = async (body) => {
   return user;
 };
 
+export const updateProfile = async (body) => {
+  const { firstName, lastName, oldPassword, newPassword } = body;
+const response = await http.put("/users/profile", {
+    firstName,
+    lastName,
+    oldPassword,
+    newPassword,
+  });
+  return response?.data?.user;
+}
+
 export const searchUsersApi = async (body) => {
   const { text, roles } = body;
 
