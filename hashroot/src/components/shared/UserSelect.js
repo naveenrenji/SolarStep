@@ -51,7 +51,11 @@ const LoadingMessage = (props) => {
   );
 };
 
-const UserSelect = ({ roles = Object.values(USER_ROLES), onSelect }) => {
+const UserSelect = ({
+  roles = Object.values(USER_ROLES),
+  onSelect,
+  disabled = false,
+}) => {
   const [value, setValue] = useState();
 
   const getUsersBySearch = async (inputString) => {
@@ -85,6 +89,7 @@ const UserSelect = ({ roles = Object.values(USER_ROLES), onSelect }) => {
         setValue(opt);
         onSelect && onSelect(opt);
       }}
+      isDisabled={disabled}
     />
   );
 };

@@ -44,6 +44,7 @@ router
           salesRepId = req.user._id;
         }
         const project = await projectsData.createProject(
+          req.user,
           userId,
           salesRepId,
           projectName,
@@ -61,8 +62,8 @@ router
   .get(async (req, res) => {
     try {
       const id = req.params.id;
-      const project = await projectsData.getProjectById(id);
-      return res.status(200).json(project);
+      const project = await projectsData.getProjectById(req.user, id);
+      return res.status(200).json({ project });
     } catch (e) {
       return res.status(404).json({ error: e });
     }
@@ -75,7 +76,7 @@ router
         req.session._id,
         req.body
       );
-      return res.status(200).json(updatedProject);
+      return res.status(200).json({ project: updatedProject });
     } catch (e) {
       return res.status(500).json({ error: e });
     }

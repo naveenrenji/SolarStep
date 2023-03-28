@@ -12,8 +12,10 @@ import { Login } from "./components/Authentication";
 import Dashboard from "./components/Dashboard";
 import NotFound from "./components/shared/NotFound";
 import Profile from "./components/Profile";
-import { Projects, CreateProject } from "./components/Projects";
+import { Projects, CreateProject, Project } from "./components/Projects";
 import { CreateUser, Users } from "./components/Users";
+import { CreateTask, Tasks, UpdateTask } from "./components/Tasks";
+import ProjectLayout from "./hoc/ProjectLayout";
 
 function App() {
   return (
@@ -77,6 +79,49 @@ function App() {
                 </RequiresAuth>
               }
             />
+            <Route
+              path=":projectId"
+              element={
+                <RequiresAuth>
+                  <ProjectLayout />
+                </RequiresAuth>
+              }
+            >
+              <Route
+                index
+                element={
+                  <RequiresAuth>
+                    <Project />
+                  </RequiresAuth>
+                }
+              />
+              <Route path="tasks" element={<Outlet />}>
+                <Route
+                  index
+                  element={
+                    <RequiresAuth>
+                      <Tasks />
+                    </RequiresAuth>
+                  }
+                />
+                <Route
+                  path="create"
+                  element={
+                    <RequiresAuth>
+                      <CreateTask />
+                    </RequiresAuth>
+                  }
+                />
+                <Route
+                  path=":taskId"
+                  element={
+                    <RequiresAuth>
+                      <UpdateTask />
+                    </RequiresAuth>
+                  }
+                />
+              </Route>
+            </Route>
           </Route>
           <Route
             path="/profile"

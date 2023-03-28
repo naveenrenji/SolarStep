@@ -2,6 +2,7 @@ import React, { useMemo, useState, useCallback, useEffect } from "react";
 import { clearFromStorage, getFromStorage, setToStorage } from "../../utils";
 import { USER_LOCAL_STORAGE_KEY } from "../../constants";
 import AuthContext from "../../config/AuthContext";
+import Loader from "../../components/shared/Loader";
 
 const AuthProvider = ({ children }) => {
   const [user, setUser] = useState();
@@ -40,7 +41,7 @@ const AuthProvider = ({ children }) => {
 
   return (
     <AuthContext.Provider value={authValues}>
-      {appLoaded ? children : <>Loading</>}
+      {appLoaded ? children : <Loader />}
     </AuthContext.Provider>
   );
 };

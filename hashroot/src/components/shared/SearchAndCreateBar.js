@@ -12,6 +12,7 @@ const SearchAndCreateBar = ({
   onCreate,
   createLink,
   options,
+  hideCreateLink = false,
 }) => {
   const [search, setSearch] = useState("");
   const [selectedOptions, setSelectedOptions] = useState([]);
@@ -68,14 +69,18 @@ const SearchAndCreateBar = ({
           </Button>
         </Stack>
       </Form>
-      {createLink ? (
-        <LinkContainer to={createLink}>
-          <Button variant="link">{createButtonText}</Button>
-        </LinkContainer>
+      {!hideCreateLink ? (
+        createLink ? (
+          <LinkContainer to={createLink}>
+            <Button variant="link">{createButtonText}</Button>
+          </LinkContainer>
+        ) : (
+          <Button variant="primary" onClick={onCreate}>
+            {createButtonText}
+          </Button>
+        )
       ) : (
-        <Button variant="primary" onClick={onCreate}>
-          {createButtonText}
-        </Button>
+        <></>
       )}
     </div>
   );

@@ -5,7 +5,7 @@ import * as helpers from "../helpers.js";
 import { PAGE_LIMIT, PROJECT_STATUSES, USER_ROLES } from "../constants.js";
 import { getUserById } from "./users.js";
 
-const createProject = async (userId, salesRepId, projectName, address) => {
+const createProject = async (currentUser, userId, salesRepId, projectName, address) => {
   userId = helpers.checkId(userId);
   salesRepId = helpers.checkId(salesRepId);
   if (projectName) {
@@ -41,18 +41,19 @@ const createProject = async (userId, salesRepId, projectName, address) => {
   }
 
   const newId = insertInfo.insertedId.toString();
-  const project = await getProjectById(newId);
+  const project = await getProjectById(currentUser, newId);
 
   return project;
 };
 
-const getProjectById = async (id) => {
-  id = helpers.checkId(id);
+const getProjectById = async (currentUser, id) => {
+  if (!currentUser) throw "User not logged in";
+  id = helpers.checkId(id, "Project ID");
 
   const projectCollection = await projects();
   const project = await projectCollection.findOne({ _id: new ObjectId(id) });
 
-  if (!project) {
+  if (!project || !helpers.canViewProject(currentUser, project)) {
     throw `Project with ID ${id} not found`;
   }
 
