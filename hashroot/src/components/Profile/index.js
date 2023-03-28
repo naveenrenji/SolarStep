@@ -83,6 +83,7 @@ const Profile = () => {
       setLoading(true);
       const user = await updateProfile(body);
       auth.updateProfile(user);
+      toast("Profile updated successfully", { type: toast.TYPE.SUCCESS });
     } catch (e) {
       toast(e?.response?.data?.error || e?.message || "Something went wrong", {
         type: toast.TYPE.ERROR,
@@ -100,6 +101,14 @@ const Profile = () => {
         </Card.Header>
         <Card.Body>
           <Form onSubmit={handleSubmit}>
+            <Form.Group className="mb-3" controlId="formBasicEmail">
+              <Form.Label aria-required>Email</Form.Label>
+              <Form.Control value={auth.user.email} type="email" disabled />
+            </Form.Group>
+            <Form.Group className="mb-3">
+              <Form.Label aria-required>Role</Form.Label>
+              <Form.Control value={auth.user.role} disabled />
+            </Form.Group>
             <Form.Group className="mb-3" controlId="formBasicFirstName">
               <Form.Label>First Name</Form.Label>
               <Form.Control
