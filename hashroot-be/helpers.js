@@ -1,6 +1,28 @@
 import { ObjectId } from "mongodb";
 import { USER_ROLES } from "./constants.js";
 
+const canViewProject = (currentUser, project) => {
+  if (!currentUser) return false;
+  switch (currentUser.role) {
+    case USER_ROLES.ADMIN:
+      return true;
+    case USER_ROLES.CUSTOMER:
+      return currentUser._id.toString() === project.user._id.toString();
+    case USER_ROLES.SALES_REP:
+      return currentUser._id.toString() === project.salesRep._id.toString();
+    case USER_ROLES.GENERAL_CONTRACTOR:
+      return (
+        currentUser._id.toString() === project.generalContractor._id.toString()
+      );
+    case USER_ROLES.WORKER:
+      return !!project.workers.find(
+        (worker) => worker._id.toString() === currentUser._id
+      );
+    default:
+      return false;
+  }
+};
+
 const checkString = (strVal, varName) => {
   if (!strVal) throw new Error(`Error: You must supply a ${varName}!`);
   if (typeof strVal !== "string")
@@ -155,4 +177,5 @@ export {
   checkString,
   checkObject,
   checkAddress,
+  canViewProject,
 };

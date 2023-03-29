@@ -22,3 +22,10 @@ export const getPaginatedProjectsApi = async (params) => {
   } = await http.get("/projects", { params: { page, search, statuses } });
   return { projects, totalPages };
 };
+
+export const getProjectApi = async (projectId) => {
+  const {
+    data: { project },
+  } = await http.get(`/projects/${projectId}`);
+  return project;
+};

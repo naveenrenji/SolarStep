@@ -1,9 +1,12 @@
 import React, { useEffect, useState } from "react";
+import Button from "react-bootstrap/esm/Button";
 import Table from "react-bootstrap/Table";
 import { FaEdit, FaRegWindowMaximize } from "react-icons/fa";
+import { LinkContainer } from "react-router-bootstrap";
 
 import { getPaginatedProjectsApi } from "../../api/projects";
-import { PROJECT_STATUSES } from "../../constants";
+import { PROJECT_STATUSES, USER_ROLES } from "../../constants";
+import useAuth from "../../hooks/useAuth";
 
 import ErrorCard from "../shared/ErrorCard";
 import ListPagination from "../shared/ListPagination";
@@ -13,6 +16,7 @@ import SearchAndCreateBar from "../shared/SearchAndCreateBar";
 import ViewProjectModal from "../shared/ViewProjectModal";
 
 const Projects = () => {
+  const auth = useAuth();
   const [projects, setProjects] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(0);
@@ -91,6 +95,9 @@ const Projects = () => {
               label: status,
               value: status,
             }))}
+            hideCreateLink={
+              ![USER_ROLES.ADMIN, USER_ROLES.SALES_REP].includes(auth.user.role)
+            }
           />
           <Table striped responsive>
             <thead>
@@ -111,22 +118,29 @@ const Projects = () => {
                     <td>{project.address?.streetAddress}</td>
                     <td>{project.user.email}</td>
                     <td>
-                      <FaRegWindowMaximize
+                      <Button
                         variant="link"
                         onClick={() => {
                           setShowProjectModal(true);
                           setSelectedProject(project);
                         }}
                         title="View"
-                        className="m-1"
+                        className="m-1 p-0"
                         style={{ cursor: "pointer" }}
-                      />
+                      >
+                        <FaRegWindowMaximize />
+                      </Button>
                       &nbsp;
-                      <FaEdit
-                        title="Edit"
-                        className="m-1"
-                        style={{ cursor: "pointer" }}
-                      />
+                      <LinkContainer to={`/projects/${project._id}`}>
+                        <Button
+                          variant="link"
+                          title="Edit"
+                          className="m-1 p-0"
+                          style={{ cursor: "pointer" }}
+                        >
+                          <FaEdit />
+                        </Button>
+                      </LinkContainer>
                     </td>
                   </tr>
                 ))
