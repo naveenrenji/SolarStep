@@ -8,7 +8,7 @@ import ConfirmationModal from "../shared/ConfirmationModal";
 
 import SubmitButton from "../shared/SubmitButton";
 
-const OnSiteAnalysisInProgress = () => {
+const OnSiteInspectionInProgress = () => {
   const auth = useAuth();
   const { project, updateProject } = useProject();
   const [showConfirmationModal, setShowConfirmationModal] =
@@ -37,7 +37,7 @@ const OnSiteAnalysisInProgress = () => {
           flexDirection: "column",
         }}
       >
-        <Card.Text>The On Site Analysis is progress.</Card.Text>
+        <Card.Text>The On Site Inspection is progress.</Card.Text>
         {[
           USER_ROLES.WORKER,
           USER_ROLES.SALES_REP,
@@ -119,4 +119,4 @@ const OnSiteAnalysisInProgress = () => {
   );
 };
 
-export default OnSiteAnalysisInProgress;
+export default OnSiteInspectionInProgress;

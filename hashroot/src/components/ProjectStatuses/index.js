@@ -6,8 +6,8 @@ import useProject from "../../hooks/useProject";
 import ReadyToBeAssignedToGC from "./ReadyToBeAssignedToGC";
 import AssignedToGC from "./AssignedToGC";
 import GCAccepted from "./GCAccepted";
-import OnSiteAnalysisScheduled from "./OnSiteAnalysisScheduled";
-import OnSiteAnalysisInProgress from "./OnSiteAnalysisInProgress";
+import OnSiteInspectionScheduled from "./OnSiteInspectionScheduled";
+import OnSiteInspectionInProgress from "./OnSiteInspectionInProgress";
 import ReadyForInstallation from "./ReadyForInstallation";
 import InstallationStarted from "./InstallationStarted";
 import ValidatingPermits from "./ValidatingPermits";
@@ -28,10 +28,10 @@ const ProjectStatuses = () => {
       return <AssignedToGC />;
     case PROJECT_STATUSES.GC_ACCEPTED:
       return <GCAccepted />;
-    case PROJECT_STATUSES.ON_SITE_ANALYSIS_SCHEDULED:
-      return <OnSiteAnalysisScheduled />;
-    case PROJECT_STATUSES.ON_SITE_ANALYSIS_IN_PROGRESS:
-      return <OnSiteAnalysisInProgress />;
+    case PROJECT_STATUSES.ON_SITE_INSPECTION_SCHEDULED:
+      return <OnSiteInspectionScheduled />;
+    case PROJECT_STATUSES.ON_SITE_INSPECTION_IN_PROGRESS:
+      return <OnSiteInspectionInProgress />;
     case PROJECT_STATUSES.UPDATING_PROPOSAL:
       return <UpdatingProposal />;
     case PROJECT_STATUSES.REVIEWING_PROPOSAL:

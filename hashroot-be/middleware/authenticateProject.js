@@ -10,10 +10,6 @@ const authenticateProject = async (req, res, next) => {
     }
     const { projectId } = req.params;
     req.project = await getProjectById(req.user, projectId);
-
-    if (req.project.status !== PROJECT_STATUSES.INSTALLATION_STARTED) {
-      throw new Error("Installation not started yet");
-    }
     next();
   } catch (error) {
     return res.status(401).json({ error: error?.toString() });

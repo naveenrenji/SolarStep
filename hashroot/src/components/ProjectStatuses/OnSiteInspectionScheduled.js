@@ -8,7 +8,7 @@ import ConfirmationModal from "../shared/ConfirmationModal";
 
 import SubmitButton from "../shared/SubmitButton";
 
-const OnSiteAnalysisScheduled = () => {
+const OnSiteInspectionScheduled = () => {
   const auth = useAuth();
   const { project, updateProject } = useProject();
   const [showConfirmationModal, setShowConfirmationModal] =
@@ -30,7 +30,7 @@ const OnSiteAnalysisScheduled = () => {
           flexDirection: "column",
         }}
       >
-        <Card.Text>The On Site Analysis has been scheduled.</Card.Text>
+        <Card.Text>The On Site Inspection has been scheduled.</Card.Text>
         {[
           USER_ROLES.WORKER,
           USER_ROLES.SALES_REP,
@@ -91,4 +91,4 @@ const OnSiteAnalysisScheduled = () => {
   );
 };
 
-export default OnSiteAnalysisScheduled;
+export default OnSiteInspectionScheduled;
