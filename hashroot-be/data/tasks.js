@@ -1,5 +1,5 @@
 import { ObjectId } from "mongodb";
-import { tasks, users } from "../config/mongoCollections.js";
+import { projects, tasks, users } from "../config/mongoCollections.js";
 import { TASK_STATUSES, USER_ROLES } from "../constants.js";
 import * as helpers from "../helpers.js";
 
@@ -72,6 +72,7 @@ const createTask = async (
   if (!generalContractor) {
     throw new Error("General Contractor not available");
   }
+  const workersData = workers.map(({ _id, email }) => ({ _id, email }));
 
   const taskCollection = await tasks();
   const newTask = {
@@ -94,6 +95,17 @@ const createTask = async (
     throw new Error("Could not create task");
   }
   const newId = insertInfo.insertedId.toString();
+  const projectCollection = await projects();
+  const projectUpdateInfo = await projectCollection.findOneAndUpdate(
+    { _id: new ObjectId(projectId) },
+    { $addToSet: { workers: { $each: workersData } } },
+    { returnDocument: "after" }
+  );
+  if (projectUpdateInfo.lastErrorObject.n !== 1 || !projectUpdateInfo.value) {
+    throw new Error(
+      "Could not add workers to project. Task is created though."
+    );
+  }
   const task = await getTaskById(currentUser, projectId, newId);
   return task;
 };
@@ -156,6 +168,7 @@ const updateTask = async (
   if (!workers || workers.length !== workerIds.length) {
     throw new Error("One or more worker ids are wrong");
   }
+  const workersData = workers.map(({ _id, email }) => ({ _id, email }));
 
   const findQuery = {
     _id: new ObjectId(taskId),
@@ -169,7 +182,7 @@ const updateTask = async (
   const updatedTask = {
     title,
     description,
-    workers: workers.map(({ _id, email }) => ({ _id, email })),
+    workers: workersData,
   };
   const updatedInfo = await taskCollection.findOneAndUpdate(
     findQuery,
@@ -187,6 +200,18 @@ const updateTask = async (
       USER_ROLES.ADMIN,
       USER_ROLES.SALES_REP,
     ].includes(currentUser.role);
+
+  const projectCollection = await projects();
+  const projectUpdateInfo = await projectCollection.findOneAndUpdate(
+    { _id: new ObjectId(projectId) },
+    { $addToSet: { workers: { $each: workersData } } },
+    { returnDocument: "after" }
+  );
+  if (projectUpdateInfo.lastErrorObject.n !== 1 || !projectUpdateInfo.value) {
+    throw new Error(
+      "Could not add workers to project. Task is created though."
+    );
+  }
   return updatedInfo.value;
 };
 
