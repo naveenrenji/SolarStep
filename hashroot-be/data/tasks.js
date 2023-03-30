@@ -23,16 +23,7 @@ const getAllTasks = async (currentUser, projectId) => {
     throw new Error("Could not fetch tasks");
   }
 
-  return tasksList.map((task) => ({
-    ...task,
-    canEdit:
-      task.status !== TASK_STATUSES.COMPLETED &&
-      [
-        USER_ROLES.GENERAL_CONTRACTOR,
-        USER_ROLES.ADMIN,
-        USER_ROLES.SALES_REP,
-      ].includes(currentUser.role),
-  }));
+  return tasksList.map(helpers.getTaskObject(currentUser));
 };
 
 const createTask = async (
@@ -132,14 +123,7 @@ const getTaskById = async (currentUser, projectId, taskId) => {
   if (!task) {
     throw new Error("Task not found");
   }
-  task.canEdit =
-    task.status !== TASK_STATUSES.COMPLETED &&
-    [
-      USER_ROLES.GENERAL_CONTRACTOR,
-      USER_ROLES.ADMIN,
-      USER_ROLES.SALES_REP,
-    ].includes(currentUser.role);
-  return task;
+  return helpers.getTaskObject(currentUser)(task);
 };
 
 const updateTask = async (
@@ -192,14 +176,6 @@ const updateTask = async (
   if (updatedInfo.lastErrorObject.n !== 1 || !updatedInfo.value) {
     throw new Error("Could not update task");
   }
-  updatedInfo.value._id = updatedInfo.value._id.toString();
-  updatedInfo.value.canEdit =
-    updatedInfo.value.status !== TASK_STATUSES.COMPLETED &&
-    [
-      USER_ROLES.GENERAL_CONTRACTOR,
-      USER_ROLES.ADMIN,
-      USER_ROLES.SALES_REP,
-    ].includes(currentUser.role);
 
   const projectCollection = await projects();
   const projectUpdateInfo = await projectCollection.findOneAndUpdate(
@@ -212,7 +188,7 @@ const updateTask = async (
       "Could not add workers to project. Task is created though."
     );
   }
-  return updatedInfo.value;
+  return helpers.getTaskObject(currentUser)(updatedInfo.value);
 };
 
 const updateTaskStatus = async (currentUser, projectId, taskId, status) => {
@@ -248,15 +224,7 @@ const updateTaskStatus = async (currentUser, projectId, taskId, status) => {
   if (updatedInfo.lastErrorObject.n !== 1 || !updatedInfo.value) {
     throw new Error("Could not update task");
   }
-  updatedInfo.value._id = updatedInfo.value._id.toString();
-  updatedInfo.value.canEdit =
-    updatedInfo.value.status !== TASK_STATUSES.COMPLETED &&
-    [
-      USER_ROLES.GENERAL_CONTRACTOR,
-      USER_ROLES.ADMIN,
-      USER_ROLES.SALES_REP,
-    ].includes(currentUser.role);
-  return updatedInfo.value;
+  return helpers.getTaskObject(currentUser)(updatedInfo.value);
 };
 
 const deleteTask = async (currentUser, projectId, taskId) => {

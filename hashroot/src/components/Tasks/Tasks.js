@@ -7,25 +7,27 @@ import Card from "react-bootstrap/Card";
 import Form from "react-bootstrap/Form";
 import { LinkContainer } from "react-router-bootstrap";
 import { BsArrowLeft } from "react-icons/bs";
+import { toast } from "react-toastify";
 
 import {
   deleteTaskApi,
   getProjectTasksApi,
   updateTaskStatusApi,
 } from "../../api/tasks";
-import { TASK_STATUSES } from "../../constants";
+import { TASK_STATUSES, USER_ROLES } from "../../constants";
 
 import useProject from "../../hooks/useProject";
+import useAuth from "../../hooks/useAuth";
 
 import ErrorCard from "../shared/ErrorCard";
 import Loader from "../shared/Loader";
 import RouteHeader from "../shared/RouteHeader";
 import TaskListCard from "./TaskListCard";
-import { toast } from "react-toastify";
 import ViewOrUpdateTaskModal from "./ViewOrUpdateTaskModal";
 import ConfirmationModal from "../shared/ConfirmationModal";
 
 const Tasks = () => {
+  const auth = useAuth();
   const { project } = useProject();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -97,8 +99,16 @@ const Tasks = () => {
     setShowDeleteTaskConfirmation(true);
   };
 
+  const canCreate = useMemo(
+    () => ![USER_ROLES.CUSTOMER, USER_ROLES.WORKER].includes(auth.user.role),
+    [auth.user.role]
+  );
+
   return (
-    <div style={{ display: "flex", flexDirection: "column", height: "100%" }} className="mb-3">
+    <div
+      style={{ display: "flex", flexDirection: "column", height: "100%" }}
+      className="mb-3"
+    >
       <RouteHeader headerText="Tasks" />
       {loading ? (
         <Loader />
@@ -112,9 +122,13 @@ const Tasks = () => {
                 <BsArrowLeft /> Go to project
               </Button>
             </LinkContainer>
-            <LinkContainer to={`/projects/${project._id}/tasks/create`}>
-              <Button>+ Create Task</Button>
-            </LinkContainer>
+            {canCreate ? (
+              <LinkContainer to={`/projects/${project._id}/tasks/create`}>
+                <Button>+ Create Task</Button>
+              </LinkContainer>
+            ) : (
+              <></>
+            )}
           </Stack>
           <Row style={{ flexGrow: 1 }} className="mb-3">
             <Col>
@@ -139,24 +153,28 @@ const Tasks = () => {
                         </Card.Body>
                       </Card>
                     )}
-                    <Card className="add-task-card">
-                      <Card.Body>
-                        <Form.Text>
-                          To create a new task,{" "}
-                          <LinkContainer
-                            to={`/projects/${project._id}/tasks/create`}
-                            style={{ fontSize: "0.875rem", padding: 0 }}
-                          >
-                            <Button
-                              variant="link"
+                    {canCreate ? (
+                      <Card className="add-task-card">
+                        <Card.Body>
+                          <Form.Text>
+                            To create a new task,{" "}
+                            <LinkContainer
+                              to={`/projects/${project._id}/tasks/create`}
                               style={{ fontSize: "0.875rem", padding: 0 }}
                             >
-                              click here
-                            </Button>
-                          </LinkContainer>
-                        </Form.Text>
-                      </Card.Body>
-                    </Card>
+                              <Button
+                                variant="link"
+                                style={{ fontSize: "0.875rem", padding: 0 }}
+                              >
+                                click here
+                              </Button>
+                            </LinkContainer>
+                          </Form.Text>
+                        </Card.Body>
+                      </Card>
+                    ) : (
+                      <></>
+                    )}
                   </Stack>
                 </Card.Body>
               </Card>

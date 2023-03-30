@@ -10,6 +10,9 @@ import { TASK_STATUSES } from "../../constants";
 
 const TaskListCard = ({ task, onTaskClick, onStatusChange, onDelete }) => {
   const taskActionStatuses = useMemo(() => {
+    if (!task.canChangeStatus) {
+      return {};
+    }
     switch (task?.status) {
       case TASK_STATUSES.TO_DO:
         return {
