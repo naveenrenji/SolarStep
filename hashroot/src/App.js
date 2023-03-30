@@ -2,6 +2,7 @@ import React from "react";
 import { Outlet, Route, Routes } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
 import "./App.scss";
+import "react-datepicker/dist/react-datepicker.css";
 
 import { AuthProvider, RequiresAuth } from "./hoc/Authentication";
 import { USER_ROLES } from "./constants";
@@ -107,7 +108,13 @@ function App() {
                 <Route
                   path="create"
                   element={
-                    <RequiresAuth>
+                    <RequiresAuth
+                      roles={[
+                        USER_ROLES.ADMIN,
+                        USER_ROLES.GENERAL_CONTRACTOR,
+                        USER_ROLES.SALES_REP,
+                      ]}
+                    >
                       <CreateTask />
                     </RequiresAuth>
                   }

@@ -11,6 +11,15 @@ $success: rgb(164, 201, 92);
   &.card-warning {
     --bs-card-cap-bg: rgb(240, 177, 85);
   }
+  &.task-card {
+    --bs-card-cap-bg: rgba(0,0,0,0.03);
+    --bs-card-cap-color: rgb(81, 156, 195);
+  }
+  &.add-task-card {
+    .card-body {
+      background: var(--bs-gray-200);
+    }
+  }
 }
 
 form {
@@ -31,6 +40,12 @@ form {
   }
   &.btn-link {
     --bs-btn-hover-color: $primary;
+    &-primary {
+      --bs-btn-color: $primary;
+    }
+    &-secondary {
+      --bs-btn-color: rgb(240, 177, 85);
+    }
   }
 }
 
@@ -65,5 +80,11 @@ a {
   color: rgb(81, 156, 195);
   &:hover, &:active {
     color: rgb(240, 177, 85);
+  }
+}
+
+svg {
+  &.primary {
+    fill: rgb(81, 156, 195);
   }
 }

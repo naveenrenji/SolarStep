@@ -52,11 +52,12 @@ const LoadingMessage = (props) => {
 };
 
 const UserSelect = ({
+  value: currentValue,
   roles = Object.values(USER_ROLES),
   onSelect,
   disabled = false,
 }) => {
-  const [value, setValue] = useState();
+  const [value, setValue] = useState(currentValue || undefined);
 
   const getUsersBySearch = async (inputString) => {
     try {

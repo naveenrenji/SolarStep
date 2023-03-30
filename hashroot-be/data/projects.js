@@ -145,95 +145,95 @@ const getPaginatedProjects = async (currentUser, page, search, statuses) => {
   };
 };
 
-const getEveryProject = async () => {
-  const projectCollection = await projects();
-  const projectList = await projectCollection.find({}).toArray();
-  if (!projectList) throw "Could not get all projects";
-  if (projectList.length == 0) return [];
-  projectList.forEach((element) => {
-    element._id = element._id.toString();
-  });
-  return projectList;
-};
+// const getEveryProject = async () => {
+//   const projectCollection = await projects();
+//   const projectList = await projectCollection.find({}).toArray();
+//   if (!projectList) throw "Could not get all projects";
+//   if (projectList.length == 0) return [];
+//   projectList.forEach((element) => {
+//     element._id = element._id.toString();
+//   });
+//   return projectList;
+// };
 
-const updateProject = async (id, userId, updatedProject) => {
-  id = helpers.checkId(id);
-  userId = helpers.checkId(userId);
-  if (!updatedProject || typeof updatedProject !== "object") {
-    throw "Valid updated project data is required";
-  }
+// const updateProject = async (id, userId, updatedProject) => {
+//   id = helpers.checkId(id);
+//   userId = helpers.checkId(userId);
+//   if (!updatedProject || typeof updatedProject !== "object") {
+//     throw "Valid updated project data is required";
+//   }
 
-  const projectCollection = await projects();
-  const existingProject = await projectCollection.findOne({
-    _id: new ObjectId(id),
-  });
+//   const projectCollection = await projects();
+//   const existingProject = await projectCollection.findOne({
+//     _id: new ObjectId(id),
+//   });
 
-  if (!existingProject) {
-    throw `Project with ID ${id} not found`;
-  }
+//   if (!existingProject) {
+//     throw `Project with ID ${id} not found`;
+//   }
 
-  if (existingProject.userId.toString() !== userId.toString()) {
-    throw "Only project owner can update the project";
-  }
+//   if (existingProject.userId.toString() !== userId.toString()) {
+//     throw "Only project owner can update the project";
+//   }
 
-  const updatedProjectData = {};
+//   const updatedProjectData = {};
 
-  if (
-    updatedProject.projectName &&
-    typeof updatedProject.projectName === "string"
-  ) {
-    updatedProjectData.projectName = updatedProject.projectName;
-  }
+//   if (
+//     updatedProject.projectName &&
+//     typeof updatedProject.projectName === "string"
+//   ) {
+//     updatedProjectData.projectName = updatedProject.projectName;
+//   }
 
-  if (updatedProject.address && typeof updatedProject.address === "string") {
-    updatedProjectData.address = updatedProject.address;
-  }
+//   if (updatedProject.address && typeof updatedProject.address === "string") {
+//     updatedProjectData.address = updatedProject.address;
+//   }
 
-  if (Object.keys(updatedProjectData).length === 0) {
-    throw "At least one field must be provided to update the project";
-  }
+//   if (Object.keys(updatedProjectData).length === 0) {
+//     throw "At least one field must be provided to update the project";
+//   }
 
-  const updatedInfo = await projectCollection.updateOne(
-    { _id: new ObjectId(id) },
-    { $set: updatedProjectData }
-  );
+//   const updatedInfo = await projectCollection.updateOne(
+//     { _id: new ObjectId(id) },
+//     { $set: updatedProjectData }
+//   );
 
-  if (updatedInfo.modifiedCount === 0) {
-    throw "Could not update project successfully";
-  }
+//   if (updatedInfo.modifiedCount === 0) {
+//     throw "Could not update project successfully";
+//   }
 
-  return await getProjectById(id);
-};
+//   return await getProjectById(id);
+// };
 
-const deleteProject = async (id, userId) => {
-  id = helpers.checkId(id);
-  userId = helpers.checkId(userId);
-  let projectCollection = await projects();
-  const project = await getProjectById(id);
-  if (!project) {
-    throw "Project not found";
-  }
-  // Check if the user has permission to delete the project
-  if (project.userId !== userId) {
-    throw "You are not authorized to delete this project";
-  }
-  const projectExists = await projectCollection.findOne({
-    _id: mongo.ObjectId(id),
-  });
-  const deletionInfo = await projectCollection.deleteOne({
-    _id: mongo.ObjectId(id),
-  });
-  if (deletionInfo.deletedCount === 0) {
-    throw `Could not delete project with id of ${id}`;
-  }
-  return `${projectExists.projectName} has been successfully deleted!`;
-};
+// const deleteProject = async (id, userId) => {
+//   id = helpers.checkId(id);
+//   userId = helpers.checkId(userId);
+//   let projectCollection = await projects();
+//   const project = await getProjectById(id);
+//   if (!project) {
+//     throw "Project not found";
+//   }
+//   // Check if the user has permission to delete the project
+//   if (project.userId !== userId) {
+//     throw "You are not authorized to delete this project";
+//   }
+//   const projectExists = await projectCollection.findOne({
+//     _id: mongo.ObjectId(id),
+//   });
+//   const deletionInfo = await projectCollection.deleteOne({
+//     _id: mongo.ObjectId(id),
+//   });
+//   if (deletionInfo.deletedCount === 0) {
+//     throw `Could not delete project with id of ${id}`;
+//   }
+//   return `${projectExists.projectName} has been successfully deleted!`;
+// };
 
 export {
   createProject,
-  deleteProject,
-  updateProject,
+  // deleteProject,
+  // updateProject,
   getProjectById,
   getPaginatedProjects,
-  getEveryProject,
+  // getEveryProject,
 };

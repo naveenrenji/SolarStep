@@ -127,6 +127,9 @@ const CreateProject = () => {
               <SubmitButton type="submit" variant="primary" loading={loading}>
                 Create Project
               </SubmitButton>
+              <Button variant="outline-secondary" onClick={() => navigate(-1)}>
+                Cancel
+              </Button>
             </div>
           </Form>
         </Card.Body>

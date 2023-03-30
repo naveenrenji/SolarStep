@@ -1,5 +1,5 @@
 import { ObjectId } from "mongodb";
-import { USER_ROLES } from "./constants.js";
+import { TASK_STATUSES, USER_ROLES } from "./constants.js";
 
 const canViewProject = (currentUser, project) => {
   if (!currentUser) return false;
@@ -21,6 +21,28 @@ const canViewProject = (currentUser, project) => {
     default:
       return false;
   }
+};
+
+const getTaskObject = (currentUser) => (task) => {
+  return {
+    ...task,
+    _id: task._id.toString(),
+    canEdit:
+      task.status !== TASK_STATUSES.COMPLETED &&
+      [
+        USER_ROLES.GENERAL_CONTRACTOR,
+        USER_ROLES.ADMIN,
+        USER_ROLES.SALES_REP,
+      ].includes(currentUser.role),
+    canChangeStatus:
+      task.status !== TASK_STATUSES.COMPLETED &&
+      [
+        USER_ROLES.GENERAL_CONTRACTOR,
+        USER_ROLES.ADMIN,
+        USER_ROLES.SALES_REP,
+        USER_ROLES.WORKER,
+      ].includes(currentUser.role),
+  };
 };
 
 const checkString = (strVal, varName) => {
@@ -128,6 +150,16 @@ const checkRolesArray = (roles) => {
   });
 };
 
+const checkIdArray = (ids, varName) => {
+  if (!Array.isArray(ids)) {
+    throw new Error(`${varName} is not an array`);
+  }
+  return ids.map((id) => {
+    checkId(id, `id in ${varName}`);
+    return id.trim();
+  });
+};
+
 // checkId function checks whether the id parameter is provided, of type string and is not an empty string.
 const checkId = (id, varName) => {
   if (!id) throw `Error: You must provide a ${varName}`;
@@ -170,6 +202,7 @@ const checkAddress = (address) => {
 
 export {
   checkId,
+  checkIdArray,
   checkRole,
   checkRolesArray,
   checkEmail,
@@ -178,4 +211,5 @@ export {
   checkObject,
   checkAddress,
   canViewProject,
+  getTaskObject,
 };
