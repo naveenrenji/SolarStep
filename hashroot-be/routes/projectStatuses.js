@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { PROJECT_STATUSES } from "../constants";
+import { PROJECT_STATUSES } from "../constants.js";
 
 const router = Router();
 
