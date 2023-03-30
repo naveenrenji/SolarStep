@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import Button from "react-bootstrap/esm/Button";
 import Stack from "react-bootstrap/esm/Stack";
 import Row from "react-bootstrap/Row";
@@ -6,30 +6,55 @@ import Col from "react-bootstrap/Col";
 import Card from "react-bootstrap/Card";
 import Form from "react-bootstrap/Form";
 import { LinkContainer } from "react-router-bootstrap";
+import { BsArrowLeft } from "react-icons/bs";
 
-import { getProjectTasksApi } from "../../api/tasks";
+import {
+  deleteTaskApi,
+  getProjectTasksApi,
+  updateTaskStatusApi,
+} from "../../api/tasks";
+import { TASK_STATUSES } from "../../constants";
 
 import useProject from "../../hooks/useProject";
 
 import ErrorCard from "../shared/ErrorCard";
 import Loader from "../shared/Loader";
 import RouteHeader from "../shared/RouteHeader";
+import TaskListCard from "./TaskListCard";
+import { toast } from "react-toastify";
+import ViewOrUpdateTaskModal from "./ViewOrUpdateTaskModal";
+import ConfirmationModal from "../shared/ConfirmationModal";
 
 const Tasks = () => {
   const { project } = useProject();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const [createdTasks, setCreatedTasks] = useState([]);
-  const [inProgressTasks, setInProgressTasks] = useState([]);
-  const [completedTasks, setCompletedTasks] = useState([]);
+  const [tasks, setTasks] = useState([]);
+  const [currentTask, setCurrentTask] = useState(null);
+  const [showTaskModal, setShowTaskModal] = useState(false);
+  const [showDeleteTaskConfirmation, setShowDeleteTaskConfirmation] =
+    useState(false);
+
+  const toDoTasks = useMemo(
+    () => tasks.filter((task) => task.status === TASK_STATUSES.TO_DO),
+    [tasks]
+  );
+  const inProgressTasks = useMemo(
+    () => tasks.filter((task) => task.status === TASK_STATUSES.IN_PROGRESS),
+    [tasks]
+  );
+  const completedTasks = useMemo(
+    () => tasks.filter((task) => task.status === TASK_STATUSES.COMPLETED),
+    [tasks]
+  );
 
   const fetchTasks = useCallback(async () => {
     try {
       setLoading(true);
-      const tasks = await getProjectTasksApi({ projectId: project._id });
-      setCreatedTasks(tasks.filter((task) => task.status === "created"));
-      setInProgressTasks(tasks.filter((task) => task.status === "in-progress"));
-      setCompletedTasks(tasks.filter((task) => task.status === "completed"));
+      const { tasks: tasksList } = await getProjectTasksApi({
+        projectId: project._id,
+      });
+      setTasks(tasksList);
     } catch (error) {
       setError(
         error?.response?.data?.error || error.message || "Could not fetch tasks"
@@ -43,106 +68,198 @@ const Tasks = () => {
     fetchTasks();
   }, [fetchTasks]);
 
+  const onTaskStatusChange = async (taskId, status) => {
+    try {
+      const { task: updatedTask } = await updateTaskStatusApi({
+        projectId: project._id,
+        taskId,
+        status,
+      });
+      setTasks((tasks) =>
+        tasks.map((task) => (task._id === taskId ? updatedTask : task))
+      );
+      toast(`Task moved to ${status}`, { type: toast.TYPE.SUCCESS });
+    } catch (error) {
+      toast(
+        error?.response?.data?.error || error.message || "Could not move tasks",
+        { type: toast.TYPE.ERROR }
+      );
+    }
+  };
+
+  const handleTaskClick = (task) => {
+    setCurrentTask(task);
+    setShowTaskModal(true);
+  };
+
+  const handleTaskDeleteClick = async (task) => {
+    setCurrentTask(task);
+    setShowDeleteTaskConfirmation(true);
+  };
+
   return (
-    <div style={{ display: "flex", flexDirection: "column", height: "100%" }}>
+    <div style={{ display: "flex", flexDirection: "column", height: "100%" }} className="mb-3">
       <RouteHeader headerText="Tasks" />
       {loading ? (
         <Loader />
-      ) : !error ? (
+      ) : error ? (
         <ErrorCard error={error} />
       ) : (
         <>
           <Stack gap={2} direction="horizontal" className="mt-3 mb-3">
             <LinkContainer to={`/projects/${project._id}`}>
-              <Button>Go to project</Button>
+              <Button>
+                <BsArrowLeft /> Go to project
+              </Button>
             </LinkContainer>
             <LinkContainer to={`/projects/${project._id}/tasks/create`}>
               <Button>+ Create Task</Button>
             </LinkContainer>
           </Stack>
-          <Row style={{ flexGrow: 1 }}>
+          <Row style={{ flexGrow: 1 }} className="mb-3">
             <Col>
               <Card>
-                <Card.Header>Created Tasks</Card.Header>
+                <Card.Header>To-Do</Card.Header>
                 <Card.Body>
-                  {createdTasks?.length ? (
-                    createdTasks.map((task) => (
+                  <Stack gap={2}>
+                    {toDoTasks?.length ? (
+                      toDoTasks.map((task) => (
+                        <TaskListCard
+                          key={task._id}
+                          task={task}
+                          onStatusChange={onTaskStatusChange}
+                          onTaskClick={() => handleTaskClick(task)}
+                          onDelete={handleTaskDeleteClick}
+                        />
+                      ))
+                    ) : (
                       <Card>
                         <Card.Body>
-                          <Card.Text>{task.title}</Card.Text>
-                          <Card.Text>
-                            {task.workers
-                              .map((worker) => worker.name)
-                              .join(", ")}
-                          </Card.Text>
+                          <Form.Text>No tasks created yet.</Form.Text>
                         </Card.Body>
                       </Card>
-                    ))
-                  ) : (
-                    <Card>
+                    )}
+                    <Card className="add-task-card">
                       <Card.Body>
-                        <Form.Text>No tasks created yet.</Form.Text>
+                        <Form.Text>
+                          To create a new task,{" "}
+                          <LinkContainer
+                            to={`/projects/${project._id}/tasks/create`}
+                            style={{ fontSize: "0.875rem", padding: 0 }}
+                          >
+                            <Button
+                              variant="link"
+                              style={{ fontSize: "0.875rem", padding: 0 }}
+                            >
+                              click here
+                            </Button>
+                          </LinkContainer>
+                        </Form.Text>
                       </Card.Body>
                     </Card>
-                  )}
+                  </Stack>
                 </Card.Body>
               </Card>
             </Col>
             <Col>
               <Card>
-                <Card.Header>In-progress Tasks</Card.Header>
+                <Card.Header>In Progress</Card.Header>
                 <Card.Body>
-                  {inProgressTasks?.length ? (
-                    inProgressTasks.map((task) => (
+                  <Stack gap={2}>
+                    {inProgressTasks?.length ? (
+                      inProgressTasks.map((task) => (
+                        <TaskListCard
+                          key={task._id}
+                          task={task}
+                          onStatusChange={onTaskStatusChange}
+                          onTaskClick={() => handleTaskClick(task)}
+                          onDelete={handleTaskDeleteClick}
+                        />
+                      ))
+                    ) : (
                       <Card>
                         <Card.Body>
-                          <Card.Text>{task.title}</Card.Text>
-                          <Card.Text>
-                            {task.workers
-                              .map((worker) => worker.name)
-                              .join(", ")}
-                          </Card.Text>
+                          <Form.Text>
+                            No in progress tasks created yet.
+                          </Form.Text>
                         </Card.Body>
                       </Card>
-                    ))
-                  ) : (
-                    <Card>
-                      <Card.Body>
-                        <Form.Text>No in progress tasks created yet.</Form.Text>
-                      </Card.Body>
-                    </Card>
-                  )}
+                    )}
+                  </Stack>
                 </Card.Body>
               </Card>
             </Col>
             <Col>
               <Card>
-                <Card.Header>Completed Tasks</Card.Header>
+                <Card.Header>Completed</Card.Header>
                 <Card.Body>
-                  {completedTasks?.length ? (
-                    completedTasks.map((task) => (
+                  <Stack gap={2}>
+                    {completedTasks?.length ? (
+                      completedTasks.map((task) => (
+                        <TaskListCard
+                          key={task._id}
+                          task={task}
+                          onStatusChange={onTaskStatusChange}
+                          onTaskClick={() => handleTaskClick(task)}
+                        />
+                      ))
+                    ) : (
                       <Card>
                         <Card.Body>
-                          <Card.Text>{task.title}</Card.Text>
-                          <Card.Text>
-                            {task.workers
-                              .map((worker) => worker.name)
-                              .join(", ")}
-                          </Card.Text>
+                          <Form.Text>No completed tasks created yet.</Form.Text>
                         </Card.Body>
                       </Card>
-                    ))
-                  ) : (
-                    <Card>
-                      <Card.Body>
-                        <Form.Text>No completed tasks created yet.</Form.Text>
-                      </Card.Body>
-                    </Card>
-                  )}
+                    )}
+                  </Stack>
                 </Card.Body>
               </Card>
             </Col>
           </Row>
+          {currentTask && showTaskModal && (
+            <ViewOrUpdateTaskModal
+              show={showTaskModal}
+              onClose={() => {
+                setCurrentTask();
+                setShowTaskModal(false);
+              }}
+              task={currentTask}
+              projectId={project._id}
+              afterUpdate={(updatedTask) => {
+                setTasks((state) =>
+                  state.map((task) =>
+                    task._id === updatedTask._id ? updatedTask : task
+                  )
+                );
+              }}
+            />
+          )}
+          {currentTask && showDeleteTaskConfirmation && (
+            <ConfirmationModal
+              show={showDeleteTaskConfirmation}
+              onClose={() => {
+                setCurrentTask();
+                setShowDeleteTaskConfirmation(false);
+              }}
+              onConfirm={async () => {
+                await deleteTaskApi({
+                  projectId: project._id,
+                  taskId: currentTask._id,
+                });
+              }}
+              title="Delete Task"
+              message="Are you sure you want to delete this task?"
+              afterConfirm={() => {
+                setTasks((tasks) =>
+                  tasks.filter((task) => task._id !== currentTask._id)
+                );
+                toast("Task deleted successfully", {
+                  type: toast.TYPE.SUCCESS,
+                });
+                setCurrentTask();
+                setShowDeleteTaskConfirmation(false);
+              }}
+            />
+          )}
         </>
       )}
     </div>

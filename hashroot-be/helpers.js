@@ -128,6 +128,16 @@ const checkRolesArray = (roles) => {
   });
 };
 
+const checkIdArray = (ids, varName) => {
+  if (!Array.isArray(ids)) {
+    throw new Error(`${varName} is not an array`);
+  }
+  return ids.map((id) => {
+    checkId(id, `id in ${varName}`);
+    return id.trim();
+  });
+};
+
 // checkId function checks whether the id parameter is provided, of type string and is not an empty string.
 const checkId = (id, varName) => {
   if (!id) throw `Error: You must provide a ${varName}`;
@@ -170,6 +180,7 @@ const checkAddress = (address) => {
 
 export {
   checkId,
+  checkIdArray,
   checkRole,
   checkRolesArray,
   checkEmail,

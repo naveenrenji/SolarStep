@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import Form from "react-bootstrap/Form";
 import Card from "react-bootstrap/Card";
+import Button from "react-bootstrap/esm/Button";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 
@@ -146,6 +147,9 @@ const Signup = () => {
             <SubmitButton type="submit" variant="primary" loading={loading}>
               Create User
             </SubmitButton>
+            <Button variant="outline-secondary" onClick={() => navigate(-1)}>
+              Cancel
+            </Button>
           </div>
         </Form>
       </Card.Body>

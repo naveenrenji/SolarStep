@@ -23,3 +23,9 @@ export const PROJECT_STATUSES = {
   CLOSING_OUT: "Closing Out",
   COMPLETED: "Completed",
 };
+
+export const TASK_STATUSES = {
+  TO_DO: "To Do",
+  IN_PROGRESS: "In Progress",
+  COMPLETED: "Completed",
+};

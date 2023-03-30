@@ -57,39 +57,37 @@ router
     }
   );
 
-router
-  .route("/:id")
-  .get(async (req, res) => {
-    try {
-      const id = req.params.id;
-      const project = await projectsData.getProjectById(req.user, id);
-      return res.status(200).json({ project });
-    } catch (e) {
-      return res.status(404).json({ error: e });
-    }
-  })
-  .put(async (req, res) => {
-    try {
-      const id = req.params.id;
-      const updatedProject = await projectsData.updateProject(
-        id,
-        req.session._id,
-        req.body
-      );
-      return res.status(200).json({ project: updatedProject });
-    } catch (e) {
-      return res.status(500).json({ error: e });
-    }
-  });
-
-router.route("/:id/delete").delete(async (req, res) => {
+router.route("/:id").get(async (req, res) => {
   try {
     const id = req.params.id;
-    await projectsData.deleteProject(id, req.session._id);
-    return res.status(200).json({ message: "Project deleted successfully" });
+    const project = await projectsData.getProjectById(req.user, id);
+    return res.status(200).json({ project });
   } catch (e) {
-    return res.status(500).json({ error: e });
+    return res.status(404).json({ error: e });
   }
 });
+//   .put(async (req, res) => {
+//     try {
+//       const id = req.params.id;
+//       const updatedProject = await projectsData.updateProject(
+//         id,
+//         req.session._id,
+//         req.body
+//       );
+//       return res.status(200).json({ project: updatedProject });
+//     } catch (e) {
+//       return res.status(500).json({ error: e });
+//     }
+//   });
+
+// router.route("/:id/delete").delete(async (req, res) => {
+//   try {
+//     const id = req.params.id;
+//     await projectsData.deleteProject(id, req.session._id);
+//     return res.status(200).json({ message: "Project deleted successfully" });
+//   } catch (e) {
+//     return res.status(500).json({ error: e });
+//   }
+// });
 
 export default router;
