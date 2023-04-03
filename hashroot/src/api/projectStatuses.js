@@ -1,5 +1,5 @@
 import http from "./http";
-import { PROJECT_STATUSES } from "../constants";
+import { PROJECT_STATUS_KEYS } from "../constants";
 
 const moveToOnSiteInspectionScheduledApi = async (
   projectId,
@@ -8,7 +8,7 @@ const moveToOnSiteInspectionScheduledApi = async (
   const {
     data: { project },
   } = await http.patch(
-    `/projects/${projectId}/status/${PROJECT_STATUSES.ON_SITE_INSPECTION_SCHEDULED}`,
+    `/projects/${projectId}/status/${PROJECT_STATUS_KEYS.ON_SITE_INSPECTION_SCHEDULED}`,
     {
       onSiteInspectionDate,
     }
@@ -24,7 +24,7 @@ const moveToOnSiteInspectionInProgressApi = async (
   const {
     data: { project },
   } = await http.patch(
-    `/projects/${projectId}/status/${PROJECT_STATUSES.ON_SITE_INSPECTION_IN_PROGRESS}`,
+    `/projects/${projectId}/status/${PROJECT_STATUS_KEYS.ON_SITE_INSPECTION_IN_PROGRESS}}`,
     {
       onSiteInspectionStartedOn,
     }
