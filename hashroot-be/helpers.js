@@ -1,6 +1,14 @@
 import { ObjectId } from "mongodb";
 import { TASK_STATUSES, USER_ROLES } from "./constants.js";
 
+const checkProjectStatus = (status, varName = "Project Status") => {
+  status = checkString(status, varName);
+  if (!Object.values(PROJECT_STATUSES).includes(status)) {
+    throw new Error(`Invalid ${varName}`);
+  }
+  return status;
+};
+
 const canViewProject = (currentUser, project) => {
   if (!currentUser) return false;
   switch (currentUser.role) {
@@ -212,4 +220,5 @@ export {
   checkAddress,
   canViewProject,
   getTaskObject,
+  checkProjectStatus,
 };

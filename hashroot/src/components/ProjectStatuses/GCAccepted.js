@@ -1,10 +1,12 @@
 import React from "react";
 import Card from "react-bootstrap/esm/Card";
+import { moveToOnSiteInspectionScheduledApi } from "../../api/projectStatuses";
 
 import { USER_ROLES } from "../../constants";
 import useAuth from "../../hooks/useAuth";
 import useProject from "../../hooks/useProject";
 import ConfirmationModal from "../shared/ConfirmationModal";
+import FormDatePicker from "../shared/FormDatePicker";
 
 import SubmitButton from "../shared/SubmitButton";
 
@@ -13,10 +15,12 @@ const GCAccepted = () => {
   const { project, updateProject } = useProject();
   const [showConfirmationModal, setShowConfirmationModal] =
     React.useState(false);
+  const [onSiteInspectionDate, setOnSiteInspectionDate] = React.useState();
 
   const onScheduleOnsiteInspection = async () => {
-    console.log(project._id);
-    // return await scheduleOnsiteInspection(project._id);
+    return await moveToOnSiteInspectionScheduledApi(project._id, {
+      onSiteInspectionDate,
+    });
   };
 
   return (
@@ -35,7 +39,7 @@ const GCAccepted = () => {
         </Card.Text>
         {[USER_ROLES.WORKER, USER_ROLES.CUSTOMER].includes(auth.user.role) ? (
           <Card.Text>
-            Please wait for the general contractor to schedule a on site
+            Please wait for the general contractor to schedule an on-site
             inspection
           </Card.Text>
         ) : [
@@ -47,7 +51,11 @@ const GCAccepted = () => {
             <Card.Text>
               Please add the date when the on-site analysis will be scheduled
             </Card.Text>
-            <input>Date Picker here</input>
+            <FormDatePicker
+              minDate={new Date()}
+              value={onSiteInspectionDate}
+              onChange={setOnSiteInspectionDate}
+            />
             {showConfirmationModal ? (
               <ConfirmationModal
                 key="accept"

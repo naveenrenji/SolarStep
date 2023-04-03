@@ -1,5 +1,6 @@
 import { Router } from "express";
 import { PROJECT_STATUSES } from "../constants.js";
+import { createProjectLog, moveToOnSiteInspectionScheduled } from "../data/projectStatuses.js";
 
 const router = Router();
 
@@ -9,8 +10,14 @@ router.route("/ON_SITE_INSPECTION_SCHEDULED").patch(async (req, res) => {
     const project = await moveToOnSiteInspectionScheduled(
       req.user,
       req.project,
-      PROJECT_STATUSES.ON_SITE_INSPECTION_SCHEDULED,
       onSiteInspectionDate
+    );
+    await createProjectLog(
+      req.user,
+      req.project,
+      req.project.status,
+      PROJECT_STATUSES.ON_SITE_INSPECTION_SCHEDULED,
+      `On site inspection scheduled on ${onSiteInspectionDate}`
     );
     res.json({ project });
   } catch {

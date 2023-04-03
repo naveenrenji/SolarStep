@@ -4,6 +4,12 @@ $success: rgb(164, 201, 92);
 
 @import "bootstrap/scss/bootstrap.scss";
 
+:root {
+  --toastify-color-warning: rgb(240, 177, 85)!important;
+  --toastify-color-success: rgb(164, 201, 92)!important;
+  --toastify-color-info: rgb(81, 156, 195)!important;
+}
+
 .card {
   --bs-card-cap-bg: rgb(81, 156, 195);
   --bs-card-cap-color: white;
