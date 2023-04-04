@@ -1,6 +1,9 @@
 import React from "react";
 import Button from "react-bootstrap/esm/Button";
 import Card from "react-bootstrap/esm/Card";
+import Stack from "react-bootstrap/esm/Stack";
+import { GrUserWorker } from "react-icons/gr";
+import { BsExclamationLg } from "react-icons/bs";
 
 import { USER_ROLES } from "../../constants";
 import useAuth from "../../hooks/useAuth";
@@ -28,7 +31,7 @@ const AssignedToGC = () => {
   };
 
   return (
-    <Card className="shadow-sm mt-3 h-100">
+    <Card className="shadow-sm mt-3 h-100 project-status">
       <Card.Body
         className="mb-0 flex-1"
         style={{
@@ -38,6 +41,24 @@ const AssignedToGC = () => {
           flexDirection: "column",
         }}
       >
+        <Stack direction="horizontal" style={{ justifyContent: "center" }}>
+          <GrUserWorker
+            className="primary"
+            style={{
+              height: "12rem",
+              width: "12rem",
+              marginBottom: "1rem",
+            }}
+          />
+          <BsExclamationLg
+            className="secondary"
+            style={{
+              height: "8rem",
+              width: "8rem",
+              marginBottom: "1rem",
+            }}
+          />
+        </Stack>
         <Card.Text>The project is assigned to General Contractor.</Card.Text>
         {[USER_ROLES.SALES_REP, USER_ROLES.CUSTOMER].includes(
           auth.user.role
@@ -95,10 +116,11 @@ const AssignedToGC = () => {
         auth.user.role
       ) ? (
         <Card.Footer>
-          <div style={{ marginLeft: "auto", marginRight: 0, display: "block" }}>
+          <Stack style={{ float: "right" }} gap={2} direction="horizontal">
             <SubmitButton
               onClick={() => setShowRejectConfirmationModal(true)}
               className="ml-3"
+              variant="secondary"
             >
               Reject Proposal
             </SubmitButton>
@@ -108,7 +130,7 @@ const AssignedToGC = () => {
             >
               Accept Proposal
             </SubmitButton>
-          </div>
+          </Stack>
         </Card.Footer>
       ) : (
         <></>

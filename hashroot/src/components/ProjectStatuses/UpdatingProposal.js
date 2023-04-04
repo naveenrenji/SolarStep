@@ -1,6 +1,7 @@
 import React from "react";
 import Button from "react-bootstrap/esm/Button";
 import Card from "react-bootstrap/esm/Card";
+import { GrDocumentTime } from "react-icons/gr";
 
 import { USER_ROLES } from "../../constants";
 import useAuth from "../../hooks/useAuth";
@@ -21,7 +22,7 @@ const UpdatingProposal = () => {
   };
 
   return (
-    <Card className="shadow-sm mt-3 h-100">
+    <Card className="shadow-sm mt-3 h-100 project-status">
       <Card.Body
         className="mb-0 flex-1"
         style={{
@@ -31,6 +32,14 @@ const UpdatingProposal = () => {
           flexDirection: "column",
         }}
       >
+        <GrDocumentTime
+          className="primary"
+          style={{
+            height: "12rem",
+            width: "12rem",
+            marginBottom: "1rem",
+          }}
+        />
         <Card.Text>The project is assigned to General Contractor.</Card.Text>
         {[USER_ROLES.CUSTOMER, USER_ROLES.WORKER].includes(auth.user.role) ? (
           <Card.Text>
@@ -73,7 +82,7 @@ const UpdatingProposal = () => {
         USER_ROLES.SALES_REP,
       ].includes(auth.user.role) ? (
         <Card.Footer>
-          <div style={{ marginLeft: "auto", marginRight: 0, display: "block" }}>
+          <div style={{ float: "right" }}>
             <SubmitButton
               onClick={() => setShowConfirmationModal(true)}
               className="ml-3"

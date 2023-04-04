@@ -23,6 +23,7 @@ const configureRoutes = (app) => {
     "/api/projects/:projectId/status",
     authenticateRequest,
     authenticateProject,
+    // TODO: authenticateProjectStatusChange,
     projectStatusRoutes
   );
 

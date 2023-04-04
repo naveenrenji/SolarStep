@@ -1,5 +1,7 @@
 import React from "react";
 import Card from "react-bootstrap/esm/Card";
+import { GrUserWorker } from "react-icons/gr";
+import { BsQuestionLg } from "react-icons/bs";
 
 import { USER_ROLES } from "../../constants";
 import useAuth from "../../hooks/useAuth";
@@ -8,6 +10,7 @@ import ConfirmationModal from "../shared/ConfirmationModal";
 
 import SubmitButton from "../shared/SubmitButton";
 import UserSelect from "../shared/UserSelect";
+import Stack from "react-bootstrap/esm/Stack";
 
 const ReadyToBeAssignedToGC = () => {
   const auth = useAuth();
@@ -23,7 +26,7 @@ const ReadyToBeAssignedToGC = () => {
   };
 
   return (
-    <Card className="shadow-sm mt-3 h-100">
+    <Card className="shadow-sm mt-3 h-100 project-status">
       <Card.Body
         className="mb-0 flex-1"
         style={{
@@ -33,6 +36,24 @@ const ReadyToBeAssignedToGC = () => {
           flexDirection: "column",
         }}
       >
+        <Stack direction="horizontal" style={{ justifyContent: "center" }}>
+          <GrUserWorker
+            className="primary"
+            style={{
+              height: "12rem",
+              width: "12rem",
+              marginBottom: "1rem",
+            }}
+          />
+          <BsQuestionLg
+            className="secondary"
+            style={{
+              height: "8rem",
+              width: "8rem",
+              marginBottom: "1rem",
+            }}
+          />
+        </Stack>
         <Card.Text>
           The project is now ready to be assigned to a general contractor.
         </Card.Text>
@@ -76,7 +97,7 @@ const ReadyToBeAssignedToGC = () => {
       {[USER_ROLES.ADMIN, USER_ROLES.SALES_REP].includes(auth.user.role) ? (
         <Card.Footer>
           <SubmitButton
-            variant="secondary"
+            variant="primary"
             style={{ marginLeft: "auto", marginRight: 0, display: "block" }}
             onClick={() => setShowConfirmationModal(true)}
           >

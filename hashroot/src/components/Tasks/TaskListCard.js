@@ -7,6 +7,7 @@ import Tooltip from "react-bootstrap/Tooltip";
 import { BsArrowRightSquareFill, BsArrowLeftSquareFill } from "react-icons/bs";
 
 import { TASK_STATUSES } from "../../constants";
+import { daysRemaining, displayDate } from "../../utils/date";
 
 const TaskListCard = ({ task, onTaskClick, onStatusChange, onDelete }) => {
   const taskActionStatuses = useMemo(() => {
@@ -29,37 +30,26 @@ const TaskListCard = ({ task, onTaskClick, onStatusChange, onDelete }) => {
     }
   }, [task]);
 
-  const elapsedTime = useMemo(() => {
-    const startDate = new Date(task.createdAt);
-    const endDate = new Date();
-    const timeDiff = Math.abs(endDate.getTime() - startDate.getTime());
-    const diffDays = Math.ceil(timeDiff / (1000 * 3600 * 24));
-    return diffDays - 1;
-  }, [task]);
+  const elapsedTime = useMemo(
+    () =>
+      daysRemaining(new Date(task.createdAt), new Date(), {
+        excludeEndDate: true,
+      }),
+    [task]
+  );
 
   const toBeCompletedIn = useMemo(() => {
-    const expectedCompletedDate = new Date(task.expectedCompletionDate);
-    const endDate = new Date();
-    const timeDiff = expectedCompletedDate.getTime() - endDate.getTime();
-
-    const diffDays = Math.ceil(timeDiff / (1000 * 3600 * 24));
-    return diffDays;
+    return daysRemaining(new Date(task.expectedCompletionDate), new Date());
   }, [task]);
 
-  const completedTime = useMemo(() => {
+  const completedOn = useMemo(() => {
     if (!task.completedOn) return null;
-    const completedOn = new Date(task.completedOn);
-    return completedOn.toLocaleDateString();
+    return displayDate(task.completedOn);
   }, [task]);
 
   const taskCompletionDelayedBy = useMemo(() => {
     if (!task.completedOn) return null;
-    const expectedCompletedDate = new Date(task.expectedCompletionDate);
-    const completedOn = new Date(task.completedOn);
-    const timeDiff = completedOn.getTime() - expectedCompletedDate.getTime();
-
-    const diffDays = Math.ceil(timeDiff / (1000 * 3600 * 24));
-    return diffDays;
+    return daysRemaining(task.expectedCompletionDate, task.completedOn);
   }, [task]);
 
   return (
@@ -124,7 +114,7 @@ const TaskListCard = ({ task, onTaskClick, onStatusChange, onDelete }) => {
       </Card.Body>
       <Card.Footer className="text-muted">
         {task.status === TASK_STATUSES.COMPLETED ? (
-          <FormText>Completed on: {completedTime}</FormText>
+          <FormText>Completed on: {completedOn}</FormText>
         ) : (
           <div style={{ display: "flex", justifyContent: "space-between" }}>
             {taskActionStatuses.left ? (

@@ -1,9 +1,13 @@
 import React from "react";
 import Card from "react-bootstrap/esm/Card";
+import { GrScheduleNew } from "react-icons/gr";
+
+import { moveToOnSiteInspectionInProgressApi } from "../../api/projectStatuses";
 
 import { USER_ROLES } from "../../constants";
 import useAuth from "../../hooks/useAuth";
 import useProject from "../../hooks/useProject";
+import { displayDate } from "../../utils/date";
 import ConfirmationModal from "../shared/ConfirmationModal";
 
 import SubmitButton from "../shared/SubmitButton";
@@ -15,12 +19,13 @@ const OnSiteInspectionScheduled = () => {
     React.useState(false);
 
   const onSiteInspectionStart = async () => {
-    console.log(project._id);
-    // return await startOnsiteInspection(project._id);
+    return await moveToOnSiteInspectionInProgressApi(project._id, {
+      onSiteInspectionStartedOn: new Date(),
+    });
   };
 
   return (
-    <Card className="shadow-sm mt-3 h-100">
+    <Card className="shadow-sm mt-3 h-100 project-status">
       <Card.Body
         className="mb-0 flex-1"
         style={{
@@ -30,7 +35,15 @@ const OnSiteInspectionScheduled = () => {
           flexDirection: "column",
         }}
       >
-        <Card.Text>The On Site Inspection has been scheduled.</Card.Text>
+        <GrScheduleNew
+          className="primary"
+          style={{
+            height: "12rem",
+            width: "12rem",
+            marginBottom: "1rem",
+          }}
+        />
+        <Card.Text>The On Site Inspection has been scheduled</Card.Text>
         {[
           USER_ROLES.WORKER,
           USER_ROLES.SALES_REP,
@@ -41,7 +54,9 @@ const OnSiteInspectionScheduled = () => {
               Please wait for general contractor to start the inspection
               process.
             </Card.Text>
-            <Card.Text>Inspection Date: {project.inspectionDate}</Card.Text>
+            <Card.Text>
+              Inspection Date: {displayDate(project.onSiteInspectionDate)}
+            </Card.Text>
           </div>
         ) : [USER_ROLES.ADMIN, USER_ROLES.GENERAL_CONTRACTOR].includes(
             auth.user.role
@@ -75,7 +90,7 @@ const OnSiteInspectionScheduled = () => {
         auth.user.role
       ) ? (
         <Card.Footer>
-          <div style={{ marginLeft: "auto", marginRight: 0, display: "block" }}>
+          <div style={{ float: "right" }}>
             <SubmitButton
               onClick={() => setShowConfirmationModal(true)}
               className="ml-3"

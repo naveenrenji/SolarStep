@@ -1,5 +1,7 @@
 import React from "react";
 import Card from "react-bootstrap/esm/Card";
+import Stack from "react-bootstrap/esm/Stack";
+import { GrSchedulePlay } from "react-icons/gr";
 
 import { USER_ROLES } from "../../constants";
 import useAuth from "../../hooks/useAuth";
@@ -27,7 +29,7 @@ const OnSiteInspectionInProgress = () => {
   };
 
   return (
-    <Card className="shadow-sm mt-3 h-100">
+    <Card className="shadow-sm mt-3 h-100 project-status">
       <Card.Body
         className="mb-0 flex-1"
         style={{
@@ -37,7 +39,16 @@ const OnSiteInspectionInProgress = () => {
           flexDirection: "column",
         }}
       >
+        <GrSchedulePlay
+          className="primary"
+          style={{
+            height: "12rem",
+            width: "12rem",
+            marginBottom: "1rem",
+          }}
+        />
         <Card.Text>The On Site Inspection is progress.</Card.Text>
+        <Card.Text>Started Inspection On: {project.inspectionDate}</Card.Text>
         {[
           USER_ROLES.WORKER,
           USER_ROLES.SALES_REP,
@@ -47,15 +58,11 @@ const OnSiteInspectionInProgress = () => {
             <Card.Text>
               Please wait for general contractor to complete the inspection.
             </Card.Text>
-            <Card.Text>Inspection Date: {project.inspectionDate}</Card.Text>
           </div>
         ) : [USER_ROLES.ADMIN, USER_ROLES.GENERAL_CONTRACTOR].includes(
             auth.user.role
           ) ? (
           <div style={{ textAlign: "center" }}>
-            <Card.Text>
-              Are you ready to start the on-site inspection process?
-            </Card.Text>
             {showConfirmationModal ? (
               <ConfirmationModal
                 key="ready-for-installation"
@@ -97,10 +104,11 @@ const OnSiteInspectionInProgress = () => {
         auth.user.role
       ) ? (
         <Card.Footer>
-          <div style={{ marginLeft: "auto", marginRight: 0, display: "block" }}>
+          <Stack style={{ float: "right" }} gap={2} direction="horizontal">
             <SubmitButton
               onClick={() => setShowProposalNeedsUpdateModal(true)}
               className="ml-3"
+              variant="secondary"
             >
               Proposal needs to be updated
             </SubmitButton>
@@ -110,7 +118,7 @@ const OnSiteInspectionInProgress = () => {
             >
               Ready for installation
             </SubmitButton>
-          </div>
+          </Stack>
         </Card.Footer>
       ) : (
         <></>
