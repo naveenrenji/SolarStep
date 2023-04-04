@@ -9,6 +9,7 @@ import {
 } from "../data/tasks.js";
 import * as helpers from "../helpers.js";
 import authorizeRequest from "../middleware/authorizeRequest.js";
+import { TASK_STATUSES } from "../constants.js";
 
 const router = express.Router({ mergeParams: true });
 
@@ -131,5 +132,24 @@ router
       }
     }
   );
+
+router.route("/analytics").get(async (req, res) => {
+  try {
+    const { projectId } = req.params;
+    const tasks = await getAllTasks(req.user, projectId);
+    const analytics = {
+      total: tasks.length,
+      completed: tasks.filter((task) => task.status === TASK_STATUSES.COMPLETED)
+        .length,
+      inProgress: tasks.filter(
+        (task) => task.status === TASK_STATUSES.IN_PROGRESS
+      ).length,
+      todo: tasks.filter((task) => task.status === TASK_STATUSES.TO_DO).length,
+    };
+    res.json({ analytics });
+  } catch (error) {
+    res.status(400).json({ error: error?.toString() });
+  }
+});
 
 export default router;

@@ -11,6 +11,8 @@ import ConfirmationModal from "../shared/ConfirmationModal";
 
 import SubmitButton from "../shared/SubmitButton";
 
+// TODO: Update this code to include signing
+
 const ReviewingProposal = () => {
   const auth = useAuth();
   const { project, updateProject } = useProject();
@@ -40,14 +42,7 @@ const ReviewingProposal = () => {
           flexDirection: "column",
         }}
       >
-        <GrDocumentUser
-          className="primary"
-          style={{
-            height: "12rem",
-            width: "12rem",
-            marginBottom: "1rem",
-          }}
-        />
+        <GrDocumentUser className="primary" />
         <Card.Text>The project is assigned to General Contractor.</Card.Text>
         {[USER_ROLES.GENERAL_CONTRACTOR, USER_ROLES.WORKER].includes(
           auth.user.role

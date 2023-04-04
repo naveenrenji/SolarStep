@@ -1,43 +1,60 @@
-import React from "react";
+import React, { useMemo } from "react";
 import Button from "react-bootstrap/esm/Button";
 import Card from "react-bootstrap/esm/Card";
 import { BsSunFill } from "react-icons/bs";
-import { toast } from "react-toastify";
+
+import { signContractApi, uploadProjectDocumentApi } from "../../api/projects";
+import { moveToReadyToBeAssignedToGCApi } from "../../api/projectStatuses";
 import { USER_ROLES } from "../../constants";
 
 import useAuth from "../../hooks/useAuth";
 import useProject from "../../hooks/useProject";
 import ConfirmationModal from "../shared/ConfirmationModal";
+import DocumentModal from "../shared/DocumentModal";
 import SubmitButton from "../shared/SubmitButton";
+import FileUploadModal from "../shared/FileUploadModal";
 
 const Created = () => {
   const auth = useAuth();
   const { project, updateProject } = useProject();
   const [showConfirmationModal, setShowConfirmationModal] =
     React.useState(false);
-  const [loading, setLoading] = React.useState(false);
+  const [showDocumentModal, setShowDocumentModal] = React.useState(false);
+  const [showFileUploadModal, setShowFileUploadModal] = React.useState(false);
+
+  const unsignedContract = useMemo(() => {
+    return project?.documents?.find(
+      (document) =>
+        document.type === "contract" &&
+        !document.customerSign &&
+        !document.generalContractorSign
+    );
+  }, [project]);
+
+  const signedContract = useMemo(() => {
+    return project?.documents?.find(
+      (document) =>
+        document.type === "contract" &&
+        document.customerSign &&
+        !document.generalContractorSign
+    );
+  }, [project]);
 
   const onCreatedStatusComplete = async () => {
-    console.log(project._id);
-    // return await moveProjectToNextStatusAPI(project._id);
+    if (!signedContract) {
+      throw new Error("Contract is not signed");
+    }
+    return await moveToReadyToBeAssignedToGCApi(project._id);
   };
 
-  const uploadDocument = async () => {
-    try {
-      setLoading(true);
-      // const res = await uploadProjectDocumentApi(project._id, file);
-      // updateProject();
-      toast.success("Document uploaded successfully");
-    } catch (error) {
-      toast(
-        error?.response?.data?.error ||
-          error?.message ||
-          "Could not do this task",
-        { type: toast.TYPE.ERROR }
-      );
-    } finally {
-      setLoading(false);
-    }
+  const handleFileUpload = async ({ file }) => {
+    return await uploadProjectDocumentApi(project._id, file);
+  };
+
+  const onSignContract = async (customerSign) => {
+    return await signContractApi(project._id, unsignedContract._id, {
+      customerSign,
+    });
   };
 
   return (
@@ -51,15 +68,7 @@ const Created = () => {
           flexDirection: "column",
         }}
       >
-        <BsSunFill
-          className="primary"
-          style={{
-            height: "12rem",
-            width: "12rem",
-            marginBottom: "1rem",
-            color: "rgb(81, 156, 195)",
-          }}
-        />
+        <BsSunFill className="primary" />
         <Card.Text>
           Congraulations! Project is now created. Here are the next steps.
         </Card.Text>
@@ -70,16 +79,33 @@ const Created = () => {
             Please wait for the contract to be assigned to you
           </Card.Text>
         ) : auth.user.role === USER_ROLES.CUSTOMER ? (
-          !project.preliminaryUnsignedContact &&
-          !project.preliminarysignedContact ? (
+          !unsignedContract && !signedContract ? (
             <Card.Text>
-              Please wait for the sales representative to upload the preliminary
-              contract for you to look at.
+              Please wait for the sales representative to upload the contract
+              for you to look at.
             </Card.Text>
-          ) : project.preliminaryUnsignedContact ? (
+          ) : unsignedContract ? (
             <div style={{ textAlign: "center" }}>
-              <Card.Text>Please sign this contract</Card.Text>
-              <Button variant="primary">Sign Contract</Button>
+              <Card.Text>Please view and sign the contract</Card.Text>
+              <Button
+                variant="primary"
+                onClick={() => setShowDocumentModal(true)}
+              >
+                View and Sign
+              </Button>
+              {showDocumentModal ? (
+                <DocumentModal
+                  show={showDocumentModal}
+                  onClose={() => setShowDocumentModal(false)}
+                  title="Signed Contract"
+                  file={unsignedContract?.url}
+                  signRequired
+                  onSign={onSignContract}
+                  afterSign={(updatedProject) => updateProject(updatedProject)}
+                />
+              ) : (
+                <></>
+              )}
             </div>
           ) : (
             <div style={{ textAlign: "center" }}>
@@ -87,39 +113,109 @@ const Created = () => {
                 Please wait for the sales representative to assign it to a
                 general contractor.
               </Card.Text>
-              <Button variant="primary">Click here to view contract</Button>
-              <Button variant="primary">Re-upload the signed contract</Button>
+              <Button
+                variant="primary"
+                onClick={() => setShowDocumentModal(true)}
+              >
+                Click here to view contract
+              </Button>
+              {showDocumentModal ? (
+                <DocumentModal
+                  show={showDocumentModal}
+                  onClose={() => setShowDocumentModal(false)}
+                  title="Signed Contract"
+                  file={signedContract?.url}
+                />
+              ) : (
+                <></>
+              )}
             </div>
           )
         ) : [USER_ROLES.ADMIN, USER_ROLES.SALES_REP].includes(
             auth.user.role
           ) ? (
-          !project.preliminaryUnsignedContact &&
-          !project.preliminarysignedContact ? (
+          !unsignedContract && !signedContract ? (
             <div style={{ textAlign: "center" }}>
               <Card.Text>
                 Please upload the preliminay contract for the customer
               </Card.Text>
-              <Button variant="primary" onClick={uploadDocument}>
-                Upload
+              <Button onClick={() => setShowFileUploadModal(true)}>
+                Upload Document
               </Button>
+              {showFileUploadModal ? (
+                <FileUploadModal
+                  show={showFileUploadModal}
+                  onClose={() => setShowFileUploadModal(false)}
+                  onFileUpload={handleFileUpload}
+                  afterFileUpload={(updatedProject) =>
+                    updateProject(updatedProject)
+                  }
+                />
+              ) : (
+                <></>
+              )}
             </div>
-          ) : project.preliminaryUnsignedContact ? (
+          ) : unsignedContract ? (
             <div style={{ textAlign: "center" }}>
               <Card.Text>
                 Please wait for the customer to check and sign the contract
               </Card.Text>
-              <Button variant="primary">Check the contract uploaded</Button>
-              <Button variant="primary">Re-upload</Button>
+              <Button
+                variant="primary"
+                onClick={() => setShowDocumentModal(true)}
+              >
+                Check the contract uploaded
+              </Button>
+              <Button
+                variant="primary"
+                onClick={() => setShowFileUploadModal(true)}
+              >
+                Re-upload
+              </Button>
+              {showDocumentModal ? (
+                <DocumentModal
+                  show={showDocumentModal}
+                  onClose={() => setShowDocumentModal(false)}
+                  title="Unsigned Contract"
+                  file={unsignedContract?.url}
+                />
+              ) : (
+                <></>
+              )}
+              {showFileUploadModal ? (
+                <FileUploadModal
+                  show={showFileUploadModal}
+                  onClose={() => setShowFileUploadModal(false)}
+                  onFileUpload={handleFileUpload}
+                  afterFileUpload={(updatedProject) =>
+                    updateProject(updatedProject)
+                  }
+                />
+              ) : (
+                <></>
+              )}
             </div>
           ) : (
             <div style={{ textAlign: "center" }}>
               <Card.Text>
                 Click the button below to move to next state and find a GC
               </Card.Text>
-              <Button variant="primary">
+              <Button
+                variant="primary"
+                onClick={() => setShowDocumentModal(true)}
+              >
                 Click here to view the signed contract
               </Button>
+              {showDocumentModal ? (
+                <DocumentModal
+                  show={showDocumentModal}
+                  onClose={() => setShowDocumentModal(false)}
+                  title="Signed Contract"
+                  file={signedContract?.url}
+                />
+              ) : (
+                <></>
+              )}
               {showConfirmationModal ? (
                 <ConfirmationModal
                   show={showConfirmationModal}
@@ -144,13 +240,12 @@ const Created = () => {
         )}
       </Card.Body>
       {[USER_ROLES.ADMIN, USER_ROLES.SALES_REP].includes(auth.user.role) &&
-      project.preliminaryUnsignedContact &&
-      project.preliminarysignedContact ? (
+      unsignedContract &&
+      signedContract ? (
         <Card.Footer>
           <SubmitButton
             variant="primary"
             style={{ marginLeft: "auto", marginRight: 0, display: "block" }}
-            loading={loading}
             onClick={() => setShowConfirmationModal(true)}
           >
             Assign General Contractor

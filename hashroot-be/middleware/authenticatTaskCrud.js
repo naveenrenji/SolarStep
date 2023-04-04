@@ -8,9 +8,7 @@ const authenticateTaskCrud = async (req, res, next) => {
         .json({ error: "Authorization not properly defined" });
     }
     if (!req.project) {
-      return res
-        .status(401)
-        .json({ error: "Project not defined" });
+      return res.status(401).json({ error: "Project not defined" });
     }
 
     if (req.project.status !== PROJECT_STATUSES.INSTALLATION_STARTED) {

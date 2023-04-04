@@ -39,22 +39,8 @@ const GCAccepted = () => {
         }}
       >
         <Stack direction="horizontal" style={{ justifyContent: "center" }}>
-          <GrUserWorker
-            className="primary"
-            style={{
-              height: "12rem",
-              width: "12rem",
-              marginBottom: "1rem",
-            }}
-          />
-          <GiCheckMark
-            className="success"
-            style={{
-              height: "8rem",
-              width: "8rem",
-              marginBottom: "1rem",
-            }}
-          />
+          <GrUserWorker className="primary" />
+          <GiCheckMark className="success" />
         </Stack>
         <Card.Text>
           The project is accepted by the General Contractor.

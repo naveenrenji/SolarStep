@@ -7,6 +7,8 @@ import { USER_ROLES } from "../../constants";
 import useAuth from "../../hooks/useAuth";
 import useProject from "../../hooks/useProject";
 
+// TODO: Build Dashboard page(Sprint 4?)
+
 const Completed = () => {
   const auth = useAuth();
   const { project } = useProject();

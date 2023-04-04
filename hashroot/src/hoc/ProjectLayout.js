@@ -6,6 +6,7 @@ import { getProjectApi } from "../api/projects";
 import ErrorCard from "../components/shared/ErrorCard";
 import Loader from "../components/shared/Loader";
 import ProjectContext from "../config/ProjectContext";
+import { PROJECT_STATUSES } from "../constants";
 
 const ProjectLayout = () => {
   const { projectId } = useParams();
@@ -17,7 +18,7 @@ const ProjectLayout = () => {
     try {
       setLoading(true);
       const data = await getProjectApi(projectId);
-      setProject(data);
+      setProject({ ...data, status: PROJECT_STATUSES.INSTALLATION_STARTED });
     } catch (err) {
       setError(err?.response?.data?.error || "Could not fetch project");
     } finally {

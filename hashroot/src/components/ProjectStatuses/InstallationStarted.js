@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useCallback, useEffect, useMemo } from "react";
 import Button from "react-bootstrap/esm/Button";
 import Card from "react-bootstrap/esm/Card";
 import { LinkContainer } from "react-router-bootstrap";
@@ -9,20 +9,73 @@ import useProject from "../../hooks/useProject";
 import ConfirmationModal from "../shared/ConfirmationModal";
 
 import SubmitButton from "../shared/SubmitButton";
+import { moveToValidatingPermitsApi } from "../../api/projectStatuses";
+import { getTaskAnalyticsApi } from "../../api/tasks";
+import { toast } from "react-toastify";
+import Loader from "../shared/Loader";
 
 const InstallationStarted = () => {
   const auth = useAuth();
   const { project, updateProject } = useProject();
   const [showConfirmationModal, setShowConfirmationModal] =
     React.useState(false);
+  const [taskAnalytics, setTaskAnalytics] = React.useState([]);
+  const [loading, setLoading] = React.useState(false);
+
+  const getTaskAnalytics = useCallback(async () => {
+    try {
+      setLoading(true);
+      const { analytics } = await getTaskAnalyticsApi({
+        projectId: project._id,
+      });
+      setTaskAnalytics(analytics);
+    } catch (error) {
+      toast(
+        error?.response?.data?.message ||
+          error.message ||
+          "Could not get task analytics",
+        {
+          type: toast.TYPE.ERROR,
+        }
+      );
+    } finally {
+      setLoading(false);
+    }
+  }, [project._id]);
+
+  useEffect(() => {
+    getTaskAnalytics();
+  }, [getTaskAnalytics]);
+
+  const totalTasks = useMemo(() => {
+    if (!taskAnalytics) return 0;
+    return (
+      taskAnalytics.todo + taskAnalytics.inProgress + taskAnalytics.completed
+    );
+  }, [taskAnalytics]);
+
+  const incompleteTasks = useMemo(() => {
+    if (!taskAnalytics) return 0;
+    return taskAnalytics.todo + taskAnalytics.inProgress;
+  }, [taskAnalytics]);
 
   const completeInstallation = async () => {
-    console.log(project._id);
-    // return await startInstallationApi(project._id);
+    if (totalTasks === 0) {
+      throw new Error("Please create tasks before moving to next state");
+    }
+    if (incompleteTasks > 0) {
+      throw new Error(
+        "All tasks must be completed before moving to next state"
+      );
+    }
+    return await moveToValidatingPermitsApi(project._id, {
+      installationCompletedOn: new Date(),
+    });
   };
 
   return (
-    <Card className="shadow-sm mt-3 h-100">
+    <Card className="shadow-sm mt-3 h-100 project-status position-relative">
+      {loading ? <Loader /> : <></>}
       <Card.Body
         className="mb-0 flex-1"
         style={{
@@ -35,12 +88,15 @@ const InstallationStarted = () => {
         <Card.Text>The project installation is in progress.</Card.Text>
         <div style={{ textAlign: "center" }}>
           <Card.Text>
-            You currently have {project.incompleteTasks} incomplete tasks out of{" "}
-            {project.totalTasks}
+            You currently have {incompleteTasks} incomplete tasks out of{" "}
+            {totalTasks} tasks.
           </Card.Text>
           <LinkContainer to={`/projects/${project._id}/tasks`}>
             <Button variant="link">View Tasks</Button>
           </LinkContainer>
+          <Button variant="link" onClick={getTaskAnalytics}>
+            Refresh Tasks
+          </Button>
           {showConfirmationModal ? (
             <ConfirmationModal
               key="accept"
@@ -65,15 +121,13 @@ const InstallationStarted = () => {
         USER_ROLES.SALES_REP,
       ].includes(auth.user.role) ? (
         <Card.Footer>
-          <div style={{ marginLeft: "auto", marginRight: 0, display: "block" }}>
-            <SubmitButton
-              onClick={() => setShowConfirmationModal(true)}
-              className="ml-3"
-              disabled={project.incompleteTasks > 0}
-            >
-              Complete Installation
-            </SubmitButton>
-          </div>
+          <SubmitButton
+            onClick={() => setShowConfirmationModal(true)}
+            className="ml-3"
+            disabled={project.incompleteTasks > 0}
+          >
+            Complete Installation
+          </SubmitButton>
         </Card.Footer>
       ) : (
         <></>

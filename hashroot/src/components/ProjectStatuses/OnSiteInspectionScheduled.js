@@ -35,14 +35,7 @@ const OnSiteInspectionScheduled = () => {
           flexDirection: "column",
         }}
       >
-        <GrScheduleNew
-          className="primary"
-          style={{
-            height: "12rem",
-            width: "12rem",
-            marginBottom: "1rem",
-          }}
-        />
+        <GrScheduleNew className="primary" />
         <Card.Text>The On Site Inspection has been scheduled</Card.Text>
         {[
           USER_ROLES.WORKER,
