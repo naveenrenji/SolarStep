@@ -1,5 +1,7 @@
 import React from "react";
 import Card from "react-bootstrap/esm/Card";
+import { GrScheduleNew } from "react-icons/gr";
+
 import { moveToOnSiteInspectionInProgressApi } from "../../api/projectStatuses";
 
 import { USER_ROLES } from "../../constants";
@@ -23,7 +25,7 @@ const OnSiteInspectionScheduled = () => {
   };
 
   return (
-    <Card className="shadow-sm mt-3 h-100">
+    <Card className="shadow-sm mt-3 h-100 project-status">
       <Card.Body
         className="mb-0 flex-1"
         style={{
@@ -33,6 +35,14 @@ const OnSiteInspectionScheduled = () => {
           flexDirection: "column",
         }}
       >
+        <GrScheduleNew
+          className="primary"
+          style={{
+            height: "12rem",
+            width: "12rem",
+            marginBottom: "1rem",
+          }}
+        />
         <Card.Text>The On Site Inspection has been scheduled</Card.Text>
         {[
           USER_ROLES.WORKER,
@@ -80,7 +90,7 @@ const OnSiteInspectionScheduled = () => {
         auth.user.role
       ) ? (
         <Card.Footer>
-          <div style={{ marginLeft: "auto", marginRight: 0, display: "block" }}>
+          <div style={{ float: "right" }}>
             <SubmitButton
               onClick={() => setShowConfirmationModal(true)}
               className="ml-3"

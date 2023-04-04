@@ -5,9 +5,9 @@ $success: rgb(164, 201, 92);
 @import "bootstrap/scss/bootstrap.scss";
 
 :root {
-  --toastify-color-warning: rgb(240, 177, 85)!important;
-  --toastify-color-success: rgb(164, 201, 92)!important;
-  --toastify-color-info: rgb(81, 156, 195)!important;
+  --toastify-color-warning: rgb(240, 177, 85) !important;
+  --toastify-color-success: rgb(164, 201, 92) !important;
+  --toastify-color-info: rgb(81, 156, 195) !important;
 }
 
 .card {
@@ -18,7 +18,7 @@ $success: rgb(164, 201, 92);
     --bs-card-cap-bg: rgb(240, 177, 85);
   }
   &.task-card {
-    --bs-card-cap-bg: rgba(0,0,0,0.03);
+    --bs-card-cap-bg: rgba(0, 0, 0, 0.03);
     --bs-card-cap-color: rgb(81, 156, 195);
   }
   &.add-task-card {
@@ -26,12 +26,15 @@ $success: rgb(164, 201, 92);
       background: var(--bs-gray-200);
     }
   }
+  &.project-status{
+    --bs-card-cap-bg: var(--bs-gray-100);
+  }
 }
 
 form {
   .form-label {
     // color: rgb(81, 156, 195);
-  &[aria-required="true"]::before {
+    &[aria-required="true"]::before {
       content: "*";
     }
   }
@@ -40,7 +43,8 @@ form {
 .btn {
   --bs-btn-hover-color: white;
   --bs-btn-disabled-color: white;
-  &.btn-primary, &.btn-secondary {
+  &.btn-primary,
+  &.btn-secondary {
     --bs-btn-color: white;
     --bs-btn-hover-color: white;
   }
@@ -84,7 +88,8 @@ form {
 
 a {
   color: rgb(81, 156, 195);
-  &:hover, &:active {
+  &:hover,
+  &:active {
     color: rgb(240, 177, 85);
   }
 }
@@ -92,5 +97,20 @@ a {
 svg {
   &.primary {
     fill: rgb(81, 156, 195);
+    path {
+      stroke: rgb(81, 156, 195);
+    }
+  }
+  &.secondary {
+    fill: rgb(240, 177, 85);
+    path {
+      stroke: rgb(240, 177, 85);
+    }
+  }
+  &.success {
+    fill: rgb(164, 201, 92);
+    path {
+      stroke: rgb(164, 201, 92);
+    }
   }
 }

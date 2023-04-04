@@ -1,6 +1,7 @@
 import React from "react";
 import Button from "react-bootstrap/esm/Button";
 import Card from "react-bootstrap/esm/Card";
+import { BsSunFill } from "react-icons/bs";
 import { toast } from "react-toastify";
 import { USER_ROLES } from "../../constants";
 
@@ -40,7 +41,7 @@ const Created = () => {
   };
 
   return (
-    <Card className="shadow-sm mt-3 h-100">
+    <Card className="shadow-sm mt-3 h-100 project-status">
       <Card.Body
         className="mb-0 flex-1"
         style={{
@@ -50,6 +51,15 @@ const Created = () => {
           flexDirection: "column",
         }}
       >
+        <BsSunFill
+          className="primary"
+          style={{
+            height: "12rem",
+            width: "12rem",
+            marginBottom: "1rem",
+            color: "rgb(81, 156, 195)",
+          }}
+        />
         <Card.Text>
           Congraulations! Project is now created. Here are the next steps.
         </Card.Text>
@@ -138,7 +148,7 @@ const Created = () => {
       project.preliminarysignedContact ? (
         <Card.Footer>
           <SubmitButton
-            variant="secondary"
+            variant="primary"
             style={{ marginLeft: "auto", marginRight: 0, display: "block" }}
             loading={loading}
             onClick={() => setShowConfirmationModal(true)}

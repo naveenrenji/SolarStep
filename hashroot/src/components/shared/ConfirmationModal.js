@@ -11,6 +11,7 @@ const ConfirmationModal = ({
   onConfirm,
   title,
   message,
+  body,
   afterConfirm,
   type = "primary",
   confirmText = "Yes",
@@ -50,7 +51,7 @@ const ConfirmationModal = ({
         <Modal.Title as="h5">{title}</Modal.Title>
       </Modal.Header>
       <Modal.Body>
-        <p>{message}</p>
+        <p>{message || body}</p>
       </Modal.Body>
       <Modal.Footer>
         <Button

@@ -1,6 +1,8 @@
 import React from "react";
 import Button from "react-bootstrap/esm/Button";
 import Card from "react-bootstrap/esm/Card";
+import Stack from "react-bootstrap/esm/Stack";
+import { GrDocumentUser } from "react-icons/gr";
 
 import { USER_ROLES } from "../../constants";
 import useAuth from "../../hooks/useAuth";
@@ -28,7 +30,7 @@ const ReviewingProposal = () => {
   };
 
   return (
-    <Card className="shadow-sm mt-3 h-100">
+    <Card className="shadow-sm mt-3 h-100 project-status">
       <Card.Body
         className="mb-0 flex-1"
         style={{
@@ -38,6 +40,14 @@ const ReviewingProposal = () => {
           flexDirection: "column",
         }}
       >
+        <GrDocumentUser
+          className="primary"
+          style={{
+            height: "12rem",
+            width: "12rem",
+            marginBottom: "1rem",
+          }}
+        />
         <Card.Text>The project is assigned to General Contractor.</Card.Text>
         {[USER_ROLES.GENERAL_CONTRACTOR, USER_ROLES.WORKER].includes(
           auth.user.role
@@ -96,7 +106,7 @@ const ReviewingProposal = () => {
       </Card.Body>
       {[USER_ROLES.ADMIN, USER_ROLES.SALES_REP].includes(auth.user.role) ? (
         <Card.Footer>
-          <div style={{ marginLeft: "auto", marginRight: 0, display: "block" }}>
+          <Stack style={{ float: "right" }} gap={2} direction="horizontal">
             <SubmitButton
               onClick={() => setShowConfirmationModal(true)}
               className="ml-3"
@@ -109,7 +119,7 @@ const ReviewingProposal = () => {
             >
               Re-upload proposal
             </SubmitButton>
-          </div>
+          </Stack>
         </Card.Footer>
       ) : (
         <></>
