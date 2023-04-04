@@ -63,3 +63,12 @@ export const deleteTaskApi = async (params) => {
   } = await http.delete(`/projects/${projectId}/tasks/${taskId}`);
   return { task };
 };
+
+export const getTaskAnalyticsApi = async (params) => {
+  const { projectId } = params;
+
+  const {
+    data: { analytics },
+  } = await http.get(`/projects/${projectId}/tasks/analytics`);
+  return { analytics };
+};

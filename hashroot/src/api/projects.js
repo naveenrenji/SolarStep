@@ -29,3 +29,20 @@ export const getProjectApi = async (projectId) => {
   } = await http.get(`/projects/${projectId}`);
   return project;
 };
+
+export const uploadProjectDocumentApi = async (projectId, file) => {
+  const formData = new FormData();
+  formData.append("file", file);
+
+  const {
+    data: { project },
+  } = await http.post(`/projects/${projectId}/documents`, formData);
+  return project;
+};
+
+export const signContractApi = async (projectId, documentId, body) => {
+  const {
+    data: { project },
+  } = await http.patch(`/projects/${projectId}/documents/${documentId}/sign`, body);
+  return project;
+};

@@ -9,6 +9,8 @@ import ConfirmationModal from "../shared/ConfirmationModal";
 
 import SubmitButton from "../shared/SubmitButton";
 
+// TODO: Update this code to include permit documents to be uploaded
+
 const ValidatingPermits = () => {
   const auth = useAuth();
   const { project, updateProject } = useProject();
@@ -17,7 +19,7 @@ const ValidatingPermits = () => {
 
   const permitsValidated = async () => {
     console.log(project._id);
-    // return await permitsValidatedApi(project._id);
+    // return await moveToClosingOut(project._id);
   };
 
   return (
@@ -74,14 +76,12 @@ const ValidatingPermits = () => {
         USER_ROLES.SALES_REP,
       ].includes(auth.user.role) ? (
         <Card.Footer>
-          <div style={{ marginLeft: "auto", marginRight: 0, display: "block" }}>
-            <SubmitButton
-              onClick={() => setShowConfirmationModal(true)}
-              className="ml-3"
-            >
-              Permits are validated
-            </SubmitButton>
-          </div>
+          <SubmitButton
+            onClick={() => setShowConfirmationModal(true)}
+            className="ml-3"
+          >
+            Permits are validated
+          </SubmitButton>
         </Card.Footer>
       ) : (
         <></>

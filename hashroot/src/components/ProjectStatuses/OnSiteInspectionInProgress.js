@@ -1,6 +1,7 @@
 import React from "react";
 import Card from "react-bootstrap/esm/Card";
 import Stack from "react-bootstrap/esm/Stack";
+import Form from "react-bootstrap/esm/Form";
 import { GrSchedulePlay } from "react-icons/gr";
 
 import { USER_ROLES } from "../../constants";
@@ -9,18 +10,24 @@ import useProject from "../../hooks/useProject";
 import ConfirmationModal from "../shared/ConfirmationModal";
 
 import SubmitButton from "../shared/SubmitButton";
+import FormDatePicker from "../shared/FormDatePicker";
+import { toast } from "react-toastify";
+import { moveToReadyForInstallationApi } from "../../api/projectStatuses";
 
 const OnSiteInspectionInProgress = () => {
   const auth = useAuth();
   const { project, updateProject } = useProject();
+  const [scheduledInstallationDate, setScheduledInstallationDate] =
+    React.useState();
   const [showConfirmationModal, setShowConfirmationModal] =
     React.useState(false);
   const [showProposalNeedsUpdateModal, setShowProposalNeedsUpdateModal] =
     React.useState(false);
 
   const readyForInstallation = async () => {
-    console.log(project._id);
-    // return await readyForInstallationApi(project._id);
+    return await moveToReadyForInstallationApi(project._id, {
+      scheduledInstallationDate,
+    });
   };
 
   const proposalNeedsUpdate = async () => {
@@ -39,30 +46,29 @@ const OnSiteInspectionInProgress = () => {
           flexDirection: "column",
         }}
       >
-        <GrSchedulePlay
-          className="primary"
-          style={{
-            height: "12rem",
-            width: "12rem",
-            marginBottom: "1rem",
-          }}
-        />
+        <GrSchedulePlay className="primary" />
         <Card.Text>The On Site Inspection is progress.</Card.Text>
         <Card.Text>Started Inspection On: {project.inspectionDate}</Card.Text>
-        {[
-          USER_ROLES.WORKER,
-          USER_ROLES.SALES_REP,
-          USER_ROLES.CUSTOMER,
-        ].includes(auth.user.role) ? (
+        {[USER_ROLES.WORKER, USER_ROLES.CUSTOMER].includes(auth.user.role) ? (
           <div style={{ textAlign: "center" }}>
             <Card.Text>
               Please wait for general contractor to complete the inspection.
             </Card.Text>
           </div>
-        ) : [USER_ROLES.ADMIN, USER_ROLES.GENERAL_CONTRACTOR].includes(
-            auth.user.role
-          ) ? (
+        ) : [
+            USER_ROLES.ADMIN,
+            USER_ROLES.SALES_REP,
+            USER_ROLES.GENERAL_CONTRACTOR,
+          ].includes(auth.user.role) ? (
           <div style={{ textAlign: "center" }}>
+            <Form.Group className="mb-3" controlId="formDate">
+              <Form.Label aria-required>Inspection Date</Form.Label>
+              <FormDatePicker
+                value={scheduledInstallationDate}
+                onChange={setScheduledInstallationDate}
+                minDate={new Date()}
+              />
+            </Form.Group>
             {showConfirmationModal ? (
               <ConfirmationModal
                 key="ready-for-installation"
@@ -113,7 +119,15 @@ const OnSiteInspectionInProgress = () => {
               Proposal needs to be updated
             </SubmitButton>
             <SubmitButton
-              onClick={() => setShowConfirmationModal(true)}
+              onClick={() => {
+                if (!scheduledInstallationDate) {
+                  toast("Please select a date for installation", {
+                    type: toast.TYPE.ERROR,
+                  });
+                  return;
+                }
+                setShowConfirmationModal(true);
+              }}
               className="ml-3"
             >
               Ready for installation

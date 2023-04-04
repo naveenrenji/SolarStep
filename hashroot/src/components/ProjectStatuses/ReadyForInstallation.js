@@ -7,6 +7,8 @@ import useProject from "../../hooks/useProject";
 import ConfirmationModal from "../shared/ConfirmationModal";
 
 import SubmitButton from "../shared/SubmitButton";
+import { displayDate } from "../../utils/date";
+import { moveToStartInstallationApi } from "../../api/projectStatuses";
 
 const ReadyForInstallation = () => {
   const auth = useAuth();
@@ -16,7 +18,9 @@ const ReadyForInstallation = () => {
 
   const startInstallation = async () => {
     console.log(project._id);
-    // return await startInstallationApi(project._id);
+    return await moveToStartInstallationApi(project._id, {
+      installationStartedOn: new Date(),
+    });
   };
 
   return (
@@ -31,6 +35,10 @@ const ReadyForInstallation = () => {
         }}
       >
         <Card.Text>The project is ready for installation.</Card.Text>
+        <Card.Text>
+          Installation Start Date:{" "}
+          {displayDate(project?.scheduledInstallationDate)}
+        </Card.Text>
         {[USER_ROLES.WORKER, USER_ROLES.CUSTOMER].includes(auth.user.role) ? (
           <Card.Text>
             Please wait for the general contractor to start the installation

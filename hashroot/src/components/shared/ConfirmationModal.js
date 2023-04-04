@@ -1,6 +1,7 @@
 import React from "react";
 import Modal from "react-bootstrap/Modal";
 import Button from "react-bootstrap/Button";
+import Form from "react-bootstrap/Form";
 import { toast } from "react-toastify";
 
 import SubmitButton from "./SubmitButton";
@@ -16,13 +17,20 @@ const ConfirmationModal = ({
   type = "primary",
   confirmText = "Yes",
   cancelText = "No",
+  showComment = false,
+  commentRequired = false,
 }) => {
   const [loading, setLoading] = React.useState(false);
+  const [comment, setComment] = React.useState("");
 
   const handleConfirm = async () => {
     try {
+      if (showComment && commentRequired && !comment) {
+        toast("Please enter a comment", { type: toast.TYPE.ERROR });
+        return;
+      }
       setLoading(true);
-      const res = await onConfirm();
+      const res = await onConfirm(comment);
       if (afterConfirm) {
         await afterConfirm(res);
       }
@@ -52,6 +60,18 @@ const ConfirmationModal = ({
       </Modal.Header>
       <Modal.Body>
         <p>{message || body}</p>
+
+        {showComment && (
+          <Form.Group controlId="formComment" className="mb-3">
+            <Form.Label aria-required={commentRequired}>Comment</Form.Label>
+            <Form.Control
+              as="input"
+              value={comment}
+              onChange={(e) => setComment(e.target.value)}
+              required={commentRequired}
+            />
+          </Form.Group>
+        )}
       </Modal.Body>
       <Modal.Footer>
         <Button

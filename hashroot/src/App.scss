@@ -26,8 +26,24 @@ $success: rgb(164, 201, 92);
       background: var(--bs-gray-200);
     }
   }
-  &.project-status{
+  &.no-file {
+    .card-body {
+      background: var(--bs-gray-200);
+      text-align: center;
+    }
+  }
+  &.project-status {
     --bs-card-cap-bg: var(--bs-gray-100);
+    svg.primary {
+      height: 10rem;
+      width: 10rem;
+      margin-bottom: 1rem;
+    }
+    svg.secondary {
+      height: 8rem;
+      width: 8rem;
+      margin-bottom: 1rem;
+    }
   }
 }
 
@@ -92,6 +108,27 @@ a {
   &:active {
     color: rgb(240, 177, 85);
   }
+}
+
+.react-pdf__Document {
+  position: relative;
+
+  &:hover {
+    .pagination.pdf-page-controls {
+      opacity: 1;
+    }
+  }
+}
+
+.pagination.pdf-page-controls {
+  position: absolute;
+  bottom: 5%;
+  left: 50%;
+  background: white;
+  opacity: 0;
+  transform: translateX(-50%);
+  transition: opacity ease-in-out 0.2s;
+  margin-bottom: 0;
 }
 
 svg {

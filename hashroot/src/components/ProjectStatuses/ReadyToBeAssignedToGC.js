@@ -1,16 +1,17 @@
 import React from "react";
 import Card from "react-bootstrap/esm/Card";
+import Stack from "react-bootstrap/esm/Stack";
 import { GrUserWorker } from "react-icons/gr";
 import { BsQuestionLg } from "react-icons/bs";
 
 import { USER_ROLES } from "../../constants";
 import useAuth from "../../hooks/useAuth";
 import useProject from "../../hooks/useProject";
-import ConfirmationModal from "../shared/ConfirmationModal";
+import { moveToAssignedToGCApi } from "../../api/projectStatuses";
 
+import ConfirmationModal from "../shared/ConfirmationModal";
 import SubmitButton from "../shared/SubmitButton";
 import UserSelect from "../shared/UserSelect";
-import Stack from "react-bootstrap/esm/Stack";
 
 const ReadyToBeAssignedToGC = () => {
   const auth = useAuth();
@@ -20,9 +21,9 @@ const ReadyToBeAssignedToGC = () => {
   const [gcOpt, setGCOpt] = React.useState(null);
 
   const assignGCToProject = async () => {
-    console.log(gcOpt);
-    console.log(project._id);
-    // return await assignGCToProjectApi(project._id, gcOpt.value);
+    return await moveToAssignedToGCApi(project._id, {
+      generalContractorId: gcOpt.value,
+    });
   };
 
   return (
@@ -37,22 +38,8 @@ const ReadyToBeAssignedToGC = () => {
         }}
       >
         <Stack direction="horizontal" style={{ justifyContent: "center" }}>
-          <GrUserWorker
-            className="primary"
-            style={{
-              height: "12rem",
-              width: "12rem",
-              marginBottom: "1rem",
-            }}
-          />
-          <BsQuestionLg
-            className="secondary"
-            style={{
-              height: "8rem",
-              width: "8rem",
-              marginBottom: "1rem",
-            }}
-          />
+          <GrUserWorker className="primary" />
+          <BsQuestionLg className="secondary" />
         </Stack>
         <Card.Text>
           The project is now ready to be assigned to a general contractor.

@@ -8,26 +8,44 @@ import { BsExclamationLg } from "react-icons/bs";
 import { USER_ROLES } from "../../constants";
 import useAuth from "../../hooks/useAuth";
 import useProject from "../../hooks/useProject";
-import ConfirmationModal from "../shared/ConfirmationModal";
+import { signContractApi } from "../../api/projects";
+import {
+  gcRejectProposalApi,
+  moveToGCAcceptedApi,
+} from "../../api/projectStatuses";
 
+import ConfirmationModal from "../shared/ConfirmationModal";
 import SubmitButton from "../shared/SubmitButton";
+import DocumentModal from "../shared/DocumentModal";
 
 const AssignedToGC = () => {
   const auth = useAuth();
   const { project, updateProject } = useProject();
+  const [showDocumentModal, setShowDocumentModal] = React.useState(false);
   const [showConfirmationModal, setShowConfirmationModal] =
     React.useState(false);
   const [showRejectConfirmationModal, setShowRejectConfirmationModal] =
     React.useState(false);
 
-  const onGCAcceptsProposal = async () => {
-    console.log(project._id);
-    // return await gcAcceptsProposalAPI(project._id);
+  const unsignedContract = React.useMemo(() => {
+    return project?.documents?.find(
+      (document) =>
+        document.type === "contract" &&
+        document.customerSign &&
+        !document.generalContractorSign
+    );
+  }, [project]);
+
+  const onGCAcceptsProposal = async (generalContractorSign) => {
+    await signContractApi(project._id, unsignedContract._id, {
+      generalContractorSign,
+    });
+
+    return await moveToGCAcceptedApi(project._id);
   };
 
-  const onGCRejectsProposal = async () => {
-    console.log(project._id);
-    // return await gcRejectsProposalAPI(project._id);
+  const onGCRejectsProposal = async (comment) => {
+    return await gcRejectProposalApi(project._id, { comment });
   };
 
   return (
@@ -42,22 +60,8 @@ const AssignedToGC = () => {
         }}
       >
         <Stack direction="horizontal" style={{ justifyContent: "center" }}>
-          <GrUserWorker
-            className="primary"
-            style={{
-              height: "12rem",
-              width: "12rem",
-              marginBottom: "1rem",
-            }}
-          />
-          <BsExclamationLg
-            className="secondary"
-            style={{
-              height: "8rem",
-              width: "8rem",
-              marginBottom: "1rem",
-            }}
-          />
+          <GrUserWorker className="primary" />
+          <BsExclamationLg className="secondary" />
         </Stack>
         <Card.Text>The project is assigned to General Contractor.</Card.Text>
         {[USER_ROLES.SALES_REP, USER_ROLES.CUSTOMER].includes(
@@ -74,17 +78,31 @@ const AssignedToGC = () => {
             <Card.Text>
               Please check the proposal and accept it if you are happy with it
             </Card.Text>
-            <Button variant="link">View Proposal</Button>
+            <Button onClick={() => setShowConfirmationModal(true)}>
+              Sign and Accept Proposal
+            </Button>
+            {showDocumentModal ? (
+              <DocumentModal
+                show={showDocumentModal}
+                onClose={() => setShowDocumentModal(false)}
+                onSign={onGCAcceptsProposal}
+                signRequired
+                afterSign={(updatedProject) => updateProject(updatedProject)}
+                title="Contract"
+                file={unsignedContract?.file}
+              />
+            ) : (
+              <></>
+            )}
             {showConfirmationModal ? (
               <ConfirmationModal
                 key="accept"
                 show={showConfirmationModal}
                 onClose={() => setShowConfirmationModal(false)}
-                onConfirm={onGCAcceptsProposal}
-                afterConfirm={(updatedProject) => updateProject(updatedProject)}
-                title="Are you sure you want to move to next state?"
-                body="Please make sure you have checked the proposal and you are not happy with it. You will be assigned and accepted as a new General Contractor to this project."
-                confirmText="Yes, move to next state"
+                onConfirm={() => setShowDocumentModal(true)}
+                title="Are you sure you want to accept the proposal?"
+                body="Once you sign, you will be assigned to the project and the project will be moved to the next state."
+                confirmText="Yes, show document to sign"
                 cancelText="No, cancel"
                 type="primary"
               />
@@ -100,9 +118,10 @@ const AssignedToGC = () => {
                 afterConfirm={(updatedProject) => updateProject(updatedProject)}
                 title="Are you sure you want to reject the proposal?"
                 body="Please confirm if you want to reject the proposal. You will be removed from the project and the project will be assigned to another General Contractor."
-                confirmText="Yes, move to next state"
+                confirmText="Reject Proposal"
                 cancelText="No, cancel"
                 type="danger"
+                showComment
               />
             ) : (
               <></>

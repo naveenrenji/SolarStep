@@ -16,7 +16,7 @@ const ClosingOut = () => {
 
   const completeProject = async () => {
     console.log(project._id);
-    // return await completeProjectApi(project._id);
+    // return await moveToCompleteApi(project._id);
   };
 
   return (
