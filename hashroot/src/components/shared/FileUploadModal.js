@@ -56,7 +56,7 @@ const FileUploadModal = ({
             <Form.Label>Upload Document</Form.Label>
             <Form.Control
               type="file"
-              onChange={(e) => setFile(e.target.value)}
+              onChange={(e) => setFile(e.target.files[0])}
             />
           </Form.Group>
         </Modal.Body>

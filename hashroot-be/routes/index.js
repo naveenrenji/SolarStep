@@ -30,11 +30,10 @@ const configureRoutes = (app) => {
     "/api/projects/:projectId/files",
     authenticateRequest,
     authenticateProject,
-    authenticateTaskCrud,
     filesRoutes
   );
 
-  app.use("*", (req, res) => {
+  app.use("*", (_, res) => {
     res.status(404).json({ error: "Not found" });
   });
 };

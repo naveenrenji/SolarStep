@@ -45,3 +45,9 @@ export const TASK_STATUSES = {
   IN_PROGRESS: "In Progress",
   COMPLETED: "Completed",
 };
+
+export const PROJECT_UPLOAD_TYPES = {
+  contract: "contract",
+  permit: "permit",
+  other: "other",
+};

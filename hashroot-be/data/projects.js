@@ -2,10 +2,21 @@ import { ObjectId } from "mongodb";
 
 import { projects } from "../config/mongoCollections.js";
 import * as helpers from "../helpers.js";
-import { PAGE_LIMIT, PROJECT_STATUSES, USER_ROLES } from "../constants.js";
+import {
+  PAGE_LIMIT,
+  PROJECT_STATUSES,
+  PROJECT_UPLOAD_TYPES,
+  USER_ROLES,
+} from "../constants.js";
 import { getUserById } from "./users.js";
 
-const createProject = async (currentUser, userId, salesRepId, projectName, address) => {
+const createProject = async (
+  currentUser,
+  userId,
+  salesRepId,
+  projectName,
+  address
+) => {
   userId = helpers.checkId(userId);
   salesRepId = helpers.checkId(salesRepId);
   if (projectName) {
@@ -145,6 +156,65 @@ const getPaginatedProjects = async (currentUser, page, search, statuses) => {
   };
 };
 
+const signDocument = async (currentUser, id, fileId, body) => {
+  if (!currentUser) throw "User not logged in";
+  id = helpers.checkId(id, "Project ID");
+
+  const projectCollection = await projects();
+  const project = await projectCollection.findOne(
+    {
+      _id: new ObjectId(id),
+      "documents.fileId": new ObjectId(fileId),
+    },
+    { projection: { _id: 1, "documents.$": 1 } }
+  );
+  if (!project) {
+    throw new Error("File not found!");
+  }
+
+  if (project.documents[0].type !== PROJECT_UPLOAD_TYPES.contract) {
+    throw new Error("Invalid file type");
+  }
+
+  if (!project.documents[0].latest) {
+    throw new Error("Invalid file");
+  }
+
+  if (
+    project.documents[0].customerSign &&
+    project.documents[0].generalContractorSign
+  ) {
+    throw new Error("Document already signed");
+  }
+
+  const documentToUpdate = {};
+
+  if (body?.generalContractorSign) {
+    if (!project.documents[0].customerSign) {
+      throw new Error("Customer has not signed the document yet");
+    }
+    documentToUpdate["documents.$.generalContractorSign"] =
+      body.generalContractorSign;
+  } else {
+    documentToUpdate["documents.$.customerSign"] = body.customerSign;
+  }
+
+  const updatedInfo = await projectCollection.findOneAndUpdate(
+    {
+      _id: new ObjectId(id),
+      "documents.fileId": new ObjectId(fileId),
+    },
+    { $set: documentToUpdate },
+    { returnDocument: "after" }
+  );
+
+  if (updatedInfo.lastErrorObject.n !== 1 || !updatedInfo.value) {
+    throw new Error("Could not update project");
+  }
+
+  return await getProjectById(currentUser, id);
+};
+
 // const getEveryProject = async () => {
 //   const projectCollection = await projects();
 //   const projectList = await projectCollection.find({}).toArray();
@@ -235,5 +305,6 @@ export {
   // updateProject,
   getProjectById,
   getPaginatedProjects,
+  signDocument,
   // getEveryProject,
 };

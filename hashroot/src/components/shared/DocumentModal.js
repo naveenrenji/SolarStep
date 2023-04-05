@@ -13,6 +13,7 @@ import "react-pdf/dist/esm/Page/TextLayer.css";
 import SubmitButton from "./SubmitButton";
 import Loader from "./Loader";
 import { toast } from "react-toastify";
+import useAuth from "../../hooks/useAuth";
 
 const DocumentModal = ({
   show,
@@ -23,6 +24,7 @@ const DocumentModal = ({
   afterSign,
   file,
 }) => {
+  const auth = useAuth();
   const [signedName, setSignedName] = React.useState("");
   const [numPages, setNumPages] = React.useState(1);
   const [currentPageIdx, setCurrentPageIdx] = React.useState(0);
@@ -80,6 +82,11 @@ const DocumentModal = ({
             onLoadError={console.error}
             onLoadSuccess={onDocumentLoadSuccess}
             onLoadProgress={console.log}
+            options={{
+              httpHeaders: {
+                accesstoken: auth.user.accessToken,
+              },
+            }}
             loading={
               <div style={{ position: "relative", height: "100%" }}>
                 <Loader />
@@ -102,33 +109,37 @@ const DocumentModal = ({
                 undefined
               }
             />
-            <Pagination className="pdf-page-controls">
-              <Pagination.First
-                disabled={currentPageIdx === 0}
-                onClick={() => {
-                  setCurrentPageIdx(0);
-                }}
-              />
-              <Pagination.Prev
-                disabled={currentPageIdx === 0}
-                onClick={() => {
-                  setCurrentPageIdx(currentPageIdx - 1);
-                }}
-              />
-              <Pagination.Item active>{currentPageIdx + 1}</Pagination.Item>
-              <Pagination.Next
-                disabled={currentPageIdx === numPages - 1}
-                onClick={() => {
-                  setCurrentPageIdx(currentPageIdx + 1);
-                }}
-              />
-              <Pagination.Last
-                disabled={currentPageIdx === numPages - 1}
-                onClick={() => {
-                  setCurrentPageIdx(numPages - 1);
-                }}
-              />
-            </Pagination>
+            {numPages > 1 ? (
+              <Pagination className="pdf-page-controls">
+                <Pagination.First
+                  disabled={currentPageIdx === 0}
+                  onClick={() => {
+                    setCurrentPageIdx(0);
+                  }}
+                />
+                <Pagination.Prev
+                  disabled={currentPageIdx === 0}
+                  onClick={() => {
+                    setCurrentPageIdx(currentPageIdx - 1);
+                  }}
+                />
+                <Pagination.Item active>{currentPageIdx + 1}</Pagination.Item>
+                <Pagination.Next
+                  disabled={currentPageIdx === numPages - 1}
+                  onClick={() => {
+                    setCurrentPageIdx(currentPageIdx + 1);
+                  }}
+                />
+                <Pagination.Last
+                  disabled={currentPageIdx === numPages - 1}
+                  onClick={() => {
+                    setCurrentPageIdx(numPages - 1);
+                  }}
+                />
+              </Pagination>
+            ) : (
+              <></>
+            )}
           </Document>
         </div>
       </Modal.Body>
