@@ -53,7 +53,7 @@ const ViewProjectModal = ({ project, show, onClose }) => {
                 <div>
                   <b>General Contractor Email</b>
                 </div>
-                <div>{project.generalContractor.email}</div>
+                <div>{project.generalContractor.email || "N/A"}</div>
               </Stack>
             </ListGroup.Item>
           ) : (

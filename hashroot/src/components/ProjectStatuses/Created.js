@@ -1,19 +1,21 @@
 import React, { useMemo } from "react";
 import Button from "react-bootstrap/esm/Button";
 import Card from "react-bootstrap/esm/Card";
+import Stack from "react-bootstrap/esm/Stack";
 import { BsSunFill } from "react-icons/bs";
 
 import { signContractApi, uploadProjectDocumentApi } from "../../api/projects";
 import { moveToReadyToBeAssignedToGCApi } from "../../api/projectStatuses";
 import { PROJECT_UPLOAD_TYPES, USER_ROLES } from "../../constants";
+import { getProjectDocumentDownloadUrl } from "../../utils/files";
 
 import useAuth from "../../hooks/useAuth";
 import useProject from "../../hooks/useProject";
+
 import ConfirmationModal from "../shared/ConfirmationModal";
 import DocumentModal from "../shared/DocumentModal";
-import SubmitButton from "../shared/SubmitButton";
 import FileUploadModal from "../shared/FileUploadModal";
-import { getProjectDocumentDownloadUrl } from "../../utils/files";
+import SubmitButton from "../shared/SubmitButton";
 
 const Created = () => {
   const auth = useAuth();
@@ -179,18 +181,24 @@ const Created = () => {
               <Card.Text>
                 Please wait for the customer to check and sign the contract
               </Card.Text>
-              <Button
-                variant="primary"
-                onClick={() => setShowDocumentModal(true)}
+              <Stack
+                direction="horizontal"
+                gap={3}
+                style={{ justifyContent: "center" }}
               >
-                Check the contract uploaded
-              </Button>
-              <Button
-                variant="primary"
-                onClick={() => setShowFileUploadModal(true)}
-              >
-                Re-upload
-              </Button>
+                <Button
+                  variant="primary"
+                  onClick={() => setShowDocumentModal(true)}
+                >
+                  Check the contract uploaded
+                </Button>
+                <Button
+                  variant="primary"
+                  onClick={() => setShowFileUploadModal(true)}
+                >
+                  Re-upload
+                </Button>
+              </Stack>
               {showDocumentModal ? (
                 <DocumentModal
                   show={showDocumentModal}

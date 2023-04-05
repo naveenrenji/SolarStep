@@ -48,6 +48,7 @@ export const TASK_STATUSES = {
 
 export const PROJECT_UPLOAD_TYPES = {
   contract: "contract",
-  permit: "Permit",
-  other: "Other",
+  permit: "permit",
+  inspection: "inspection",
+  other: "other",
 };

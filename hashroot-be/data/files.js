@@ -15,9 +15,8 @@ const uploadPdfFile = async (req, res) => {
     await uploadFile(req, res);
     const projectCollection = await projects();
     if (
-      req.project.documents?.length &&
       type === PROJECT_UPLOAD_TYPES.contract &&
-      req.project.documents.some((doc) => doc.type === type)
+      req.project.documents?.some((doc) => doc.type === type)
     ) {
       // Is this needed?
       // if (
@@ -56,14 +55,14 @@ const uploadPdfFile = async (req, res) => {
             type,
             filename: req.file.filename,
             originalname: req.file.originalname,
-            customerSign: "",
-            generalContractorSign: "",
-            latest: true,
             uploadedBy: {
               _id: new ObjectId(req.user._id),
               email: req.user.email,
             },
             createdAt: new Date(),
+            ...(type === PROJECT_UPLOAD_TYPES.contract
+              ? { customerSign: "", generalContractorSign: "", latest: true }
+              : {}),
           },
         },
       },

@@ -73,6 +73,9 @@ form {
       --bs-btn-color: rgb(240, 177, 85);
     }
   }
+  &.show {
+    --bs-btn-active-color: white;
+  }
 }
 
 .navbar {
@@ -150,4 +153,8 @@ svg {
       stroke: rgb(164, 201, 92);
     }
   }
+}
+
+.project-dropdown.dropdown-toggle::after {
+  display: none;
 }
