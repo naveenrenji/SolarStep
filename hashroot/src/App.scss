@@ -27,6 +27,7 @@ $success: rgb(164, 201, 92);
     }
   }
   &.no-file {
+    background: var(--bs-gray-200);
     .card-body {
       background: var(--bs-gray-200);
       text-align: center;
@@ -72,6 +73,9 @@ form {
     &-secondary {
       --bs-btn-color: rgb(240, 177, 85);
     }
+  }
+  &.show {
+    --bs-btn-active-color: white;
   }
 }
 
@@ -150,4 +154,17 @@ svg {
       stroke: rgb(164, 201, 92);
     }
   }
+  &.danger {
+    fill: rgb(255, 99, 132);
+    path {
+      stroke: rgb(255, 99, 132);
+    }
+  }
+  &.link {
+    cursor: pointer;
+  }
+}
+
+.project-dropdown.dropdown-toggle::after {
+  display: none;
 }

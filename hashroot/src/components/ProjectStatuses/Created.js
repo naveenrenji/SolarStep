@@ -1,18 +1,21 @@
 import React, { useMemo } from "react";
 import Button from "react-bootstrap/esm/Button";
 import Card from "react-bootstrap/esm/Card";
+import Stack from "react-bootstrap/esm/Stack";
 import { BsSunFill } from "react-icons/bs";
 
 import { signContractApi, uploadProjectDocumentApi } from "../../api/projects";
 import { moveToReadyToBeAssignedToGCApi } from "../../api/projectStatuses";
-import { USER_ROLES } from "../../constants";
+import { PROJECT_UPLOAD_TYPES, USER_ROLES } from "../../constants";
+import { getProjectDocumentDownloadUrl } from "../../utils/files";
 
 import useAuth from "../../hooks/useAuth";
 import useProject from "../../hooks/useProject";
+
 import ConfirmationModal from "../shared/ConfirmationModal";
 import DocumentModal from "../shared/DocumentModal";
-import SubmitButton from "../shared/SubmitButton";
 import FileUploadModal from "../shared/FileUploadModal";
+import SubmitButton from "../shared/SubmitButton";
 
 const Created = () => {
   const auth = useAuth();
@@ -23,21 +26,35 @@ const Created = () => {
   const [showFileUploadModal, setShowFileUploadModal] = React.useState(false);
 
   const unsignedContract = useMemo(() => {
-    return project?.documents?.find(
+    const contract = project?.documents?.find(
       (document) =>
-        document.type === "contract" &&
+        document.type === PROJECT_UPLOAD_TYPES.contract &&
+        document.latest &&
         !document.customerSign &&
         !document.generalContractorSign
     );
+    return contract
+      ? {
+          ...contract,
+          url: getProjectDocumentDownloadUrl(project._id, contract?.fileId),
+        }
+      : null;
   }, [project]);
 
   const signedContract = useMemo(() => {
-    return project?.documents?.find(
+    const contract = project?.documents?.find(
       (document) =>
-        document.type === "contract" &&
+        document.type === PROJECT_UPLOAD_TYPES.contract &&
+        document.latest &&
         document.customerSign &&
         !document.generalContractorSign
     );
+    return contract
+      ? {
+          ...contract,
+          url: getProjectDocumentDownloadUrl(project._id, contract?.fileId),
+        }
+      : null;
   }, [project]);
 
   const onCreatedStatusComplete = async () => {
@@ -48,11 +65,15 @@ const Created = () => {
   };
 
   const handleFileUpload = async ({ file }) => {
-    return await uploadProjectDocumentApi(project._id, file);
+    return await uploadProjectDocumentApi(
+      project._id,
+      file,
+      PROJECT_UPLOAD_TYPES.contract
+    );
   };
 
   const onSignContract = async (customerSign) => {
-    return await signContractApi(project._id, unsignedContract._id, {
+    return await signContractApi(project._id, unsignedContract.fileId, {
       customerSign,
     });
   };
@@ -160,18 +181,24 @@ const Created = () => {
               <Card.Text>
                 Please wait for the customer to check and sign the contract
               </Card.Text>
-              <Button
-                variant="primary"
-                onClick={() => setShowDocumentModal(true)}
+              <Stack
+                direction="horizontal"
+                gap={3}
+                style={{ justifyContent: "center" }}
               >
-                Check the contract uploaded
-              </Button>
-              <Button
-                variant="primary"
-                onClick={() => setShowFileUploadModal(true)}
-              >
-                Re-upload
-              </Button>
+                <Button
+                  variant="primary"
+                  onClick={() => setShowDocumentModal(true)}
+                >
+                  Check the contract uploaded
+                </Button>
+                <Button
+                  variant="primary"
+                  onClick={() => setShowFileUploadModal(true)}
+                >
+                  Re-upload
+                </Button>
+              </Stack>
               {showDocumentModal ? (
                 <DocumentModal
                   show={showDocumentModal}
@@ -240,7 +267,6 @@ const Created = () => {
         )}
       </Card.Body>
       {[USER_ROLES.ADMIN, USER_ROLES.SALES_REP].includes(auth.user.role) &&
-      unsignedContract &&
       signedContract ? (
         <Card.Footer>
           <SubmitButton

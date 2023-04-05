@@ -66,6 +66,23 @@ router.route("/:id").get(async (req, res) => {
     return res.status(404).json({ error: e });
   }
 });
+
+router.route("/:id/files/:fileId/sign").patch(async (req, res) => {
+  try {
+    const { id, fileId } = req.params;
+    const { customerSign, generalContractorSign } = req.body;
+    if (!customerSign && !generalContractorSign) {
+      throw new Error("customerSign or generalContractorSign is required");
+    }
+    const project = await projectsData.signDocument(req.user, id, fileId, {
+      customerSign,
+      generalContractorSign,
+    });
+    return res.status(200).json({ project });
+  } catch (e) {
+    return res.status(404).json({ error: e });
+  }
+});
 //   .put(async (req, res) => {
 //     try {
 //       const id = req.params.id;

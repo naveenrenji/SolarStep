@@ -3,7 +3,7 @@ import { USER_LOCAL_STORAGE_KEY } from "../constants";
 import { getFromStorage } from "../utils";
 
 const http = axios.create({
-  baseURL: "http://localhost:3001/api/",
+  baseURL: process.env.REACT_APP_API_URL,
   timeout: 10000,
 });
 

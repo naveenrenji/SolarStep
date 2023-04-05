@@ -22,6 +22,7 @@ const AddressModal = ({
     e.preventDefault();
     if (!streetAddress || !city || !state || !zipCode) {
       toast("Please fill all the fields", { type: "error" });
+      return;
     }
     await saveAddress({ streetAddress, city, state, zipCode });
   };
