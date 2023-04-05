@@ -42,6 +42,10 @@ export const uploadProjectDocumentApi = async (projectId, file, type) => {
   return project;
 };
 
+export const downloadProjectDocumentApi = async (projectId, fileId) => {
+  return await http.get(`/projects/${projectId}/files/${fileId}/download`);
+};
+
 export const signContractApi = async (projectId, documentId, body) => {
   const {
     data: { project },
