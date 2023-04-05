@@ -14,7 +14,19 @@ const uploadPdfFile = async (req, res) => {
     }
     await uploadFile(req, res);
     const projectCollection = await projects();
-    if (req.project.documents?.length) {
+    if (
+      req.project.documents?.length &&
+      type === PROJECT_UPLOAD_TYPES.contract &&
+      req.project.documents.some((doc) => doc.type === type)
+    ) {
+      // Is this needed?
+      // if (
+      //   req.project.documents.some(
+      //     (doc) => doc.customerSign && doc.generalContractorSign
+      //   )
+      // ) {
+      //   return res.status(400).json({ error: "Contract already signed" });
+      // }
       const updateEveryContractAsOld = await projectCollection.updateOne(
         {
           _id: new ObjectId(req.project._id),
