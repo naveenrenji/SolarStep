@@ -46,7 +46,7 @@ const ProjectDocuments = ({ project, onClose }) => {
   const handleDocumentDelete = async (document) => {
     try {
       toast("Deleting Document...", { type: toast.TYPE.INFO, autoClose: 0 });
-      const response = await deleteProjectDocumentApi(
+      await deleteProjectDocumentApi(
         project._id,
         document.fileId
       );
