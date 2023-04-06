@@ -112,4 +112,39 @@ const downloadPdfFile = async (req, res) => {
   }
 };
 
-export { uploadPdfFile, downloadPdfFile };
+const deletePdfFile = async (req, res) => {
+  try {
+    const { fileId } = req.params;
+    if (!fileId) {
+      return res.status(400).json({ error: "File Id is required!" });
+    }
+
+    const projectCollection = await projects();
+    const project = await projectCollection.findOneAndUpdate(
+      {
+        _id: new ObjectId(req.project._id),
+        "documents.fileId": new ObjectId(fileId),
+      },
+      {
+        $pull: {
+          documents: {
+            fileId: new ObjectId(fileId),
+          },
+        },
+      },
+      { returnDocument: "after" }
+    );
+
+    if (!project.value) {
+      return res.status(400).json({ error: "File not found!" });
+    }
+
+    const bucket = await getBucket();
+    bucket.delete(new ObjectId(fileId));
+    return "done";
+  } catch (err) {
+    return res.status(500).json({ error: err.toString() });
+  }
+};
+
+export { uploadPdfFile, downloadPdfFile, deletePdfFile };

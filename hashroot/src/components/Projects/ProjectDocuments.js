@@ -17,9 +17,10 @@ import {
   BsFillStarFill,
   BsFillFileEarmarkDiffFill,
 } from "react-icons/bs";
-// import { AiFillDelete } from "react-icons/ai";
+import { AiFillDelete } from "react-icons/ai";
 
 import { downloadProjectDocumentApi } from "../../api/projects";
+import { deleteProjectDocumentApi } from "../../api/projects";
 import { PROJECT_UPLOAD_TYPES } from "../../constants";
 import { capitalize } from "../../utils/user";
 
@@ -39,6 +40,22 @@ const ProjectDocuments = ({ project, onClose }) => {
       fileDownload(response.data, document.originalname);
     } catch (error) {
       toast("Error downloading document");
+    }
+  };
+
+  const handleDocumentDelete = async (document) => {
+    try {
+      toast("Deleting Document...", { type: toast.TYPE.INFO, autoClose: 0 });
+      const response = await deleteProjectDocumentApi(
+        project._id,
+        document.fileId
+      );
+      toast("Document Deleted Successfully", {
+        type: toast.TYPE.INFO,
+        autoClose: 0,
+      });
+    } catch (e) {
+      toast(" Error Deleting document");
     }
   };
 
@@ -89,6 +106,7 @@ const ProjectDocuments = ({ project, onClose }) => {
                   <DocumentItem
                     document={document}
                     handleDocumentDownload={handleDocumentDownload}
+                    handleDocumentDelete={handleDocumentDelete}
                     key={document._id}
                   />
                 ))}
@@ -139,11 +157,10 @@ const DocumentItem = ({
             className="link"
             onClick={() => handleDocumentDownload(document)}
           />
-          {/* TODO: Need to implement delete file? */}
-          {/* <AiFillDelete
+          <AiFillDelete
             className="link"
             onClick={() => handleDocumentDelete(document)}
-          /> */}
+          />
         </Stack>
       </Card.Footer>
     </Card>
