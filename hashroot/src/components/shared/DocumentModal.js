@@ -4,7 +4,7 @@ import Form from "react-bootstrap/Form";
 import Stack from "react-bootstrap/Stack";
 import Pagination from "react-bootstrap/Pagination";
 import Button from "react-bootstrap/esm/Button";
-import Card from "react-bootstrap/esm/Card";
+import Alert from "react-bootstrap/esm/Alert";
 import { Document, Page } from "react-pdf/dist/esm/entry.webpack5";
 
 import "react-pdf/dist/esm/Page/AnnotationLayer.css";
@@ -69,7 +69,11 @@ const DocumentModal = ({
   };
 
   return (
-    <Modal show={show} onHide={handleClose}>
+    <Modal
+      show={show}
+      onHide={handleClose}
+      className={"view-document-modal" + (signRequired ? " sign-required" : "")}
+    >
       <Modal.Header closeButton closeVariant="white">
         <Modal.Title as="h5">{title}</Modal.Title>
       </Modal.Header>
@@ -97,9 +101,14 @@ const DocumentModal = ({
             }}
             externalLinkTarget="_blank"
             noData={
-              <Card className="no-file">
-                <Card.Body>PDF file unavailable or not specified</Card.Body>
-              </Card>
+              <Alert variant="danger" className="text-center">
+                PDF file unavailable or not specified
+              </Alert>
+            }
+            error={
+              <Alert variant="danger" className="text-center">
+                Could not load pdf. You may not have authorization to view.
+              </Alert>
             }
           >
             <Page
