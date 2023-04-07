@@ -6,7 +6,7 @@ import { LinkContainer } from "react-router-bootstrap";
 import { GiHamburgerMenu } from "react-icons/gi";
 import { IoIosArrowBack } from "react-icons/io";
 
-import { getProjectApi, uploadProjectDocumentApi } from "../../api/projects";
+import { uploadProjectDocumentApi } from "../../api/projects";
 import useProject from "../../hooks/useProject";
 import { getProgressBarPercentage } from "../../utils";
 import ProjectStatuses from "../ProjectStatuses";
@@ -16,11 +16,6 @@ import Button from "react-bootstrap/esm/Button";
 import ProjectDocuments from "./ProjectDocuments";
 import ViewProjectModal from "../shared/ViewProjectModal";
 import FileUploadModal from "../shared/FileUploadModal";
-
-export const projectLoader = async ({ params }) => {
-  const projects = getProjectApi(params.projectId);
-  return { projects };
-};
 
 const Project = () => {
   const { project, updateProject } = useProject();
