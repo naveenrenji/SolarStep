@@ -85,10 +85,13 @@ const downloadPdfFile = async (req, res) => {
     }
 
     const projectCollection = await projects();
-    const project = await projectCollection.findOne({
-      _id: new ObjectId(req.project._id),
-      "documents.fileId": new ObjectId(fileId),
-    });
+    const project = await projectCollection.findOne(
+      {
+        _id: new ObjectId(req.project._id),
+        "documents.fileId": new ObjectId(fileId),
+      },
+      { projection: { _id: 1, "documents.$": 1 } }
+    );
 
     if (!project) {
       return res.status(400).send({ error: "File not found!" });

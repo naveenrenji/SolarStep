@@ -17,7 +17,7 @@ import { moveToReadyForInstallationApi } from "../../api/projectStatuses";
 const OnSiteInspectionInProgress = () => {
   const auth = useAuth();
   const { project, updateProject } = useProject();
-  const [scheduledInstallationDate, setScheduledInstallationDate] =
+  const [scheduledInstallationStartDate, setScheduledInstallationStartDate] =
     React.useState();
   const [showConfirmationModal, setShowConfirmationModal] =
     React.useState(false);
@@ -26,7 +26,7 @@ const OnSiteInspectionInProgress = () => {
 
   const readyForInstallation = async () => {
     return await moveToReadyForInstallationApi(project._id, {
-      scheduledInstallationDate,
+      scheduledInstallationStartDate,
     });
   };
 
@@ -64,8 +64,8 @@ const OnSiteInspectionInProgress = () => {
             <Form.Group className="mb-3" controlId="formDate">
               <Form.Label aria-required>Inspection Date</Form.Label>
               <FormDatePicker
-                value={scheduledInstallationDate}
-                onChange={setScheduledInstallationDate}
+                value={scheduledInstallationStartDate}
+                onChange={setScheduledInstallationStartDate}
                 minDate={new Date()}
               />
             </Form.Group>
@@ -120,7 +120,7 @@ const OnSiteInspectionInProgress = () => {
             </SubmitButton>
             <SubmitButton
               onClick={() => {
-                if (!scheduledInstallationDate) {
+                if (!scheduledInstallationStartDate) {
                   toast("Please select a date for installation", {
                     type: toast.TYPE.ERROR,
                   });

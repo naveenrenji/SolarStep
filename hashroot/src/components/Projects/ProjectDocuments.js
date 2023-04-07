@@ -8,6 +8,7 @@ import fileDownload from "js-file-download";
 import Stack from "react-bootstrap/esm/Stack";
 import Badge from "react-bootstrap/esm/Badge";
 import FormText from "react-bootstrap/esm/FormText";
+import Button from "react-bootstrap/esm/Button";
 import { toast } from "react-toastify";
 import {
   BsCloudDownloadFill,
@@ -19,14 +20,25 @@ import {
 } from "react-icons/bs";
 // import { AiFillDelete } from "react-icons/ai";
 
-import { downloadProjectDocumentApi } from "../../api/projects";
 import { PROJECT_UPLOAD_TYPES } from "../../constants";
 import { capitalize } from "../../utils/user";
+import { downloadProjectDocumentApi } from "../../api/projects";
+import { getProjectDocumentDownloadUrl } from "../../utils/files";
+
+import DocumentModal from "../shared/DocumentModal";
 
 const tabs = ["all", ...Object.values(PROJECT_UPLOAD_TYPES)];
 
-const ProjectDocuments = ({ project, onClose }) => {
+const ProjectDocuments = ({ project, onClose, onUploadClick }) => {
   const [currentTab, setCurrentTab] = React.useState("all");
+  const [showViewDocumentModal, setShowViewDocumentModal] =
+    React.useState(false);
+  const [currentDocument, setCurrentDocument] = React.useState();
+
+  const handleDocumentView = (document) => {
+    setCurrentDocument(document);
+    setShowViewDocumentModal(true);
+  };
 
   const handleDocumentDownload = async (document) => {
     try {
@@ -38,7 +50,9 @@ const ProjectDocuments = ({ project, onClose }) => {
 
       fileDownload(response.data, document.originalname);
     } catch (error) {
-      toast("Error downloading document");
+      toast(error?.response?.data?.error || "Error downloading document", {
+        type: toast.TYPE.ERROR,
+      });
     }
   };
 
@@ -68,26 +82,36 @@ const ProjectDocuments = ({ project, onClose }) => {
       <Card.Body className="mb-0 flex-1">
         {project?.documents?.length ? (
           <Stack gap={3}>
-            <Nav
-              variant="pills"
-              activeKey={currentTab}
-              onSelect={setCurrentTab}
+            <Stack
               style={{
+                justifyContent: "space-between",
                 paddingBottom: "1rem",
                 borderBottom: "1px solid #dee2e6",
               }}
+              direction="horizontal"
             >
-              {tabs.map((type) => (
-                <Nav.Item key={type}>
-                  <Nav.Link eventKey={type}>{capitalize(type)}</Nav.Link>
-                </Nav.Item>
-              ))}
-            </Nav>
+              <Nav
+                variant="pills"
+                activeKey={currentTab}
+                onSelect={setCurrentTab}
+                style={{}}
+              >
+                {tabs.map((type) => (
+                  <Nav.Item key={type}>
+                    <Nav.Link eventKey={type}>{capitalize(type)}</Nav.Link>
+                  </Nav.Item>
+                ))}
+              </Nav>
+              <Button variant="secondary" onClick={onUploadClick}>
+                + Upload File
+              </Button>
+            </Stack>
             {tabDocuments?.length ? (
               <Row>
                 {tabDocuments?.map((document) => (
                   <DocumentItem
                     document={document}
+                    onClick={handleDocumentView}
                     handleDocumentDownload={handleDocumentDownload}
                     key={document._id}
                   />
@@ -103,17 +127,39 @@ const ProjectDocuments = ({ project, onClose }) => {
           <Card.Text className="text-center">No documents uploaded</Card.Text>
         )}
       </Card.Body>
+      {showViewDocumentModal && (
+        <DocumentModal
+          show={showViewDocumentModal}
+          onClose={() => {
+            setCurrentDocument();
+            setShowViewDocumentModal(false);
+          }}
+          title={currentDocument.originalname}
+          file={getProjectDocumentDownloadUrl(
+            project._id,
+            currentDocument.fileId
+          )}
+        />
+      )}
     </Card>
   );
 };
 
 const DocumentItem = ({
   document,
+  onClick,
   handleDocumentDownload,
   handleDocumentDelete,
 }) => (
   <Col xs={6} sm={4} lg={2} key={document._id}>
-    <Card style={{ width: "100%" }}>
+    <Card
+      style={{
+        width: "100%",
+        ...(document?.type === PROJECT_UPLOAD_TYPES.contract && document.latest
+          ? { border: "2px solid var(--bs-secondary)" }
+          : {}),
+      }}
+    >
       <Card.Body
         style={{
           height: "4rem",
@@ -124,6 +170,12 @@ const DocumentItem = ({
           fontSize: "0.75rem",
           display: "flex",
           alignItems: "center",
+          cursor: document?.type === PROJECT_UPLOAD_TYPES.contract ? "pointer" : "auto",
+        }}
+        onClick={() => {
+          if (document?.type === PROJECT_UPLOAD_TYPES.contract) {
+            onClick(document);
+          }
         }}
       >
         <FormText>{document.originalname}</FormText>

@@ -50,5 +50,6 @@ export const PROJECT_UPLOAD_TYPES = {
   contract: "contract",
   permit: "permit",
   inspection: "inspection",
+  invoice: "invoice",
   other: "other",
 };

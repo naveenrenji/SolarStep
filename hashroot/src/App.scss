@@ -104,6 +104,16 @@ form {
     max-height: 75vh;
     overflow-y: auto;
   }
+  &.view-document-modal {
+    &.sign-required {
+      .modal-body {
+        max-height: 65vh;
+      }
+    }
+    .modal-dialog {
+      --bs-modal-width: 600px;
+    }
+  }
 }
 
 a {
