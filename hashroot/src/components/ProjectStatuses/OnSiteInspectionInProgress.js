@@ -16,6 +16,7 @@ import {
   moveToReadyForInstallationApi,
   moveToUpdatingProposalApi,
 } from "../../api/projectStatuses";
+import { displayDate } from "../../utils/date";
 
 const OnSiteInspectionInProgress = () => {
   const auth = useAuth();
@@ -58,7 +59,10 @@ const OnSiteInspectionInProgress = () => {
       >
         <GrSchedulePlay className="primary" />
         <Card.Text>The On Site Inspection is progress.</Card.Text>
-        <Card.Text>Started Inspection On: {project.inspectionDate}</Card.Text>
+        <Card.Text>
+          Started Inspection On:{" "}
+          {displayDate(project.onSiteInspectionStartedOn)}
+        </Card.Text>
         {[USER_ROLES.WORKER, USER_ROLES.CUSTOMER].includes(auth.user.role) ? (
           <div style={{ textAlign: "center" }}>
             <Card.Text>

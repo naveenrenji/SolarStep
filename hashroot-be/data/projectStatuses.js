@@ -50,7 +50,7 @@ const moveToOnSiteInspectionScheduled = async (
   // Write the code here
 
   let projectCollections = await projects();
-  const updatedProjectLog = projectCollections.findOneAndUpdate(
+  const updatedProjectLog = await projectCollections.findOneAndUpdate(
     { _id: new ObjectId(project._id) },
     {
       $set: {
@@ -80,7 +80,7 @@ const moveToOnSiteInspectionInProgress = async (
   const status = PROJECT_STATUSES.ON_SITE_INSPECTION_IN_PROGRESS;
 
   let projectCollections = await projects();
-  const updatedProjectLog = projectCollections.findOneAndUpdate(
+  const updatedProjectLog = await projectCollections.findOneAndUpdate(
     { _id: new ObjectId(project._id) },
     {
       $set: {

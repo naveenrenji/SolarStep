@@ -45,14 +45,14 @@ const OnSiteInspectionScheduled = () => {
       >
         <GrScheduleNew className="primary" />
         <Card.Text>The On Site Inspection has been scheduled</Card.Text>
+        <Card.Text>
+          Inspection Date: {displayDate(project.onSiteInspectionDate)}
+        </Card.Text>
         {[USER_ROLES.WORKER, USER_ROLES.CUSTOMER].includes(auth.user.role) ? (
           <div style={{ textAlign: "center" }}>
             <Card.Text>
               Please wait for general contractor to start the inspection
               process.
-            </Card.Text>
-            <Card.Text>
-              Inspection Date: {displayDate(project.onSiteInspectionDate)}
             </Card.Text>
           </div>
         ) : hasMoveAccess ? (

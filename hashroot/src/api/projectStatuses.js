@@ -69,7 +69,7 @@ export const moveToOnSiteInspectionInProgressApi = async (
   const {
     data: { project },
   } = await http.patch(
-    `/projects/${projectId}/status/${PROJECT_STATUS_KEYS.ON_SITE_INSPECTION_IN_PROGRESS}}`,
+    `/projects/${projectId}/status/${PROJECT_STATUS_KEYS.ON_SITE_INSPECTION_IN_PROGRESS}`,
     {
       onSiteInspectionStartedOn,
     }

@@ -37,7 +37,7 @@ router
           `On site inspection scheduled on ${onSiteInspectionDate}`
         );
         res.json({ project });
-      } catch {
+      } catch (error) {
         return res.status(404).json({ error: error?.toString() });
       }
     }
@@ -67,7 +67,7 @@ router
           `On site inspection started on ${onSiteInspectionStartedOn}`
         );
         res.json({ project });
-      } catch {
+      } catch (error) {
         return res.status(404).json({ error: error?.toString() });
       }
     }
