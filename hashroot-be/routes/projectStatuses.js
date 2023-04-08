@@ -1,13 +1,16 @@
 import { Router } from "express";
 import {
-  USER_ROLES,
   PROJECT_STATUSES,
   PROJECT_STATUS_KEYS,
+  USER_ROLES,
 } from "../constants.js";
 import {
   createProjectLog,
   moveToOnSiteInspectionInProgress,
   moveToOnSiteInspectionScheduled,
+  projectClosingOut,
+  projectComplete,
+  projectValidatingPermits,
 } from "../data/projectStatuses.js";
 import authorizeRequest from "../middleware/authorizeRequest.js";
 
@@ -68,6 +71,66 @@ router
         );
         res.json({ project });
       } catch (error) {
+        return res.status(404).json({ error: error?.toString() });
+      }
+    }
+  );
+
+router
+  .route(`/${PROJECT_STATUS_KEYS.COMPLETED}`)
+  .patch(
+    authorizeRequest([USER_ROLES.ADMIN, USER_ROLES.SALES_REP]),
+    async (req, res) => {
+      try {
+        const project = await projectComplete(req.user, req.project);
+        await createProjectLog(
+          req.user,
+          req.project,
+          req.project.status,
+          PROJECT_STATUSES.COMPLETED
+        );
+        res.json({ project });
+      } catch(error) {
+        return res.status(404).json({ error: error?.toString() });
+      }
+    }
+  );
+
+router
+  .route(`/${PROJECT_STATUS_KEYS.CLOSING_OUT}`)
+  .patch(
+    authorizeRequest([USER_ROLES.ADMIN, USER_ROLES.SALES_REP]),
+    async (req, res) => {
+      try {
+        const project = await projectClosingOut(req.user, req.project);
+        await createProjectLog(
+          req.user,
+          req.project,
+          req.project.status,
+          PROJECT_STATUSES.CLOSING_OUT
+        );
+        res.json({ project });
+      } catch(error) {
+        return res.status(404).json({ error: error?.toString() });
+      }
+    }
+  );
+
+router
+  .route(`/${PROJECT_STATUS_KEYS.VALIDATING_PERMITS}`)
+  .patch(
+    authorizeRequest([USER_ROLES.ADMIN, USER_ROLES.SALES_REP]),
+    async (req, res) => {
+      try {
+        const project = await projectValidatingPermits(req.user, req.project);
+        await createProjectLog(
+          req.user,
+          req.project,
+          req.project.status,
+          PROJECT_STATUSES.VALIDATING_PERMITS
+        );
+        res.json({ project });
+      } catch(error) {
         return res.status(404).json({ error: error?.toString() });
       }
     }

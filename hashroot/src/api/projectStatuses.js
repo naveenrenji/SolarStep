@@ -160,7 +160,7 @@ export const moveToCompleteApi = async (projectId) => {
   const {
     data: { project },
   } = await http.patch(
-    `/projects/${projectId}/status/${PROJECT_STATUS_KEYS.COMPLETE}`
+    `/projects/${projectId}/status/${PROJECT_STATUS_KEYS.COMPLETED}`
   );
 
   return project;
