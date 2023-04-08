@@ -39,7 +39,7 @@ const TaskListCard = ({ task, onTaskClick, onStatusChange, onDelete }) => {
   );
 
   const toBeCompletedIn = useMemo(() => {
-    return daysRemaining(new Date(task.expectedCompletionDate), new Date());
+    return daysRemaining(new Date(), new Date(task.expectedCompletionDate));
   }, [task]);
 
   const completedOn = useMemo(() => {
