@@ -78,6 +78,26 @@ export const moveToOnSiteInspectionInProgressApi = async (
   return project;
 };
 
+export const moveToUpdatingProposalApi = async (projectId) => {
+  const {
+    data: { project },
+  } = await http.patch(
+    `/projects/${projectId}/status/${PROJECT_STATUS_KEYS.UPDATING_PROPOSAL}`
+  );
+
+  return project;
+};
+
+export const moveToReviewingProposalApi = async (projectId) => {
+  const {
+    data: { project },
+  } = await http.patch(
+    `/projects/${projectId}/status/${PROJECT_STATUS_KEYS.REVIEWING_PROPOSAL}`
+  );
+
+  return project;
+};
+
 export const moveToReadyForInstallationApi = async (
   projectId,
   { scheduledInstallationDate }
@@ -121,6 +141,26 @@ export const moveToValidatingPermitsApi = async (
     {
       installationCompletedOn,
     }
+  );
+
+  return project;
+};
+
+export const moveToClosingOutApi = async (projectId) => {
+  const {
+    data: { project },
+  } = await http.patch(
+    `/projects/${projectId}/status/${PROJECT_STATUS_KEYS.CLOSING_OUT}`
+  );
+
+  return project;
+};
+
+export const moveToCompleteApi = async (projectId) => {
+  const {
+    data: { project },
+  } = await http.patch(
+    `/projects/${projectId}/status/${PROJECT_STATUS_KEYS.COMPLETE}`
   );
 
   return project;

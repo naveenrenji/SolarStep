@@ -12,7 +12,10 @@ import ConfirmationModal from "../shared/ConfirmationModal";
 import SubmitButton from "../shared/SubmitButton";
 import FormDatePicker from "../shared/FormDatePicker";
 import { toast } from "react-toastify";
-import { moveToReadyForInstallationApi } from "../../api/projectStatuses";
+import {
+  moveToReadyForInstallationApi,
+  moveToUpdatingProposalApi,
+} from "../../api/projectStatuses";
 
 const OnSiteInspectionInProgress = () => {
   const auth = useAuth();
@@ -31,9 +34,16 @@ const OnSiteInspectionInProgress = () => {
   };
 
   const proposalNeedsUpdate = async () => {
-    console.log(project._id);
-    // return await proposalNeedsUpdateApi(project._id);
+    return await moveToUpdatingProposalApi(project._id);
   };
+
+  const hasMoveAccess = React.useMemo(() => {
+    return [
+      USER_ROLES.ADMIN,
+      USER_ROLES.SALES_REP,
+      USER_ROLES.GENERAL_CONTRACTOR,
+    ].includes(auth.user.role);
+  }, [auth.user.role]);
 
   return (
     <Card className="shadow-sm mt-3 h-100 project-status">
@@ -55,14 +65,10 @@ const OnSiteInspectionInProgress = () => {
               Please wait for general contractor to complete the inspection.
             </Card.Text>
           </div>
-        ) : [
-            USER_ROLES.ADMIN,
-            USER_ROLES.SALES_REP,
-            USER_ROLES.GENERAL_CONTRACTOR,
-          ].includes(auth.user.role) ? (
+        ) : hasMoveAccess ? (
           <div style={{ textAlign: "center" }}>
             <Form.Group className="mb-3" controlId="formDate">
-              <Form.Label aria-required>Inspection Date</Form.Label>
+              <Form.Label aria-required>Installation Start Date</Form.Label>
               <FormDatePicker
                 value={scheduledInstallationStartDate}
                 onChange={setScheduledInstallationStartDate}
@@ -106,9 +112,7 @@ const OnSiteInspectionInProgress = () => {
           <></>
         )}
       </Card.Body>
-      {[USER_ROLES.ADMIN, USER_ROLES.GENERAL_CONTRACTOR].includes(
-        auth.user.role
-      ) ? (
+      {hasMoveAccess ? (
         <Card.Footer>
           <Stack style={{ float: "right" }} gap={2} direction="horizontal">
             <SubmitButton
@@ -116,7 +120,7 @@ const OnSiteInspectionInProgress = () => {
               className="ml-3"
               variant="secondary"
             >
-              Proposal needs to be updated
+              Proposal needs update
             </SubmitButton>
             <SubmitButton
               onClick={() => {

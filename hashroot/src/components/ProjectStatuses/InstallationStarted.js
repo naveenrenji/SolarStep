@@ -20,7 +20,7 @@ const InstallationStarted = () => {
   const [showConfirmationModal, setShowConfirmationModal] =
     React.useState(false);
   const [taskAnalytics, setTaskAnalytics] = React.useState([]);
-  const [loading, setLoading] = React.useState(false);
+  const [loading, setLoading] = React.useState(true);
 
   const getTaskAnalytics = useCallback(async () => {
     try {
@@ -73,6 +73,14 @@ const InstallationStarted = () => {
     });
   };
 
+  const hasMoveAccess = React.useMemo(() => {
+    return [
+      USER_ROLES.ADMIN,
+      USER_ROLES.SALES_REP,
+      USER_ROLES.GENERAL_CONTRACTOR,
+    ].includes(auth.user.role);
+  }, [auth.user.role]);
+
   return (
     <Card className="shadow-sm mt-3 h-100 project-status position-relative">
       {loading ? <Loader /> : <></>}
@@ -115,11 +123,7 @@ const InstallationStarted = () => {
           )}
         </div>
       </Card.Body>
-      {[
-        USER_ROLES.ADMIN,
-        USER_ROLES.GENERAL_CONTRACTOR,
-        USER_ROLES.SALES_REP,
-      ].includes(auth.user.role) ? (
+      {hasMoveAccess ? (
         <Card.Footer>
           <SubmitButton
             onClick={() => setShowConfirmationModal(true)}

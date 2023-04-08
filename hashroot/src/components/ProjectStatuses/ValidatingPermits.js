@@ -8,6 +8,7 @@ import useProject from "../../hooks/useProject";
 import ConfirmationModal from "../shared/ConfirmationModal";
 
 import SubmitButton from "../shared/SubmitButton";
+import { moveToClosingOutApi } from "../../api/projectStatuses";
 
 // TODO: Update this code to include permit documents to be uploaded
 
@@ -18,9 +19,16 @@ const ValidatingPermits = () => {
     React.useState(false);
 
   const permitsValidated = async () => {
-    console.log(project._id);
-    // return await moveToClosingOut(project._id);
+    return await moveToClosingOutApi(project._id);
   };
+
+  const hasMoveAccess = React.useMemo(() => {
+    return [
+      USER_ROLES.ADMIN,
+      USER_ROLES.GENERAL_CONTRACTOR,
+      USER_ROLES.SALES_REP,
+    ].includes(auth.user.role);
+  }, [auth.user.role]);
 
   return (
     <Card className="shadow-sm mt-3 h-100">
@@ -34,15 +42,11 @@ const ValidatingPermits = () => {
         }}
       >
         <Card.Text>The project installation is complete.</Card.Text>
-        {[USER_ROLES.CUSTOMER].includes(auth.user.role) ? (
+        {[USER_ROLES.CUSTOMER, USER_ROLES.WORKER].includes(auth.user.role) ? (
           <Card.Text>
             Please wait fot the team to validate all the permits.
           </Card.Text>
-        ) : [
-            USER_ROLES.ADMIN,
-            USER_ROLES.GENERAL_CONTRACTOR,
-            USER_ROLES.SALES_REP,
-          ].includes(auth.user.role) ? (
+        ) : hasMoveAccess ? (
           <div style={{ textAlign: "center" }}>
             <Card.Text>
               Please validate all the permits for the customer and ensure
@@ -70,11 +74,7 @@ const ValidatingPermits = () => {
           <></>
         )}
       </Card.Body>
-      {[
-        USER_ROLES.ADMIN,
-        USER_ROLES.GENERAL_CONTRACTOR,
-        USER_ROLES.SALES_REP,
-      ].includes(auth.user.role) ? (
+      {hasMoveAccess ? (
         <Card.Footer>
           <SubmitButton
             onClick={() => setShowConfirmationModal(true)}

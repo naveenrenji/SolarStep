@@ -26,6 +26,10 @@ const ReadyToBeAssignedToGC = () => {
     });
   };
 
+  const hasMoveAccess = React.useMemo(() => {
+    return [USER_ROLES.ADMIN, USER_ROLES.SALES_REP].includes(auth.user.role);
+  }, [auth.user.role]);
+
   return (
     <Card className="shadow-sm mt-3 h-100 project-status">
       <Card.Body
@@ -50,9 +54,7 @@ const ReadyToBeAssignedToGC = () => {
           <Card.Text>
             Please wait for the contract to be assigned to you
           </Card.Text>
-        ) : [USER_ROLES.ADMIN, USER_ROLES.SALES_REP].includes(
-            auth.user.role
-          ) ? (
+        ) : hasMoveAccess ? (
           <div style={{ textAlign: "center" }}>
             <Card.Text>
               Please assign the project to a general contractor
@@ -81,7 +83,7 @@ const ReadyToBeAssignedToGC = () => {
           <></>
         )}
       </Card.Body>
-      {[USER_ROLES.ADMIN, USER_ROLES.SALES_REP].includes(auth.user.role) ? (
+      {hasMoveAccess ? (
         <Card.Footer>
           <SubmitButton
             variant="primary"
