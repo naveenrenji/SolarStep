@@ -1,8 +1,9 @@
 import { ObjectId } from "mongodb";
 import { projectStatusLogs, projects } from "../config/mongoCollections.js";
-import { PROJECT_STATUSES } from "../constants.js";
+import { PROJECT_STATUSES, PROJECT_UPLOAD_TYPES, TASK_STATUSES } from "../constants.js";
 import { checkProjectStatus } from "../helpers.js";
 import { getProjectById } from "./projects.js";
+import { getAllTasks } from "./tasks.js";
 
 const createProjectLog = async (
   currentUser,
@@ -40,6 +41,44 @@ const createProjectLog = async (
   return true;
 };
 
+const moveToReadyToBeAssignedToGC = async (currentUser, project) => {
+  if (!currentUser) throw "User not logged in";
+  if (
+    !project.documents.find(
+      (doc) =>
+        doc.type === PROJECT_UPLOAD_TYPES.contract &&
+        doc.latest &&
+        doc.customerSign &&
+        !doc.generalContractorSign
+    )
+  ) {
+    throw new Error("Contract not signed by customer");
+  }
+  const status = PROJECT_STATUSES.READY_TO_BE_ASSIGNED_TO_GC;
+
+  let projectCollections = await projects();
+  const updatedProjectLog = await projectCollections.findOneAndUpdate(
+    { _id: new ObjectId(project._id) },
+    {
+      $set: {
+        status: status,
+      },
+    },
+    { returnDocument: "after" }
+  );
+  if (updatedProjectLog.lastErrorObject.n !== 1 || !updatedProjectLog.value) {
+    throw new Error(
+      "Status for Ready to be Assigned to GC could not be changed."
+    );
+  }
+
+  const updatedProject = await getProjectById(
+    currentUser,
+    project._id.toString()
+  );
+  return updatedProject;
+};
+
 const moveToOnSiteInspectionScheduled = async (
   currentUser,
   project,
@@ -47,7 +86,6 @@ const moveToOnSiteInspectionScheduled = async (
 ) => {
   if (!currentUser) throw "User not logged in";
   const status = PROJECT_STATUSES.ON_SITE_INSPECTION_SCHEDULED;
-  // Write the code here
 
   let projectCollections = await projects();
   const updatedProjectLog = await projectCollections.findOneAndUpdate(
@@ -161,6 +199,15 @@ const projectClosingOut = async (currentUser, project) => {
 const projectValidatingPermits = async (currentUser, project) => {
   if (!currentUser) throw "User not logged in";
 
+  const tasks = await getAllTasks(currentUser, project._id.toString());
+  if (!tasks.length) {
+    throw new Error("No tasks found for this project");
+  }
+
+  if (tasks.filter((task) => task.status !== TASK_STATUSES.COMPLETED).length) {
+    throw new Error("All tasks are not completed");
+  }
+
   const status = PROJECT_STATUSES.VALIDATING_PERMITS;
 
   let projectCollections = await projects();
@@ -188,6 +235,7 @@ const projectValidatingPermits = async (currentUser, project) => {
 
 export {
   createProjectLog,
+  moveToReadyToBeAssignedToGC,
   moveToOnSiteInspectionScheduled,
   moveToOnSiteInspectionInProgress,
   projectClosingOut,
