@@ -37,7 +37,7 @@ const AssignedToGC = () => {
   }, [project]);
 
   const onGCAcceptsProposal = async (generalContractorSign) => {
-    await signContractApi(project._id, unsignedContract._id, {
+    await signContractApi(project._id, unsignedContract.fileId, {
       generalContractorSign,
     });
 
@@ -47,6 +47,12 @@ const AssignedToGC = () => {
   const onGCRejectsProposal = async (comment) => {
     return await gcRejectProposalApi(project._id, { comment });
   };
+
+  const hasMoveAccess = React.useMemo(() => {
+    return [USER_ROLES.ADMIN, USER_ROLES.GENERAL_CONTRACTOR].includes(
+      auth.user.role
+    );
+  }, [auth.user.role]);
 
   return (
     <Card className="shadow-sm mt-3 h-100 project-status">
@@ -71,9 +77,7 @@ const AssignedToGC = () => {
             Please wait for the general contractor to have a look at the
             proposal
           </Card.Text>
-        ) : [USER_ROLES.ADMIN, USER_ROLES.GENERAL_CONTRACTOR].includes(
-            auth.user.role
-          ) ? (
+        ) : hasMoveAccess ? (
           <div style={{ textAlign: "center" }}>
             <Card.Text>
               Please check the proposal and accept it if you are happy with it
@@ -131,9 +135,7 @@ const AssignedToGC = () => {
           <></>
         )}
       </Card.Body>
-      {[USER_ROLES.ADMIN, USER_ROLES.GENERAL_CONTRACTOR].includes(
-        auth.user.role
-      ) ? (
+      {hasMoveAccess ? (
         <Card.Footer>
           <Stack style={{ float: "right" }} gap={2} direction="horizontal">
             <SubmitButton
