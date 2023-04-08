@@ -40,85 +40,79 @@ const createProjectLog = async (
   return true;
 };
 
-const projectComplete = async (currentUser, project, completed) => {
-  if (!currentUser) 
-    throw 'User not logged in';
+const projectComplete = async (currentUser, project) => {
+  if (!currentUser) throw "User not logged in";
 
   const status = PROJECT_STATUSES.COMPLETED;
 
   if (project.status === status) {
-    throw 'Project status is already completed';
+    throw "Project status is already completed";
   }
 
   let projectCollections = await projects();
   const updatedProjectLog = await projectCollections.findOneAndUpdate(
-    {_id: new ObjectId(project._id)},
+    { _id: new ObjectId(project._id) },
     {
       $set: {
         status: status,
-        completed: completed,
         completedAt: new Date(),
       },
     },
-    {returnDocument: "after" }
+    { returnDocument: "after" }
   );
 
   if (updatedProjectLog.lastErrorObject.n !== 1 || !updatedProjectLog.value) {
-    throw new Error("Status for Projects could not be changed to Completed.")
+    throw new Error("Status for Projects could not be changed to Completed.");
   }
 
-  const updatedProject = await getProjectById(currentUser, project._id.toString());
+  const updatedProject = await getProjectById(
+    currentUser,
+    project._id.toString()
+  );
   return updatedProject;
-}
+};
 
-const projectClosingOut = async (currentUser, project, closingout) => {
-  if (!currentUser) throw 'User not logged in';
+const projectClosingOut = async (currentUser, project) => {
+  if (!currentUser) throw "User not logged in";
 
-const status = PROJECT_STATUSES.CLOSING_OUT;
+  const status = PROJECT_STATUSES.CLOSING_OUT;
 
-let projectCollections = await projects();
-const updatedProjectLog = projectCollections.findOneAndUpdate({_id: new ObjectId(project._id)},
-{
-  $set: {
-    status: status,
-    closingout: closingout,
-  },
-},
-{returnDocument: "after"}
-);
-if(updatedProjectLog.lastErrorObject.n !== 1 || updatedProjectLog.value){
-  throw new Error("Status for Projects could not be changed to Closing Out.");
-}
-const updatedProject = await getProjectById(
-  currentUser,
-  project._id.toString()
-);
+  let projectCollections = await projects();
+  const updatedProjectLog = projectCollections.findOneAndUpdate(
+    { _id: new ObjectId(project._id) },
+    {
+      $set: {
+        status: status,
+      },
+    },
+    { returnDocument: "after" }
+  );
+  if (updatedProjectLog.lastErrorObject.n !== 1 || updatedProjectLog.value) {
+    throw new Error("Status for Projects could not be changed to Closing Out.");
+  }
+  const updatedProject = await getProjectById(
+    currentUser,
+    project._id.toString()
+  );
 
-return updatedProject;
+  return updatedProject;
+};
 
-}
-
-const projectValidatingPermits = async (
-  currentUser,
-  project,
-  validating_user
-) => {
-  if (!currentUser) throw 'User not logged in';
-
+const projectValidatingPermits = async (currentUser, project) => {
+  if (!currentUser) throw "User not logged in";
 
   const status = PROJECT_STATUSES.VALIDATING_PERMITS;
 
   let projectCollections = await projects();
   const updatedProjectLog = projectCollections.findOneAndUpdate(
-    {_id: new ObjectId(project._id)},
+    { _id: new ObjectId(project._id) },
     {
       $set: {
         status: status,
-        validating_user: validating_user,
         installationCompletedAt: new Date(),
       },
     },
-    {returnDocument: "after"}
+    { returnDocument: "after" }
   );
 
   if (updatedProjectLog.lastErrorObject.n !== 1 || !updatedProjectLog.value) {
@@ -131,7 +125,12 @@ const projectValidatingPermits = async (
   );
 
   return updatedProject;
-}
+};
 
-
-export { createProjectLog, moveToOnSiteInspectionScheduled, projectClosingOut, projectComplete,  projectValidatingPermits};
+export {
+  createProjectLog,
+  moveToOnSiteInspectionScheduled,
+  projectClosingOut,
+  projectComplete,
+  projectValidatingPermits,
+};
