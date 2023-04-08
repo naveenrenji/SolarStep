@@ -33,6 +33,7 @@ const configureRoutes = (app) => {
     authenticateProject,
     filesRoutes
   );
+  
 
   app.use("*", (_, res) => {
     res.status(404).json({ error: "Not found" });

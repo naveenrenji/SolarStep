@@ -41,6 +41,58 @@ const createProjectLog = async (
   return true;
 };
 
+const updateProjectStatusToAssignedToGC = async (req, res) => {
+  const projectId = req.params.projectId;
+  const generalContractorId = req.body.generalContractorId;
+  const currentUser = req.user;
+  // Verify that the current user is authorized to access this API
+  if (!['ADMIN', 'SALES_REP'].includes(currentUser.role)) {
+    
+    return res.status(403).json({ message: "Access denied" });
+  }
+  
+  // Verify that the generalContractorId exists in the data
+  const gc = await getDb().collection('users').findOne({ _id: new ObjectID(generalContractorId), role: 'GC' });
+  if (!gc) {
+    
+    return res.status(404).json({ message: "GC not found" });
+    
+  }
+  // Update the project with generalContractor object and status
+  const project = await getDb().collection('projects').findOne({ _id: new ObjectID(projectId) });
+  if (!project) {
+    
+    return res.status(404).json({ message: "Project not found" });
+  }
+  const updatedProject = {
+    ...project,
+    generalContractor: {
+      _id: new ObjectID(gc._id),
+      email: gc.email
+    },
+    status: "ASSIGNED TO GC",
+    updatedAt: new Date()
+  };
+  await getDb().collection('projects').replaceOne({ _id: new ObjectID(projectId) }, updatedProject);
+  // Create a project status log record
+  const ProjectStatusLog = {
+    _id: new ObjectID(),
+    projectId: new Object(project._id),
+    doneBy: {
+      _id: new ObjectID(currentUser._id),
+      email: currentUser.email,
+      role: currentUser.role,
+    },
+    from: "Ready to be assigned to GC",
+    to: "Assigned to GC",
+    comment: null
+  };
+  await getDb().collection('projectStatusLogs').insertOne(ProjectStatusLog);
+
+  // Respond with the updated project data
+  return res.json({ project: updatedProject });
+};
+
 const moveToReadyToBeAssignedToGC = async (currentUser, project) => {
   if (!currentUser) throw "User not logged in";
   if (
@@ -241,4 +293,5 @@ export {
   projectClosingOut,
   projectComplete,
   projectValidatingPermits,
+  updateProjectStatusToAssignedToGC
 };
