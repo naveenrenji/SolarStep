@@ -63,8 +63,31 @@ const moveToOnSiteInspectionScheduled = async (
   if (result.lastErrorObject.n === 0) {
     throw new Error(`Could not set the inspection date for Project ${project._id}.`);
   }
-  await addProjectLog(createProjectLog(currentUser, project, previousStatus, status, null));
+  await addProjectLog(createProjectLog(currentUser, project, previousStatus, status, "Project inspection scheduled"));
   return project;
 };
+
+const moveToReadyForInstallation = async (
+  currentUser,
+  project,
+  scheduledInstallationStartDate
+) => {
+  const status = PROJECT_STATUSES.READY_FOR_INSTALLATION;
+  const previousStatus = project.status;
+  const allProjects = await projects();
+  const result = await allProjects.findOneAndUpdate(
+    { _id: new ObjectId(project._id) },
+    {
+      $set: {status, scheduledInstallationStartDate},
+    },
+    { returnDocument: "after" }
+  );
+
+  if (result.lastErrorObject.n === 0) {
+    throw new Error(`Could not set the installation date for Project ${project._id}.`);
+  }
+  await addProjectLog(createProjectLog(currentUser, project, previousStatus, status, "Project Installation scheduled"));
+  return project;
+}
 
 export { createProjectLog, moveToOnSiteInspectionScheduled };
