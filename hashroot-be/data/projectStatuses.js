@@ -15,28 +15,33 @@ const createProjectLog = async (
   to = checkProjectStatus(to, "Project to status");
 
   const projectStatusLogCollection = await projectStatusLogs();
-  const newProjectStatusLog = {
-    projectId: new ObjectId(project._id),
-    user: {
-      _id: new ObjectId(currentUser._id),
-      email: currentUser.email,
-    },
-    from,
-    to,
-    comment,
-    createdAt: new Date(),
+  const createNewProjectStatusLog = (currentUser, project, from, to, comment) => {
+    return {
+      projectId: new ObjectId(project._id),
+      user: {
+        _id: new ObjectId(currentUser._id),
+        email: currentUser.email,
+      },
+      from: from,
+      to: to,
+      comment: comment,
+      createdAt: new Date(),
+    }
   };
 
-  const insertInfo = await projectStatusLogCollection.insertOne(
-    newProjectStatusLog
-  );
+  const addProjectLog = async (newProjectStatusLog) => {
 
-  if (!insertInfo.acknowledged || !insertInfo.insertedId) {
-    return false;
+    const insertInfo = await projectStatusLogCollection.insertOne(
+      newProjectStatusLog
+    );
+  
+    if (!insertInfo.acknowledged || !insertInfo.insertedId) {
+      return false;
+    }
+  
+      return true;
+    };
   }
-
-  return true;
-};
 
 const moveToOnSiteInspectionScheduled = async (
   currentUser,
@@ -46,7 +51,7 @@ const moveToOnSiteInspectionScheduled = async (
   const status = PROJECT_STATUSES.ON_SITE_INSPECTION_SCHEDULED;
   const previousStatus = project.status;
   // Write the code here
-  const allProjects = await projects()
+  const allProjects = await projects();
   const result = await allProjects.findOneAndUpdate(
     { _id: new ObjectId(project._id) },
     {
@@ -58,22 +63,8 @@ const moveToOnSiteInspectionScheduled = async (
   if (result.lastErrorObject.n === 0) {
     throw new Error(`Could not set the inspection date for Project ${project._id}.`);
   }
-
-  const ProjectStatusLog = {
-    _id: new ObjectID(),
-    projectId: new Object(project._id),
-    user: {
-      _id: new ObjectID(currentUser._id),
-      email: currentUser.email,
-      role: currentUser.role,
-    },
-    // Add respective statuses here.
-    from: previousStatus,
-    to: status,
-    comment: null
-  }
-  await projectStatusLogCollection.insertOne(ProjectStatusLog);
-  return project
+  await addProjectLog(createProjectLog(currentUser, project, previousStatus, status, null));
+  return project;
 };
 
 export { createProjectLog, moveToOnSiteInspectionScheduled };
