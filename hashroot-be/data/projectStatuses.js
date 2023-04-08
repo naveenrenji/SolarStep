@@ -143,6 +143,17 @@ const moveToReviewingProposal = async (
   project
 ) => {
   if (!currentUser) throw "User not logged in";
+  if (
+    !project.documents.find(
+      (doc) =>
+        doc.type === PROJECT_UPLOAD_TYPES.contract &&
+        doc.latest &&
+        !doc.customerSign &&
+        doc.generalContractorSign
+    )
+  ) {
+    throw new Error("Contract not signed by General Contractor");
+  }
   const status = PROJECT_STATUSES.REVIEWING_PROPOSAL;
 
   let projectCollections = await projects();
