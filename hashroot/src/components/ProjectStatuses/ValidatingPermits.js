@@ -1,5 +1,4 @@
 import React from "react";
-import Button from "react-bootstrap/esm/Button";
 import Card from "react-bootstrap/esm/Card";
 
 import { USER_ROLES } from "../../constants";
@@ -50,9 +49,9 @@ const ValidatingPermits = () => {
           <div style={{ textAlign: "center" }}>
             <Card.Text>
               Please validate all the permits for the customer and ensure
-              everything is up to code.
+              everything is up to code. You can upload the permit documents from
+              the right side hamburger menu.
             </Card.Text>
-            <Button variant="link">Upload Permit Docs</Button>
             {showConfirmationModal ? (
               <ConfirmationModal
                 key="accept"
