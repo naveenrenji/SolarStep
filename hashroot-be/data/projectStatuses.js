@@ -209,6 +209,17 @@ const moveToReadyForInstallation = async (
   installationDate
 ) => {
   if (!currentUser) throw "User not logged in";
+  if (
+    !project.documents.find(
+      (doc) =>
+        doc.type === PROJECT_UPLOAD_TYPES.contract &&
+        doc.latest &&
+        doc.customerSign &&
+        doc.generalContractorSign
+    )
+  ) {
+    throw new Error("Contract not signed by customer or General contractor");
+  }
   const status = PROJECT_STATUSES.READY_FOR_INSTALLATION;
 
   let projectCollections = await projects();
