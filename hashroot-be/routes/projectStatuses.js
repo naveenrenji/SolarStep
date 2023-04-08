@@ -68,6 +68,7 @@ router
 }
   });
 
+  
   router.patch(`/${PROJECT_STATUS_KEYS.VALIDATING_PERMITS}`, async (req, res) => {
     try {
       const project = req.project;
