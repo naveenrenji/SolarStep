@@ -8,6 +8,7 @@ import {
   createProjectLog,
   moveToOnSiteInspectionInProgress,
   moveToOnSiteInspectionScheduled,
+  moveToReadyForInstallation,
   moveToReadyToBeAssignedToGC,
   moveToReviewingProposal,
   moveToUpdatingProposal,
@@ -152,6 +153,36 @@ router
           req.project.status,
           PROJECT_STATUSES.UPDATING_PROPOSAL,
           `The proposal needs to be updated`
+        );
+        res.json({ project });
+      } catch (error) {
+        return res.status(404).json({ error: error?.toString() });
+      }
+    }
+  );
+
+  router
+  .route(`/${PROJECT_STATUS_KEYS.READY_FOR_INSTALLATION}`)
+  .patch(
+    authorizeRequest([
+      USER_ROLES.ADMIN,
+      USER_ROLES.SALES_REP,
+      USER_ROLES.GENERAL_CONTRACTOR,
+    ]),
+    async (req, res) => {
+      try {
+        const { installationDate } = req.body;
+        const project = await moveToReadyForInstallation(
+          req.user,
+          req.project,
+          installationDate
+        );
+        await createProjectLog(
+          req.user,
+          req.project,
+          req.project.status,
+          PROJECT_STATUSES.READY_FOR_INSTALLATION,
+          `Installation scheduled on ${installationDate}`
         );
         res.json({ project });
       } catch (error) {
