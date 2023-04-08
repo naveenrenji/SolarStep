@@ -150,7 +150,7 @@ const moveToReviewingProposal = async (
     { _id: new ObjectId(project._id) },
     {
       $set: {
-        status,
+        status: status,
       },
     },
     { returnDocument: "after" }
@@ -177,13 +177,42 @@ const moveToUpdatingProposal = async (
     { _id: new ObjectId(project._id) },
     {
       $set: {
-        status,
+        status: status,
       },
     },
     { returnDocument: "after" }
   );
   if (updatedProjectLog.lastErrorObject.n !== 1 || !updatedProjectLog.value) {
     throw new Error("Status for Updating Proposal could not be changed.");
+  }
+  const updatedProject = await getProjectById(
+    currentUser,
+    project._id.toString()
+  );
+  return updatedProject;
+};
+
+const moveToReadyForInstallation = async (
+  currentUser,
+  project,
+  installationDate
+) => {
+  if (!currentUser) throw "User not logged in";
+  const status = PROJECT_STATUSES.READY_FOR_INSTALLATION;
+
+  let projectCollections = await projects();
+  const updatedProjectLog = await projectCollections.findOneAndUpdate(
+    { _id: new ObjectId(project._id) },
+    {
+      $set: {
+        status: status,
+        installationDate: installationDate,
+      },
+    },
+    { returnDocument: "after" }
+  );
+  if (updatedProjectLog.lastErrorObject.n !== 1 || !updatedProjectLog.value) {
+    throw new Error("Status for On-Site Inspection could not be changed.");
   }
   const updatedProject = await getProjectById(
     currentUser,
