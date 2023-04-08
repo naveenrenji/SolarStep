@@ -21,5 +21,5 @@ export const getProgressBarPercentage = (status) => {
   const idx = projectStatuses.indexOf(status);
   if (idx === -1) return 0;
 
-  return (((idx + 1) / projectStatuses.length) * 100).toFixed(1);
+  return Math.ceil(((idx + 1) / projectStatuses.length) * 100);
 };

@@ -100,14 +100,14 @@ export const moveToReviewingProposalApi = async (projectId) => {
 
 export const moveToReadyForInstallationApi = async (
   projectId,
-  { scheduledInstallationDate }
+  { scheduledInstallationStartDate }
 ) => {
   const {
     data: { project },
   } = await http.patch(
     `/projects/${projectId}/status/${PROJECT_STATUS_KEYS.READY_FOR_INSTALLATION}`,
     {
-      scheduledInstallationDate,
+      scheduledInstallationStartDate,
     }
   );
 
