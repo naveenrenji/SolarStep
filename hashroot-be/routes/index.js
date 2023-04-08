@@ -7,6 +7,7 @@ import authenticateRequest from "../middleware/authenticateRequest.js";
 import authenticateProject from "../middleware/authenticateProject.js";
 import authenticateTaskCrud from "../middleware/authenticatTaskCrud.js";
 import filesRoutes from "./files.js";
+import authenticateProjectStatusChange from "../middleware/authenticateProjectStatusChange.js";
 
 const configureRoutes = (app) => {
   app.use("/api", authRoutes);
@@ -23,7 +24,7 @@ const configureRoutes = (app) => {
     "/api/projects/:projectId/status",
     authenticateRequest,
     authenticateProject,
-    // TODO: authenticateProjectStatusChange,
+    authenticateProjectStatusChange,
     projectStatusRoutes
   );
   app.use(

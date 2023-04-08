@@ -8,6 +8,7 @@ import {
   createProjectLog,
   moveToOnSiteInspectionInProgress,
   moveToOnSiteInspectionScheduled,
+  moveToReadyToBeAssignedToGC,
   projectClosingOut,
   projectComplete,
   projectValidatingPermits,
@@ -15,6 +16,29 @@ import {
 import authorizeRequest from "../middleware/authorizeRequest.js";
 
 const router = Router();
+
+router
+  .route(`/${PROJECT_STATUS_KEYS.READY_TO_BE_ASSIGNED_TO_GC}`)
+  .patch(
+    authorizeRequest([USER_ROLES.ADMIN, USER_ROLES.SALES_REP]),
+    async (req, res) => {
+      try {
+        const project = await moveToReadyToBeAssignedToGC(
+          req.user,
+          req.project
+        );
+        await createProjectLog(
+          req.user,
+          req.project,
+          req.project.status,
+          PROJECT_STATUSES.READY_TO_BE_ASSIGNED_TO_GC
+        );
+        res.json({ project });
+      } catch (error) {
+        return res.status(404).json({ error: error.toString() });
+      }
+    }
+  );
 
 router
   .route(`/${PROJECT_STATUS_KEYS.ON_SITE_INSPECTION_SCHEDULED}`)
@@ -90,7 +114,7 @@ router
           PROJECT_STATUSES.COMPLETED
         );
         res.json({ project });
-      } catch(error) {
+      } catch (error) {
         return res.status(404).json({ error: error?.toString() });
       }
     }
@@ -110,7 +134,7 @@ router
           PROJECT_STATUSES.CLOSING_OUT
         );
         res.json({ project });
-      } catch(error) {
+      } catch (error) {
         return res.status(404).json({ error: error?.toString() });
       }
     }
@@ -130,7 +154,7 @@ router
           PROJECT_STATUSES.VALIDATING_PERMITS
         );
         res.json({ project });
-      } catch(error) {
+      } catch (error) {
         return res.status(404).json({ error: error?.toString() });
       }
     }
