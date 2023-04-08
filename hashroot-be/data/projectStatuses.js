@@ -90,4 +90,26 @@ const moveToReadyForInstallation = async (
   return project;
 }
 
+const moveToUpdatingProposal = async (
+  currentUser,
+  project
+) => {
+  const status = PROJECT_STATUSES.UPDATING_PROPOSAL;
+  const previousStatus = project.status;
+  const allProjects = await projects();
+  const result = await allProjects.findOneAndUpdate(
+    { _id: new ObjectId(project._id) },
+    {
+      $set: {status},
+    },
+    { returnDocument: "after" }
+  );
+
+  if (result.lastErrorObject.n === 0) {
+    throw new Error(`Could not set the status to updating proposal for Project ${project._id}.`);
+  }
+  await addProjectLog(createProjectLog(currentUser, project, previousStatus, status, "Project needs an updated proposal"));
+  return project;
+}
+
 export { createProjectLog, moveToOnSiteInspectionScheduled };
