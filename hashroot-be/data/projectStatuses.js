@@ -44,6 +44,7 @@ const moveToOnSiteInspectionScheduled = async (
   onSiteInspectionDate
 ) => {
   const status = PROJECT_STATUSES.ON_SITE_INSPECTION_SCHEDULED;
+  const previousStatus = project.status;
   // Write the code here
   const allProjects = await projects()
   const result = await allProjects.findOneAndUpdate(
@@ -57,6 +58,21 @@ const moveToOnSiteInspectionScheduled = async (
   if (result.lastErrorObject.n === 0) {
     throw new Error(`Could not set the inspection date for Project ${project._id}.`);
   }
+
+  const ProjectStatusLog = {
+    _id: new ObjectID(),
+    projectId: new Object(project._id),
+    user: {
+      _id: new ObjectID(currentUser._id),
+      email: currentUser.email,
+      role: currentUser.role,
+    },
+    // Add respective statuses here.
+    from: previousStatus,
+    to: status,
+    comment: null
+  }
+  await projectStatusLogCollection.insertOne(ProjectStatusLog);
   return project
 };
 
