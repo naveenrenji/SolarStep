@@ -1,5 +1,5 @@
 import { ObjectId } from "mongodb";
-import { projectStatusLogs } from "../config/mongoCollections.js";
+import { projectStatusLogs, projects } from "../config/mongoCollections.js";
 import { PROJECT_STATUSES } from "../constants.js";
 import { checkProjectStatus } from "../helpers.js";
 import { USER_ROLES } from "../constants.js";
@@ -40,78 +40,107 @@ const createProjectLog = async (
   return true;
 };
 
-// completed status below
-const ProjectStatusLog = (currentUser, project, from) => {
-  if (currentUser.role !== USER_ROLES.ADMIN && currentUser.role !== USER_ROLES.SALES_REP) {
-    throw 'Only admins and sales reps can update project status to completed';
+const projectComplete = async (currentUser, project, completed) => {
+  if (!currentUser) 
+    throw 'User not logged in';
+
+  // if (currentUser.role !== USER_ROLES.ADMIN && currentUser.role !== USER_ROLES.SALES_REP) {
+  //   throw 'Only admins and sales reps can update project status to completed';
+  // }
+
+  const status = PROJECT_STATUSES.COMPLETED;
+
+  if (project.status === status) {
+    throw 'Project status is already completed';
+  }
+
+  let projectCollections = await projects();
+  const updatedProjectLog = await projectCollections.findOneAndUpdate(
+    {_id: new ObjectId(project._id)},
+    {
+      $set: {
+        status: status,
+        completed: completed,
+        completedAt: new Date(),
+      },
+    },
+    {returnDocument: "after" }
+  );
+
+  if (updatedProjectLog.lastErrorObject.n !== 1 || !updatedProjectLog.value) {
+    throw new Error("Status for Projects could not be changed to Completed.")
+  }
+
+  const updatedProject = await getProjectById(currentUser, project._id.toString());
+  return updatedProject;
 }
-const _id = new ObjectId();
-const projectId = new ObjectId(project._id);
-const user = {
-  _id: new ObjectId(currentUser._id),
-  email: currentUser.email,
-  role: currentUser.role,
-};
-return {
-_id,
-projectId,
-user,
-from,
-to: PROJECT_STATUSES.COMPLETED, 
-comment: null,
-completedAt: new Date() 
-  };
-};
 
+const projectClosingOut = async (currentUser, project, closingout) => {
+  if (!currentUser) throw 'User not logged in';
 
-// closing out status below
-const ProjectStatusLogClosing = (currentUser, project, from) => {
-  if(currentUser.role !== USER_ROLES.ADMIN && currentUser.role !== USER_ROLES.SALES_REP){
-    throw 'Only the admins and sales reps can update project status to closing out';
+// if (currentUser.role !== USER_ROLES.ADMIN && currentUser.role !== USER_ROLES.SALES_REP) throw 'Only admins and sales reps can update project status to completed';
+
+const status = PROJECT_STATUSES.CLOSING_OUT;
+
+let projectCollections = await projects();
+const updatedProjectLog = projectCollections.findOneAndUpdate({_id: new ObjectId(project._id)},
+{
+  $set: {
+    status: status,
+    closingout: closingout,
+  },
+},
+{returnDocument: "after"}
+);
+if(updatedProjectLog.lastErrorObject.n !== 1 || updatedProjectLog.value){
+  throw new Error("Status for Projects could not be changed to Closing Out.");
+}
+const updatedProject = await getProjectById(
+  currentUser,
+  project._id.toString()
+);
+
+return updatedProject;
+
+}
+
+const projectValidatingPermits = async (
+  currentUser,
+  project,
+  validating_user
+) => {
+  if (!currentUser) throw 'User not logged in';
+
+  // if (currentUser.role !== USER_ROLES.ADMIN && currentUser.role !== USER_ROLES.SALES_REP) {
+  //   throw 'Only admins and sales reps can update project status to completed';
+  // }
+
+  const status = PROJECT_STATUSES.VALIDATING_PERMITS;
+
+  let projectCollections = await projects();
+  const updatedProjectLog = projectCollections.findOneAndUpdate(
+    {_id: new ObjectId(project._id)},
+    {
+      $set: {
+        status: status,
+        validating_user: validating_user,
+        installationCompletedAt: new Date(),
+      },
+    },
+    {returnDocument: "after"}
+  );
+
+  if (updatedProjectLog.lastErrorObject.n !== 1 || !updatedProjectLog.value) {
+    throw new Error("Status for On-Site Inspection could not be changed.");
   }
-  const _id = new ObjectId();
-  const projectId = new ObjectId(project._id);
-  const user = {
-    _id: new ObjectId(currentUser._id),
-    email: currentUser.email,
-    role: currentUser.role,
-  };
-  return {
-_id,
-projectId,
-user,
-from,
-to: PROJECT_STATUSES.CLOSING_OUT, 
-comment: null
-};
-};
+
+  const updatedProject = await getProjectById(
+    currentUser,
+    project._id.toString()
+  );
+
+  return updatedProject;
+}
 
 
-// changing the status log to installationcomplete
-const projectStatusLogChange = (currentUser, project, from) => {
-  if (currentUser.role !== USER_ROLES.ADMIN && currentUser.role !== USER_ROLES.SALES_REP){
-    throw 'Only admins and sales reps can update project status to validating permits';
-  }
-
-const to = PROJECT_STATUSES.VALIDATING_PERMITS;
-const installationCompletedAt = new Date();
-const _id = new ObjectId();
-const projectId = new Object(project._id);
-const user = {
-  _id: new ObjectId(currentUser._id),
-  email: currentUser.email,
-  role: currentUser.role,
-};
-  return {
-  _id,
-  projectId,
-  user,
-  from,
-  to,
-  comment: null,
-  installationCompletedAt
-  };
-};
-
-
-export { createProjectLog, moveToOnSiteInspectionScheduled, ProjectStatusLog, ProjectStatusLogClosing, projectStatusLogChange };
+export { createProjectLog, moveToOnSiteInspectionScheduled, projectClosingOut, projectComplete,  projectValidatingPermits};
