@@ -9,6 +9,7 @@ import {
   moveToOnSiteInspectionInProgress,
   moveToOnSiteInspectionScheduled,
   moveToReadyToBeAssignedToGC,
+  moveToReviewingProposal,
   projectClosingOut,
   projectComplete,
   projectValidatingPermits,
@@ -99,6 +100,37 @@ router
       }
     }
   );
+
+
+  // Write code here TODO
+  router
+  .route(`/${PROJECT_STATUS_KEYS.REVIEWING_PROPOSAL}`)
+  .patch(
+    authorizeRequest([
+      USER_ROLES.ADMIN,
+      USER_ROLES.SALES_REP,
+      USER_ROLES.CUSTOMER,
+    ]),
+    async (req, res) => {
+      try {
+        const project = await moveToReviewingProposal(
+          req.user,
+          req.project
+        );
+        await createProjectLog(
+          req.user,
+          req.project,
+          req.project.status,
+          PROJECT_STATUSES.REVIEWING_PROPOSAL,
+          `Proposal is currently under review`
+        );
+        res.json({ project });
+      } catch (error) {
+        return res.status(404).json({ error: error?.toString() });
+      }
+    }
+  );
+
 
 router
   .route(`/${PROJECT_STATUS_KEYS.COMPLETED}`)
