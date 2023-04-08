@@ -40,6 +40,15 @@ const createProjectLog = async (
   return true;
 };
 
+const moveToOnSiteInspectionScheduled = async (
+  currentUser,
+  project,
+  onSiteInspectionDate
+) => {
+  const status = PROJECT_STATUSES.ON_SITE_INSPECTION_SCHEDULED;
+  // Write the code here
+};
+
 const projectComplete = async (currentUser, project) => {
   if (!currentUser) throw "User not logged in";
 
