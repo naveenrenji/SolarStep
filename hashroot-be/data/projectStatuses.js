@@ -138,6 +138,33 @@ const moveToOnSiteInspectionInProgress = async (
   return updatedProject;
 };
 
+const moveToReviewingProposal = async (
+  currentUser,
+  project
+) => {
+  if (!currentUser) throw "User not logged in";
+  const status = PROJECT_STATUSES.REVIEWING_PROPOSAL;
+
+  let projectCollections = await projects();
+  const updatedProjectLog = await projectCollections.findOneAndUpdate(
+    { _id: new ObjectId(project._id) },
+    {
+      $set: {
+        status,
+      },
+    },
+    { returnDocument: "after" }
+  );
+  if (updatedProjectLog.lastErrorObject.n !== 1 || !updatedProjectLog.value) {
+    throw new Error("Status for Reviewing Proposal could not be changed.");
+  }
+  const updatedProject = await getProjectById(
+    currentUser,
+    project._id.toString()
+  );
+  return updatedProject;
+};
+
 const moveToUpdatingProposal = async (
   currentUser,
   project
