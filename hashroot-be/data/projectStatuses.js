@@ -44,10 +44,6 @@ const projectComplete = async (currentUser, project, completed) => {
   if (!currentUser) 
     throw 'User not logged in';
 
-  // if (currentUser.role !== USER_ROLES.ADMIN && currentUser.role !== USER_ROLES.SALES_REP) {
-  //   throw 'Only admins and sales reps can update project status to completed';
-  // }
-
   const status = PROJECT_STATUSES.COMPLETED;
 
   if (project.status === status) {
@@ -77,8 +73,6 @@ const projectComplete = async (currentUser, project, completed) => {
 
 const projectClosingOut = async (currentUser, project, closingout) => {
   if (!currentUser) throw 'User not logged in';
-
-// if (currentUser.role !== USER_ROLES.ADMIN && currentUser.role !== USER_ROLES.SALES_REP) throw 'Only admins and sales reps can update project status to completed';
 
 const status = PROJECT_STATUSES.CLOSING_OUT;
 
@@ -111,9 +105,6 @@ const projectValidatingPermits = async (
 ) => {
   if (!currentUser) throw 'User not logged in';
 
-  // if (currentUser.role !== USER_ROLES.ADMIN && currentUser.role !== USER_ROLES.SALES_REP) {
-  //   throw 'Only admins and sales reps can update project status to completed';
-  // }
 
   const status = PROJECT_STATUSES.VALIDATING_PERMITS;
 
