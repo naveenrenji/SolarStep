@@ -3,8 +3,11 @@ import { users } from "../config/mongoCollections.js";
 import { checkId, checkPassword, checkString } from "../helpers.js";
 import { comparePasswords, hashPassword } from "./users.js";
 
+
+// The function to update the user details. user is the user object and updates is the update object containing firstName, lastName, oldPassword and newPassword
 const updateUserById = async (user, updates) => {
   checkId(user._id);
+  // Set 4 variables taking values from updates.
   const { firstName, lastName, oldPassword, newPassword } = updates;
   checkString(firstName, "firstName");
   checkString(lastName, "lastName");
@@ -26,6 +29,7 @@ const updateUserById = async (user, updates) => {
     }
   }
   const userCollection = await users();
+  userCollection.updateOne()
   const result = await userCollection.findOneAndUpdate(
     { _id: new ObjectId(user._id) },
     {

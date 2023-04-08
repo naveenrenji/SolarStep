@@ -1,4 +1,4 @@
-import { projectStatusLogs } from "../config/mongoCollections.js";
+import { projects, projectStatusLogs } from "../config/mongoCollections.js";
 import { PROJECT_STATUSES } from "../constants.js";
 import { checkProjectStatus } from "../helpers.js";
 
@@ -45,6 +45,19 @@ const moveToOnSiteInspectionScheduled = async (
 ) => {
   const status = PROJECT_STATUSES.ON_SITE_INSPECTION_SCHEDULED;
   // Write the code here
+  const allProjects = await projects()
+  const result = await allProjects.findOneAndUpdate(
+    { _id: new ObjectId(project._id) },
+    {
+      $set: {status, onSiteInspectionDate},
+    },
+    { returnDocument: "after" }
+  );
+
+  if (result.lastErrorObject.n === 0) {
+    throw new Error(`Could not set the inspection date for Project ${project._id}.`);
+  }
+  return project
 };
 
 export { createProjectLog, moveToOnSiteInspectionScheduled };
