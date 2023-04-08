@@ -138,7 +138,7 @@ const projectClosingOut = async (currentUser, project) => {
   const status = PROJECT_STATUSES.CLOSING_OUT;
 
   let projectCollections = await projects();
-  const updatedProjectLog = projectCollections.findOneAndUpdate(
+  const updatedProjectLog = await projectCollections.findOneAndUpdate(
     { _id: new ObjectId(project._id) },
     {
       $set: {
@@ -164,7 +164,7 @@ const projectValidatingPermits = async (currentUser, project) => {
   const status = PROJECT_STATUSES.VALIDATING_PERMITS;
 
   let projectCollections = await projects();
-  const updatedProjectLog = projectCollections.findOneAndUpdate(
+  const updatedProjectLog = await projectCollections.findOneAndUpdate(
     { _id: new ObjectId(project._id) },
     {
       $set: {

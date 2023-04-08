@@ -90,7 +90,7 @@ router
           PROJECT_STATUSES.COMPLETED
         );
         res.json({ project });
-      } catch {
+      } catch(error) {
         return res.status(404).json({ error: error?.toString() });
       }
     }
@@ -110,7 +110,7 @@ router
           PROJECT_STATUSES.CLOSING_OUT
         );
         res.json({ project });
-      } catch {
+      } catch(error) {
         return res.status(404).json({ error: error?.toString() });
       }
     }
@@ -130,7 +130,7 @@ router
           PROJECT_STATUSES.VALIDATING_PERMITS
         );
         res.json({ project });
-      } catch {
+      } catch(error) {
         return res.status(404).json({ error: error?.toString() });
       }
     }
