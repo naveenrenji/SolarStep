@@ -112,4 +112,4 @@ const moveToUpdatingProposal = async (
   return project;
 }
 
-export { createProjectLog, moveToOnSiteInspectionScheduled };
+export { createProjectLog, moveToOnSiteInspectionScheduled, moveToReadyForInstallation, moveToUpdatingProposal };
