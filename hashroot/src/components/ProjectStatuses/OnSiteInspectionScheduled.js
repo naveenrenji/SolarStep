@@ -24,6 +24,14 @@ const OnSiteInspectionScheduled = () => {
     });
   };
 
+  const hasMoveAccess = React.useMemo(() => {
+    return [
+      USER_ROLES.ADMIN,
+      USER_ROLES.SALES_REP,
+      USER_ROLES.GENERAL_CONTRACTOR,
+    ].includes(auth.user.role);
+  }, [auth.user.role]);
+
   return (
     <Card className="shadow-sm mt-3 h-100 project-status">
       <Card.Body
@@ -37,23 +45,17 @@ const OnSiteInspectionScheduled = () => {
       >
         <GrScheduleNew className="primary" />
         <Card.Text>The On Site Inspection has been scheduled</Card.Text>
-        {[
-          USER_ROLES.WORKER,
-          USER_ROLES.SALES_REP,
-          USER_ROLES.CUSTOMER,
-        ].includes(auth.user.role) ? (
+        <Card.Text>
+          Inspection Date: {displayDate(project.onSiteInspectionDate)}
+        </Card.Text>
+        {[USER_ROLES.WORKER, USER_ROLES.CUSTOMER].includes(auth.user.role) ? (
           <div style={{ textAlign: "center" }}>
             <Card.Text>
               Please wait for general contractor to start the inspection
               process.
             </Card.Text>
-            <Card.Text>
-              Inspection Date: {displayDate(project.onSiteInspectionDate)}
-            </Card.Text>
           </div>
-        ) : [USER_ROLES.ADMIN, USER_ROLES.GENERAL_CONTRACTOR].includes(
-            auth.user.role
-          ) ? (
+        ) : hasMoveAccess ? (
           <div style={{ textAlign: "center" }}>
             <Card.Text>
               Are you ready to start the on-site inspection process?
@@ -79,9 +81,7 @@ const OnSiteInspectionScheduled = () => {
           <></>
         )}
       </Card.Body>
-      {[USER_ROLES.ADMIN, USER_ROLES.GENERAL_CONTRACTOR].includes(
-        auth.user.role
-      ) ? (
+      {hasMoveAccess ? (
         <Card.Footer>
           <div style={{ float: "right" }}>
             <SubmitButton

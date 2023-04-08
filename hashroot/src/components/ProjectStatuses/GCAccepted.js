@@ -13,6 +13,7 @@ import ConfirmationModal from "../shared/ConfirmationModal";
 import FormDatePicker from "../shared/FormDatePicker";
 
 import SubmitButton from "../shared/SubmitButton";
+import { toast } from "react-toastify";
 
 const GCAccepted = () => {
   const auth = useAuth();
@@ -26,6 +27,14 @@ const GCAccepted = () => {
       onSiteInspectionDate,
     });
   };
+
+  const hasMoveAccess = React.useMemo(() => {
+    return [
+      USER_ROLES.ADMIN,
+      USER_ROLES.SALES_REP,
+      USER_ROLES.GENERAL_CONTRACTOR,
+    ].includes(auth.user.role);
+  }, [auth.user.role]);
 
   return (
     <Card className="shadow-sm mt-3 h-100 project-status">
@@ -50,11 +59,7 @@ const GCAccepted = () => {
             Please wait for the general contractor to schedule an on-site
             inspection
           </Card.Text>
-        ) : [
-            USER_ROLES.ADMIN,
-            USER_ROLES.GENERAL_CONTRACTOR,
-            USER_ROLES.SALES_REP,
-          ].includes(auth.user.role) ? (
+        ) : hasMoveAccess ? (
           <div style={{ textAlign: "center" }}>
             <Card.Text>
               Please add the date when the on-site analysis will be scheduled
@@ -85,15 +90,19 @@ const GCAccepted = () => {
           <></>
         )}
       </Card.Body>
-      {[
-        USER_ROLES.ADMIN,
-        USER_ROLES.GENERAL_CONTRACTOR,
-        USER_ROLES.SALES_REP,
-      ].includes(auth.user.role) ? (
+      {hasMoveAccess ? (
         <Card.Footer>
           <div style={{ float: "right" }}>
             <SubmitButton
-              onClick={() => setShowConfirmationModal(true)}
+              onClick={() => {
+                if (!onSiteInspectionDate) {
+                  toast("Please select a date", {
+                    type: toast.TYPE.ERROR,
+                  });
+                  return;
+                }
+                setShowConfirmationModal(true);
+              }}
               className="ml-3"
             >
               Schedule on-site inspection

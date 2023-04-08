@@ -301,6 +301,7 @@ const signDocument = async (currentUser, id, fileId, body) => {
 
 export {
   createProject,
+  projects,
   // deleteProject,
   // updateProject,
   getProjectById,

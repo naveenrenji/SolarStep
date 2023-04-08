@@ -78,6 +78,10 @@ const Created = () => {
     });
   };
 
+  const hasMoveAccess = useMemo(() => {
+    return [USER_ROLES.ADMIN, USER_ROLES.SALES_REP].includes(auth.user.role);
+  }, [auth.user.role]);
+
   return (
     <Card className="shadow-sm mt-3 h-100 project-status">
       <Card.Body
@@ -152,9 +156,7 @@ const Created = () => {
               )}
             </div>
           )
-        ) : [USER_ROLES.ADMIN, USER_ROLES.SALES_REP].includes(
-            auth.user.role
-          ) ? (
+        ) : hasMoveAccess ? (
           !unsignedContract && !signedContract ? (
             <div style={{ textAlign: "center" }}>
               <Card.Text>
@@ -266,8 +268,7 @@ const Created = () => {
           <></>
         )}
       </Card.Body>
-      {[USER_ROLES.ADMIN, USER_ROLES.SALES_REP].includes(auth.user.role) &&
-      signedContract ? (
+      {hasMoveAccess && signedContract ? (
         <Card.Footer>
           <SubmitButton
             variant="primary"
