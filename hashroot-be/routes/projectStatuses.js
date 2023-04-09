@@ -1,4 +1,5 @@
 import { Router } from "express";
+
 import {
   PROJECT_STATUSES,
   PROJECT_STATUS_KEYS,
@@ -12,27 +13,44 @@ import {
   projectClosingOut,
   projectComplete,
   projectValidatingPermits,
-  updateProjectStatusToAssignedToGC
+  updateProjectStatusToAssignedToGC,
+  acceptProjectByGC,
+  rejectProjectByGC
 } from "../data/projectStatuses.js";
 import authorizeRequest from "../middleware/authorizeRequest.js";
 
 const router = Router();
 
 router
-  .route("/ASSIGNED_TO_GC")
+  .route(`/${PROJECT_STATUS_KEYS.ASSIGNED_TO_GC}`)
   .patch(
-    authorizeRequest([USER_ROLES.ADMIN, USER_ROLES.SALES_REP]), 
-    updateProjectStatusToAssignedToGC
+    authorizeRequest([USER_ROLES.ADMIN, USER_ROLES.SALES_REP]),
+    async (req, res) => {
+      try {
+        const project = await updateProjectStatusToAssignedToGC(
+          req.user,
+          req.project
+        );
+        await createProjectLog(
+          req.user,
+          req.project,
+          req.project.status,
+          PROJECT_STATUSES.ASSIGNED_TO_GC
+        );
+        res.json({ project });
+      } catch (error) {
+        return res.status(404).json({ error: error.toString() });
+      }
+    }
   );
 
 // Define the route handlers for the APIs
-/*router.patch('/GC_ACCEPTED', async (req, res) => {
+/*router.patch("/GC_ACCEPTED", async (req, res) => {
   const projectId = req.params.projectId;
   const currentUser = req.user;
-  const gcSignedDocument = req.body.gcSignedDocument;
 
   try {
-    const project = await getDb().collection('projects').findOne({ _id: new ObjectID(projectId) });
+    const project = await db.collection('projects').findOne({ _id: new ObjectID(projectId) });
 
     if (!project) {
       return res.status(404).json({ message: "Project not found" });
@@ -42,9 +60,9 @@ router
       return res.status(403).json({ message: "User not authorized" });
     }
 
-    const updatedProject = await getDb().collection('projects').findOneAndUpdate(
+    const updatedProject = await db.collection('projects').findOneAndUpdate(
       { _id: new ObjectID(projectId) },
-      { $set: { status: 'GC Accepted', gcSignedDocument: gcSignedDocument } },
+      { $set: { status: 'GC Accepted' } },
       { returnOriginal: false }
     );
 
@@ -68,15 +86,15 @@ router
     console.error(error);
     return res.status(500).json({ message: "Internal server error" });
   }
-});
+});*/
 
-router.patch('/ASSIGNED_TO_GC/rejected', async (req, res) => {
+/*router.patch("/rejected/ASSIGNED_TO_GC", async (req, res) => {
   const projectId = req.params.projectId;
   const currentUser = req.user;
   const reason = req.body.reason;
 
   try {
-    const project = await getDb().collection('projects').findOne({ _id: new ObjectID(projectId) });
+    const project = await db.collection('projects').findOne({ _id: new ObjectID(projectId) });
 
     if (!project) {
       return res.status(404).json({ message: "Project not found" });
@@ -86,7 +104,7 @@ router.patch('/ASSIGNED_TO_GC/rejected', async (req, res) => {
       return res.status(403).json({ message: "User not authorized" });
     }
 
-    const updatedProject = await getDb().collection('projects').findOneAndUpdate(
+    const updatedProject = await db.collection('projects').findOneAndUpdate(
       { _id: new ObjectID(projectId) },
       { $set: { status: 'Ready to be assigned to GC' } },
       { returnOriginal: false }
@@ -105,7 +123,7 @@ router.patch('/ASSIGNED_TO_GC/rejected', async (req, res) => {
       comment: reason
     };
 
-    await getDb().collection('projectStatusLogs').insertOne(projectStatusLog);
+    await db.collection('projectStatusLogs').insertOne(projectStatusLog);
 
     return res.status(200).json({ project: updatedProject.value });
   } catch (error) {
@@ -113,7 +131,7 @@ router.patch('/ASSIGNED_TO_GC/rejected', async (req, res) => {
     return res.status(500).json({ message: "Internal server error" });
   }
   });
-  
+ 
   // Helper function to check if the user is authorized to access the project
   function isUserAuthorized(currentUser, project) {
   if (currentUser.role === 'ADMIN') {
@@ -129,8 +147,51 @@ router.patch('/ASSIGNED_TO_GC/rejected', async (req, res) => {
   }
   
   return false;
-  }
-  */
+  }*/
+  
+router
+  .route(`/${PROJECT_STATUS_KEYS.GC_ACCEPTED}`)
+  .patch(
+    authorizeRequest([
+      USER_ROLES.ADMIN,
+      USER_ROLES.SALES_REP,
+      USER_ROLES.GENERAL_CONTRACTOR
+    ]),
+    async (req, res) => {
+      try {
+        const project = await acceptProjectByGC(
+          req.user,
+          req.project,
+          req.body.comment
+        );
+        res.json({ project });
+      } catch (error) {
+        return res.status(404).json({ error: error.toString() });
+      }
+    }
+  );
+
+router
+  .route(`/${PROJECT_STATUS_KEYS.ASSIGNED_TO_GC}/rejected`)
+  .patch(
+    authorizeRequest([
+      USER_ROLES.ADMIN,
+      USER_ROLES.SALES_REP,
+      USER_ROLES.GENERAL_CONTRACTOR
+    ]),
+    async (req, res) => {
+      try {
+        const project = await rejectProjectByGC(
+          req.user,
+          req.project,
+          req.body.reason
+        );
+        res.json({ project });
+      } catch (error) {
+        return res.status(404).json({ error: error.toString() });
+      }
+    }
+  );
 
 router
   .route(`/${PROJECT_STATUS_KEYS.READY_TO_BE_ASSIGNED_TO_GC}`)
@@ -154,6 +215,7 @@ router
       }
     }
   );
+
 
 router
   .route(`/${PROJECT_STATUS_KEYS.ON_SITE_INSPECTION_SCHEDULED}`)

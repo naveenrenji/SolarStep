@@ -41,39 +41,22 @@ const createProjectLog = async (
   return true;
 };
 
-const updateProjectStatusToAssignedToGC = async (req, res) => {
+/*const updateProjectStatusToAssignedToGC = async (req, res) => {
   const projectId = req.params.projectId;
   const generalContractorId = req.body.generalContractorId;
   const currentUser = req.user;
-  // Verify that the current user is authorized to access this API
-  if (!['ADMIN', 'SALES_REP'].includes(currentUser.role)) {
-    
-    return res.status(403).json({ message: "Access denied" });
-  }
   
   // Verify that the generalContractorId exists in the data
-  const gc = await getDb().collection('users').findOne({ _id: new ObjectID(generalContractorId), role: 'GC' });
+  const gc = await db.collection('users').findOne({ _id: new ObjectID(generalContractorId), role: 'GC' });
   if (!gc) {
     
     return res.status(404).json({ message: "GC not found" });
     
   }
   // Update the project with generalContractor object and status
-  const project = await getDb().collection('projects').findOne({ _id: new ObjectID(projectId) });
-  if (!project) {
-    
-    return res.status(404).json({ message: "Project not found" });
-  }
-  const updatedProject = {
-    ...project,
-    generalContractor: {
-      _id: new ObjectID(gc._id),
-      email: gc.email
-    },
-    status: "ASSIGNED TO GC",
-    updatedAt: new Date()
-  };
-  await getDb().collection('projects').replaceOne({ _id: new ObjectID(projectId) }, updatedProject);
+  const project = await collection('projects').findOne({ _id: new ObjectID(projectId) });
+  
+  await db.collection('projects').findOne({ _id: new ObjectID(projectId) }, updatedProject);
   // Create a project status log record
   const ProjectStatusLog = {
     _id: new ObjectID(),
@@ -87,11 +70,126 @@ const updateProjectStatusToAssignedToGC = async (req, res) => {
     to: "Assigned to GC",
     comment: null
   };
-  await getDb().collection('projectStatusLogs').insertOne(ProjectStatusLog);
+  await db.collection('projectStatusLogs').insertOne(ProjectStatusLog);
 
   // Respond with the updated project data
   return res.json({ project: updatedProject });
+};*/
+  
+const updateProjectStatusToAssignedToGC = async (currentUser, project, generalContractorId) => {
+  if (!currentUser) throw "User not logged in";
+  if (![USER_ROLES.ADMIN, USER_ROLES.SALES_REP].includes(currentUser.role)) {
+    throw new Error("User not authorized to perform this action");
+  }
+
+  const userCollection = await users();
+  const gc = await userCollection.findOne({
+    _id: new ObjectId(generalContractorId),
+    role: USER_ROLES.GC,
+  });
+  if (!gc) {
+    throw new Error("Invalid general contractor ID");
+  }
+
+  const status = PROJECT_STATUSES.ASSIGNED_TO_GC;
+
+  let projectCollections = await projects();
+  const updatedProject = await projectCollections.findOneAndUpdate(
+    { _id: new ObjectId(project._id) },
+    {
+      $set: {
+        status: status,
+        generalContractor: {
+          _id: new ObjectId(gc._id),
+          email: gc.email,
+        },
+        updatedAt: new Date(),
+      },
+    },
+    { returnDocument: "after" }
+  );
+  if (!updatedProject.value) {
+    throw new Error("Failed to update project");
+  }
+  await createProjectLog(
+    currentUser,
+    project,
+    project.status,
+    PROJECT_STATUSES.ASSIGNED_TO_GC
+  );
+
+  return updatedProject.value;
 };
+ 
+const acceptProjectByGC = async (currentUser, project, comment) => {
+  if (!currentUser) throw new Error("User not logged in");
+  const status = PROJECT_STATUSES.GC_ACCEPTED;
+
+  let projectCollections = await projects();
+  const updatedProjectLog = await projectCollections.findOneAndUpdate(
+    { _id: new ObjectId(project._id) },
+    {
+      $set: {
+        status: status,
+      },
+    },
+    { returnDocument: "after" }
+  );
+  if (updatedProjectLog.lastErrorObject.n !== 1 || !updatedProjectLog.value) {
+    throw new Error("Status for GC Accepted could not be changed.");
+  }
+
+  await createProjectLog(
+    currentUser,
+    project,
+    project.status,
+    status,
+    comment
+  );
+
+  const updatedProject = await getProjectById(
+    currentUser,
+    project._id.toString()
+  );
+  return updatedProject;
+};
+
+const rejectProjectByGC = async (currentUser, project, comment) => {
+  if (!currentUser) throw new Error("User not logged in");
+  const status = PROJECT_STATUSES.READY_TO_BE_ASSIGNED_TO_GC;
+
+  let projectCollections = await projects();
+  const updatedProjectLog = await projectCollections.findOneAndUpdate(
+    { _id: new ObjectId(project._id) },
+    {
+      $set: {
+        status: status,
+      },
+      $unset: {
+        generalContractor: "",
+      },
+    },
+    { returnDocument: "after" }
+  );
+  if (updatedProjectLog.lastErrorObject.n !== 1 || !updatedProjectLog.value) {
+    throw new Error("Status for Project Rejected by GC could not be changed.");
+  }
+
+  await createProjectLog(
+    currentUser,
+    project,
+    project.status,
+    status,
+    comment
+  );
+
+  const updatedProject = await getProjectById(
+    currentUser,
+    project._id.toString()
+  );
+  return updatedProject;
+};
+    
 
 const moveToReadyToBeAssignedToGC = async (currentUser, project) => {
   if (!currentUser) throw "User not logged in";
@@ -293,5 +391,7 @@ export {
   projectClosingOut,
   projectComplete,
   projectValidatingPermits,
-  updateProjectStatusToAssignedToGC
+  updateProjectStatusToAssignedToGC,
+  rejectProjectByGC,
+  acceptProjectByGC
 };
