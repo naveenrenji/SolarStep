@@ -206,7 +206,7 @@ const moveToUpdatingProposal = async (
 const moveToReadyForInstallation = async (
   currentUser,
   project,
-  installationDate
+  scheduledInstallationStartDate
 ) => {
   if (!currentUser) throw "User not logged in";
   if (
@@ -228,13 +228,13 @@ const moveToReadyForInstallation = async (
     {
       $set: {
         status: status,
-        installationDate: installationDate,
+        scheduledInstallationStartDate: new Date(scheduledInstallationStartDate),
       },
     },
     { returnDocument: "after" }
   );
   if (updatedProjectLog.lastErrorObject.n !== 1 || !updatedProjectLog.value) {
-    throw new Error("Status for On-Site Inspection could not be changed.");
+    throw new Error("Status for scheduling Installation could not be changed.");
   }
   const updatedProject = await getProjectById(
     currentUser,
