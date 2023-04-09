@@ -177,7 +177,7 @@ router
           req.project,
           req.project.status,
           PROJECT_STATUSES.UPDATING_PROPOSAL,
-          `The proposal needs to be updated`
+          `The proposal was rejected and needs to be updated`
         );
         res.json({ project });
       } catch (error) {
