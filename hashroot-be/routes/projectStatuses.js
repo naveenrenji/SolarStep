@@ -112,7 +112,6 @@ router
     }
   );
 
-
 router
   .route(`/${PROJECT_STATUS_KEYS.ON_SITE_INSPECTION_SCHEDULED}`)
   .patch(

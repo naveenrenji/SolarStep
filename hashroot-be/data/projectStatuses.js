@@ -8,11 +8,11 @@ import {
   PROJECT_STATUSES,
   PROJECT_UPLOAD_TYPES,
   TASK_STATUSES,
+  USER_ROLES,
 } from "../constants.js";
 import { checkProjectStatus } from "../helpers.js";
 import { getProjectById } from "./projects.js";
 import { getAllTasks } from "./tasks.js";
-import { USER_ROLES } from "../constants.js";
 
 const createProjectLog = async (
   currentUser,
