@@ -131,7 +131,7 @@ export const moveToStartInstallationApi = async (
   const {
     data: { project },
   } = await http.patch(
-    `/projects/${projectId}/status/${PROJECT_STATUS_KEYS.INSTALLATION_IN_PROGRESS}`,
+    `/projects/${projectId}/status/${PROJECT_STATUS_KEYS.INSTALLATION_STARTED}`,
     {
       installationStartedOn,
     }

@@ -214,7 +214,7 @@ const moveToOnSiteInspectionScheduled = async (
     {
       $set: {
         status: status,
-        onSiteInspectionDate: onSiteInspectionDate,
+        onSiteInspectionDate: new Date(onSiteInspectionDate),
       },
     },
     { returnDocument: "after" }
@@ -230,11 +230,7 @@ const moveToOnSiteInspectionScheduled = async (
   return updatedProject;
 };
 
-const moveToOnSiteInspectionInProgress = async (
-  currentUser,
-  project,
-  onSiteInspectionStartedOn
-) => {
+const moveToOnSiteInspectionInProgress = async (currentUser, project) => {
   if (!currentUser) throw "User not logged in";
   const status = PROJECT_STATUSES.ON_SITE_INSPECTION_IN_PROGRESS;
 
@@ -244,7 +240,7 @@ const moveToOnSiteInspectionInProgress = async (
     {
       $set: {
         status: status,
-        onSiteInspectionStartedOn: onSiteInspectionStartedOn,
+        onSiteInspectionStartedOn: new Date(),
       },
     },
     { returnDocument: "after" }
@@ -259,10 +255,7 @@ const moveToOnSiteInspectionInProgress = async (
   return updatedProject;
 };
 
-const moveToReviewingProposal = async (
-  currentUser,
-  project
-) => {
+const moveToReviewingProposal = async (currentUser, project) => {
   if (!currentUser) throw "User not logged in";
   if (
     !project.documents.find(
@@ -297,10 +290,7 @@ const moveToReviewingProposal = async (
   return updatedProject;
 };
 
-const moveToUpdatingProposal = async (
-  currentUser,
-  project
-) => {
+const moveToUpdatingProposal = async (currentUser, project) => {
   if (!currentUser) throw "User not logged in";
   const status = PROJECT_STATUSES.UPDATING_PROPOSAL;
 
@@ -349,13 +339,51 @@ const moveToReadyForInstallation = async (
     {
       $set: {
         status: status,
-        scheduledInstallationStartDate: new Date(scheduledInstallationStartDate),
+        scheduledInstallationStartDate: new Date(
+          scheduledInstallationStartDate
+        ),
       },
     },
     { returnDocument: "after" }
   );
   if (updatedProjectLog.lastErrorObject.n !== 1 || !updatedProjectLog.value) {
     throw new Error("Status for scheduling Installation could not be changed.");
+  }
+  const updatedProject = await getProjectById(
+    currentUser,
+    project._id.toString()
+  );
+  return updatedProject;
+};
+
+const moveToInstallationStarted = async (currentUser, project) => {
+  if (!currentUser) throw "User not logged in";
+  if (
+    !project.documents.find(
+      (doc) =>
+        doc.type === PROJECT_UPLOAD_TYPES.contract &&
+        doc.latest &&
+        doc.customerSign &&
+        doc.generalContractorSign
+    )
+  ) {
+    throw new Error("Contract not signed by customer or General contractor");
+  }
+  const status = PROJECT_STATUSES.INSTALLATION_STARTED;
+
+  let projectCollections = await projects();
+  const updatedProjectLog = await projectCollections.findOneAndUpdate(
+    { _id: new ObjectId(project._id) },
+    {
+      $set: {
+        status: status,
+        installationStartedOn: new Date(),
+      },
+    },
+    { returnDocument: "after" }
+  );
+  if (updatedProjectLog.lastErrorObject.n !== 1 || !updatedProjectLog.value) {
+    throw new Error("Status for installation started could not be changed.");
   }
   const updatedProject = await getProjectById(
     currentUser,
@@ -411,7 +439,7 @@ const projectClosingOut = async (currentUser, project) => {
     },
     { returnDocument: "after" }
   );
-  if (updatedProjectLog.lastErrorObject.n !== 1 || updatedProjectLog.value) {
+  if (updatedProjectLog.lastErrorObject.n !== 1 || !updatedProjectLog.value) {
     throw new Error("Status for Projects could not be changed to Closing Out.");
   }
   const updatedProject = await getProjectById(
@@ -473,4 +501,5 @@ export {
   updateProjectStatusToAssignedToGC,
   rejectProjectByGC,
   acceptProjectByGC,
+  moveToInstallationStarted,
 };

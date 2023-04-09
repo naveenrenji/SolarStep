@@ -38,20 +38,14 @@ router
           title,
           description,
           expectedCompletionDate,
-          generalContractorId,
         } = req.body;
-        if (req.user.role !== USER_ROLES.GENERAL_CONTRACTOR) {
-          helpers.checkId(generalContractorId, "General Contractor Id");
-        } else {
-          generalContractorId = req.user._id;
-        }
+
         const tasks = await createTask(
           req.user,
           projectId,
           title,
           description,
           expectedCompletionDate,
-          generalContractorId,
           workerIds
         );
         res.json({ tasks });
