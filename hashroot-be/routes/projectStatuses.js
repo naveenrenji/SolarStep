@@ -24,18 +24,16 @@ const router = Router();
 router
   .route(`/${PROJECT_STATUS_KEYS.ASSIGNED_TO_GC}`)
   .patch(
-    authorizeRequest([USER_ROLES.ADMIN, USER_ROLES.SALES_REP]),
+    authorizeRequest([
+      USER_ROLES.ADMIN,
+      USER_ROLES.SALES_REP,
+    ]),
     async (req, res) => {
       try {
         const project = await updateProjectStatusToAssignedToGC(
           req.user,
-          req.project
-        );
-        await createProjectLog(
-          req.user,
           req.project,
-          req.project.status,
-          PROJECT_STATUSES.ASSIGNED_TO_GC
+          req.body.generalContractorId
         );
         res.json({ project });
       } catch (error) {

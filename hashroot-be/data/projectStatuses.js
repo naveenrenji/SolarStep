@@ -4,6 +4,11 @@ import { PROJECT_STATUSES, PROJECT_UPLOAD_TYPES, TASK_STATUSES } from "../consta
 import { checkProjectStatus } from "../helpers.js";
 import { getProjectById } from "./projects.js";
 import { getAllTasks } from "./tasks.js";
+import {
+  PROJECT_STATUS_KEYS,
+  USER_ROLES,
+} from "../constants.js";
+import { users } from "../config/mongoCollections.js";
 
 const createProjectLog = async (
   currentUser,
@@ -85,7 +90,7 @@ const updateProjectStatusToAssignedToGC = async (currentUser, project, generalCo
   const userCollection = await users();
   const gc = await userCollection.findOne({
     _id: new ObjectId(generalContractorId),
-    role: USER_ROLES.GC,
+    role: USER_ROLES.GENERAL_CONTRACTOR,
   });
   if (!gc) {
     throw new Error("Invalid general contractor ID");
