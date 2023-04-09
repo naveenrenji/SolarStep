@@ -48,7 +48,12 @@ const Project = () => {
             flexDirection: "column",
           }}
         >
-          <ProgressBar striped now={progress} label={`${progress}%`} />
+          <ProgressBar
+            striped
+            now={progress}
+            label={`${progress}%`}
+            variant={progress > 99 ? "success" : "primary"}
+          />
           {showProjectDcouments ? (
             <ProjectDocuments
               project={project}

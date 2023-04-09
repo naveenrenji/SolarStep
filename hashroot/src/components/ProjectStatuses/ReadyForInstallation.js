@@ -44,7 +44,7 @@ const ReadyForInstallation = () => {
         <Card.Text>The project is ready for installation.</Card.Text>
         <Card.Text>
           Installation Start Date:{" "}
-          {displayDate(project?.scheduledInstallationDate)}
+          {displayDate(project?.scheduledInstallationStartDate)}
         </Card.Text>
         {[USER_ROLES.WORKER, USER_ROLES.CUSTOMER].includes(auth.user.role) ? (
           <Card.Text>

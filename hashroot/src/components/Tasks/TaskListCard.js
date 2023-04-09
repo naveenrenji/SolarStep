@@ -76,7 +76,7 @@ const TaskListCard = ({ task, onTaskClick, onStatusChange, onDelete }) => {
         </FormText>
         <br />
         <FormText>
-          <small>GC: {task.generalContractor.email}</small>
+          <small>Created By: {task?.createdBy?.email}</small>
         </FormText>
         <br />
         {task.status !== TASK_STATUSES.COMPLETED ? (

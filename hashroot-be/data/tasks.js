@@ -32,7 +32,6 @@ const createTask = async (
   title,
   description,
   expectedCompletionDate,
-  generalContractorId,
   workerIds
 ) => {
   if (!currentUser) {
@@ -42,10 +41,6 @@ const createTask = async (
   title = helpers.checkString(title, "title");
   description = helpers.checkString(title, "description");
   // TODO: Validate expectedCompletionDate
-  generalContractorId = helpers.checkId(
-    generalContractorId,
-    "General Contractor Id"
-  );
   workerIds = helpers.checkIdArray(workerIds, "Worker Ids");
 
   const userCollection = await users();
@@ -57,12 +52,6 @@ const createTask = async (
   if (!workers || workers.length !== workerIds.length) {
     throw new Error("One or more worker ids are wrong");
   }
-  const generalContractor = await userCollection.findOne({
-    _id: new ObjectId(generalContractorId),
-  });
-  if (!generalContractor) {
-    throw new Error("General Contractor not available");
-  }
   const workersData = workers.map(({ _id, email }) => ({ _id, email }));
 
   const taskCollection = await tasks();
@@ -71,9 +60,9 @@ const createTask = async (
     title,
     description,
     expectedCompletionDate: new Date(expectedCompletionDate),
-    generalContractor: {
-      _id: generalContractor._id,
-      email: generalContractor.email,
+    createdBy: {
+      _id: new ObjectId(currentUser._id.toString()),
+      email: currentUser.email,
     },
     workers: workers.map(({ _id, email }) => ({ _id, email })),
     status: TASK_STATUSES.TO_DO,

@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useState } from "react";
 import Form from "react-bootstrap/Form";
 import Card from "react-bootstrap/Card";
 import Button from "react-bootstrap/Button";
@@ -8,12 +8,10 @@ import { useNavigate } from "react-router-dom";
 
 import { createTaskApi } from "../../api/tasks";
 import { USER_ROLES } from "../../constants";
-import useAuth from "../../hooks/useAuth";
 
 import SubmitButton from "../shared/SubmitButton";
 import useProject from "../../hooks/useProject";
 import UserOptsSelectionModal from "../shared/UserOptsSelectionModal";
-import UserSelect from "../shared/UserSelect";
 
 const FormControlDatePicker = React.forwardRef(({ value, onClick }, ref) => (
   <Form.Control
@@ -28,22 +26,15 @@ const FormControlDatePicker = React.forwardRef(({ value, onClick }, ref) => (
 
 const CreateTask = () => {
   const navigate = useNavigate();
-  const auth = useAuth();
   const { project } = useProject();
 
   const [loading, setLoading] = useState(false);
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
-  const [generalContractorOpt, setGeneralContractorOpt] = useState({});
   const [workerOpts, setWorkerOpts] = useState([]);
   const [expectedCompletionDate, setExpectedCompletionDate] = useState("");
   const [showWorkerSelectionModal, setShowWorkerSelectionModal] =
     useState(false);
-
-  const isGeneralContractor = useMemo(
-    () => auth.user.role === USER_ROLES.GENERAL_CONTRACTOR,
-    [auth.user]
-  );
 
   const handleSubmit = async (e) => {
     try {
@@ -62,12 +53,6 @@ const CreateTask = () => {
         });
         return;
       }
-      if (!isGeneralContractor && !generalContractorOpt?.value) {
-        toast("Please select a general contractor", {
-          type: toast.TYPE.ERROR,
-        });
-        return;
-      }
       if (!workerOpts?.length && workerOpts.every((opt) => !opt?.value)) {
         toast("Please select at least one worker", {
           type: toast.TYPE.ERROR,
@@ -81,9 +66,6 @@ const CreateTask = () => {
         description,
         workerIds: workerOpts.map(({ value }) => value),
         expectedCompletionDate,
-        ...(isGeneralContractor
-          ? {}
-          : { generalContractorId: generalContractorOpt?.value }), // if general contractor, don't add generalContractorId, else add it
       });
       toast("Task created successfully", { type: toast.TYPE.SUCCESS });
       navigate(`/projects/${project._id}/tasks`);
@@ -133,17 +115,6 @@ const CreateTask = () => {
                 placeholderText="Select a date"
               />
             </Form.Group>
-            {!isGeneralContractor && (
-              <Form.Group className="mb-3" controlId="formBasicFirstName">
-                <Form.Label aria-required>
-                  Select a General Contractor
-                </Form.Label>
-                <UserSelect
-                  onSelect={setGeneralContractorOpt}
-                  roles={[USER_ROLES.GENERAL_CONTRACTOR]}
-                />
-              </Form.Group>
-            )}
 
             <Form.Group className="mb-3">
               <Form.Label aria-required>Workers</Form.Label>

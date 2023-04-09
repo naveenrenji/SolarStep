@@ -98,16 +98,26 @@ export const moveToReviewingProposalApi = async (projectId) => {
   return project;
 };
 
+export const moveToUpdatingProposalAfterRejectionApi = async (projectId) => {
+  const {
+    data: { project },
+  } = await http.patch(
+    `/projects/${projectId}/status/${PROJECT_STATUS_KEYS.REJECTED}/${PROJECT_STATUS_KEYS.UPDATING_PROPOSAL}`
+  );
+
+  return project;
+};
+
 export const moveToReadyForInstallationApi = async (
   projectId,
-  { scheduledInstallationDate }
+  { scheduledInstallationStartDate }
 ) => {
   const {
     data: { project },
   } = await http.patch(
     `/projects/${projectId}/status/${PROJECT_STATUS_KEYS.READY_FOR_INSTALLATION}`,
     {
-      scheduledInstallationDate,
+      scheduledInstallationStartDate,
     }
   );
 
@@ -121,7 +131,7 @@ export const moveToStartInstallationApi = async (
   const {
     data: { project },
   } = await http.patch(
-    `/projects/${projectId}/status/${PROJECT_STATUS_KEYS.INSTALLATION_IN_PROGRESS}`,
+    `/projects/${projectId}/status/${PROJECT_STATUS_KEYS.INSTALLATION_STARTED}`,
     {
       installationStartedOn,
     }
