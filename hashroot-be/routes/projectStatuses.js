@@ -103,19 +103,13 @@ router
     }
   );
 
-  router
+router
   .route(`/${PROJECT_STATUS_KEYS.REVIEWING_PROPOSAL}`)
   .patch(
-    authorizeRequest([
-      USER_ROLES.ADMIN,
-      USER_ROLES.SALES_REP,
-    ]),
+    authorizeRequest([USER_ROLES.ADMIN, USER_ROLES.SALES_REP]),
     async (req, res) => {
       try {
-        const project = await moveToReviewingProposal(
-          req.user,
-          req.project
-        );
+        const project = await moveToReviewingProposal(req.user, req.project);
         await createProjectLog(
           req.user,
           req.project,
@@ -130,7 +124,7 @@ router
     }
   );
 
-  router
+router
   .route(`/${PROJECT_STATUS_KEYS.UPDATING_PROPOSAL}`)
   .patch(
     authorizeRequest([
@@ -140,10 +134,7 @@ router
     ]),
     async (req, res) => {
       try {
-        const project = await moveToUpdatingProposal(
-          req.user,
-          req.project
-        );
+        const project = await moveToUpdatingProposal(req.user, req.project);
         await createProjectLog(
           req.user,
           req.project,
@@ -158,26 +149,26 @@ router
     }
   );
 
-  router
-  .route(`/${PROJECT_STATUS_KEYS.REJECTED}/${PROJECT_STATUS_KEYS.UPDATING_PROPOSAL}`)
+router
+  .route(
+    `/${PROJECT_STATUS_KEYS.REJECTED}/${PROJECT_STATUS_KEYS.UPDATING_PROPOSAL}`
+  )
   .patch(
     authorizeRequest([
       USER_ROLES.ADMIN,
       USER_ROLES.SALES_REP,
-      USER_ROLES.GENERAL_CONTRACTOR,
+      USER_ROLES.CUSTOMER,
     ]),
     async (req, res) => {
       try {
-        const project = await moveToUpdatingProposal(
-          req.user,
-          req.project
-        );
+        const project = await moveToUpdatingProposal(req.user, req.project);
         await createProjectLog(
           req.user,
           req.project,
           req.project.status,
           PROJECT_STATUSES.UPDATING_PROPOSAL,
-          `The proposal was rejected and needs to be updated`
+          req.body.comment ||
+            `The proposal was rejected and needs to be updated`
         );
         res.json({ project });
       } catch (error) {
@@ -186,7 +177,7 @@ router
     }
   );
 
-  router
+router
   .route(`/${PROJECT_STATUS_KEYS.READY_FOR_INSTALLATION}`)
   .patch(
     authorizeRequest([
@@ -215,7 +206,6 @@ router
       }
     }
   );
-
 
 router
   .route(`/${PROJECT_STATUS_KEYS.COMPLETED}`)

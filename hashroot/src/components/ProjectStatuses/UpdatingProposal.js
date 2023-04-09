@@ -53,7 +53,7 @@ const UpdatingProposal = () => {
         document.type === PROJECT_UPLOAD_TYPES.contract &&
         document.latest &&
         !document.generalContractorSign &&
-        !document.generalContractorSign
+        !document.customerSign
     );
     return contract
       ? {
