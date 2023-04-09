@@ -17,6 +17,7 @@ import {
 import ConfirmationModal from "../shared/ConfirmationModal";
 import SubmitButton from "../shared/SubmitButton";
 import DocumentModal from "../shared/DocumentModal";
+import { getProjectDocumentDownloadUrl } from "../../utils/files";
 
 const AssignedToGC = () => {
   const auth = useAuth();
@@ -28,12 +29,18 @@ const AssignedToGC = () => {
     React.useState(false);
 
   const unsignedContract = React.useMemo(() => {
-    return project?.documents?.find(
+    const contract = project?.documents?.find(
       (document) =>
         document.type === "contract" &&
         document.customerSign &&
         !document.generalContractorSign
     );
+    return {
+      ...contract,
+      url: contract?.fileId
+        ? getProjectDocumentDownloadUrl(project._id, contract.fileId)
+        : null,
+    };
   }, [project]);
 
   const onGCAcceptsProposal = async (generalContractorSign) => {
@@ -93,7 +100,7 @@ const AssignedToGC = () => {
                 signRequired
                 afterSign={(updatedProject) => updateProject(updatedProject)}
                 title="Contract"
-                file={unsignedContract?.file}
+                file={unsignedContract?.url}
               />
             ) : (
               <></>
@@ -126,6 +133,7 @@ const AssignedToGC = () => {
                 cancelText="No, cancel"
                 type="danger"
                 showComment
+                commentRequired
               />
             ) : (
               <></>

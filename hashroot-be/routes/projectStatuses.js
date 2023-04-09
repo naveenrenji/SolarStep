@@ -1,4 +1,5 @@
 import { Router } from "express";
+
 import {
   PROJECT_STATUSES,
   PROJECT_STATUS_KEYS,
@@ -15,10 +16,81 @@ import {
   projectClosingOut,
   projectComplete,
   projectValidatingPermits,
+  updateProjectStatusToAssignedToGC,
+  acceptProjectByGC,
+  rejectProjectByGC
 } from "../data/projectStatuses.js";
 import authorizeRequest from "../middleware/authorizeRequest.js";
 
 const router = Router();
+
+router
+  .route(`/${PROJECT_STATUS_KEYS.ASSIGNED_TO_GC}`)
+  .patch(
+    authorizeRequest([
+      USER_ROLES.ADMIN,
+      USER_ROLES.SALES_REP,
+    ]),
+    async (req, res) => {
+      try {
+        const project = await updateProjectStatusToAssignedToGC(
+          req.user,
+          req.project,
+          req.body.generalContractorId
+        );
+        res.json({ project });
+      } catch (error) {
+        return res.status(404).json({ error: error.toString() });
+      }
+    }
+  );
+  
+router
+  .route(`/${PROJECT_STATUS_KEYS.GC_ACCEPTED}`)
+  .patch(
+    authorizeRequest([
+      USER_ROLES.ADMIN,
+      USER_ROLES.SALES_REP,
+      USER_ROLES.GENERAL_CONTRACTOR
+    ]),
+    async (req, res) => {
+      try {
+        const project = await acceptProjectByGC(
+          req.user,
+          req.project,
+          req.body.comment
+        );
+        res.json({ project });
+      } catch (error) {
+        return res.status(404).json({ error: error.toString() });
+      }
+    }
+  );
+
+router
+  .route(`/REJECTED/${PROJECT_STATUS_KEYS.READY_TO_BE_ASSIGNED_TO_GC}`)
+  .patch(
+    authorizeRequest([
+      USER_ROLES.ADMIN,
+      USER_ROLES.SALES_REP,
+      USER_ROLES.GENERAL_CONTRACTOR
+    ]),
+    async (req, res) => {
+      try {
+        if (!req.body.comment) {
+          throw new Error("comment is required");
+        }
+        const project = await rejectProjectByGC(
+          req.user,
+          req.project,
+          req.body.comment
+        );
+        res.json({ project });
+      } catch (error) {
+        return res.status(400).json({ error: error.toString() });
+      }
+    }
+  );
 
 router
   .route(`/${PROJECT_STATUS_KEYS.READY_TO_BE_ASSIGNED_TO_GC}`)

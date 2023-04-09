@@ -1,6 +1,15 @@
 import { ObjectId } from "mongodb";
-import { projectStatusLogs, projects } from "../config/mongoCollections.js";
-import { PROJECT_STATUSES, PROJECT_UPLOAD_TYPES, TASK_STATUSES } from "../constants.js";
+import {
+  projectStatusLogs,
+  projects,
+  users,
+} from "../config/mongoCollections.js";
+import {
+  PROJECT_STATUSES,
+  PROJECT_UPLOAD_TYPES,
+  TASK_STATUSES,
+  USER_ROLES,
+} from "../constants.js";
 import { checkProjectStatus } from "../helpers.js";
 import { getProjectById } from "./projects.js";
 import { getAllTasks } from "./tasks.js";
@@ -39,6 +48,118 @@ const createProjectLog = async (
   }
 
   return true;
+};
+
+const updateProjectStatusToAssignedToGC = async (
+  currentUser,
+  project,
+  generalContractorId
+) => {
+  if (!currentUser) throw "User not logged in";
+
+  const userCollection = await users();
+  const gc = await userCollection.findOne({
+    _id: new ObjectId(generalContractorId),
+    role: USER_ROLES.GENERAL_CONTRACTOR,
+  });
+  if (!gc) {
+    throw new Error("Invalid general contractor ID");
+  }
+
+  const status = PROJECT_STATUSES.ASSIGNED_TO_GC;
+
+  let projectCollections = await projects();
+  const updatedProject = await projectCollections.findOneAndUpdate(
+    { _id: new ObjectId(project._id) },
+    {
+      $set: {
+        status: status,
+        generalContractor: {
+          _id: new ObjectId(gc._id),
+          email: gc.email,
+        },
+        updatedAt: new Date(),
+      },
+    },
+    { returnDocument: "after" }
+  );
+  if (!updatedProject.value) {
+    throw new Error("Failed to update project");
+  }
+  await createProjectLog(
+    currentUser,
+    project,
+    project.status,
+    PROJECT_STATUSES.ASSIGNED_TO_GC
+  );
+
+  return updatedProject.value;
+};
+
+const acceptProjectByGC = async (currentUser, project) => {
+  if (!currentUser) throw new Error("User not logged in");
+  if (
+    !project.documents.find(
+      (doc) =>
+        doc.type === PROJECT_UPLOAD_TYPES.contract &&
+        doc.latest &&
+        doc.customerSign &&
+        doc.generalContractorSign
+    )
+  ) {
+    throw new Error("Contract not signed yet");
+  }
+  const status = PROJECT_STATUSES.GC_ACCEPTED;
+
+  let projectCollections = await projects();
+  const updatedProjectLog = await projectCollections.findOneAndUpdate(
+    { _id: new ObjectId(project._id) },
+    {
+      $set: {
+        status: status,
+      },
+    },
+    { returnDocument: "after" }
+  );
+  if (updatedProjectLog.lastErrorObject.n !== 1 || !updatedProjectLog.value) {
+    throw new Error("Status for GC Accepted could not be changed.");
+  }
+
+  await createProjectLog(currentUser, project, project.status, status);
+
+  const updatedProject = await getProjectById(
+    currentUser,
+    project._id.toString()
+  );
+  return updatedProject;
+};
+
+const rejectProjectByGC = async (currentUser, project, comment) => {
+  if (!currentUser) throw new Error("User not logged in");
+  const status = PROJECT_STATUSES.READY_TO_BE_ASSIGNED_TO_GC;
+
+  let projectCollections = await projects();
+  const updatedProjectLog = await projectCollections.findOneAndUpdate(
+    { _id: new ObjectId(project._id) },
+    {
+      $set: {
+        status: status,
+        generalContractor: {},
+      },
+    },
+    { returnDocument: "after" }
+  );
+  if (updatedProjectLog.lastErrorObject.n !== 1 || !updatedProjectLog.value) {
+    throw new Error("Status for Project Rejected by GC could not be changed.");
+  }
+
+  await createProjectLog(currentUser, project, project.status, status, comment);
+
+  const updatedProject = await getProjectById(
+    currentUser,
+    project._id.toString()
+  );
+  return updatedProject;
 };
 
 const moveToReadyToBeAssignedToGC = async (currentUser, project) => {
@@ -349,4 +470,7 @@ export {
   projectClosingOut,
   projectComplete,
   projectValidatingPermits,
+  updateProjectStatusToAssignedToGC,
+  rejectProjectByGC,
+  acceptProjectByGC,
 };
