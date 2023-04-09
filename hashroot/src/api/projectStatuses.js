@@ -39,7 +39,7 @@ export const gcRejectProposalApi = async (projectId, { comment }) => {
   const {
     data: { project },
   } = await http.patch(
-    `/projects/${projectId}/status/${PROJECT_STATUS_KEYS.READY_TO_BE_ASSIGNED_TO_GC}/rejected`,
+    `/projects/${projectId}/status/REJECTED/${PROJECT_STATUS_KEYS.READY_TO_BE_ASSIGNED_TO_GC}`,
     { comment }
   );
 
