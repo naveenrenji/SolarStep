@@ -56,8 +56,14 @@ const FileUploadModal = ({
     }
   };
 
+  const handleClose = () => {
+    if (!loading) {
+      onClose();
+    }
+  };
+
   return (
-    <Modal show={show} onHide={onClose}>
+    <Modal show={show} onHide={handleClose}>
       <Modal.Header closeButton closeVariant="white">
         <Modal.Title as="h5">{title}</Modal.Title>
       </Modal.Header>
@@ -93,7 +99,7 @@ const FileUploadModal = ({
           )}
         </Modal.Body>
         <Modal.Footer>
-          <Button variant="secondary" onClick={onClose}>
+          <Button variant="secondary" onClick={handleClose}>
             Close
           </Button>
           <SubmitButton

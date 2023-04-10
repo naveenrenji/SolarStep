@@ -2,6 +2,7 @@ import React, { useMemo } from "react";
 import Button from "react-bootstrap/esm/Button";
 import Card from "react-bootstrap/esm/Card";
 import Stack from "react-bootstrap/esm/Stack";
+import Form from "react-bootstrap/esm/Form";
 import { GrDocumentUser } from "react-icons/gr";
 
 import { PROJECT_UPLOAD_TYPES, USER_ROLES } from "../../constants";
@@ -17,6 +18,8 @@ import {
 } from "../../api/projectStatuses";
 import { getProjectDocumentDownloadUrl } from "../../utils/files";
 import { signContractApi } from "../../api/projects";
+import FormDatePicker from "../shared/FormDatePicker";
+import { toast } from "react-toastify";
 
 // TODO: Update this code to include signing
 
@@ -28,6 +31,8 @@ const ReviewingProposal = () => {
   const [showRejectConfirmationModal, setShowRejectConfirmationModal] =
     React.useState(false);
   const [showDocumentModal, setShowDocumentModal] = React.useState(false);
+  const [scheduledInstallationStartDate, setScheduledInstallationStartDate] =
+    React.useState("");
 
   const unsignedContract = useMemo(() => {
     const contract = project?.documents?.find(
@@ -65,7 +70,9 @@ const ReviewingProposal = () => {
     if (!signedContract) {
       throw new Error("Contract not signed");
     }
-    return await moveToReadyForInstallationApi(project._id);
+    return await moveToReadyForInstallationApi(project._id, {
+      scheduledInstallationStartDate,
+    });
   };
 
   const onCustomerRejectsUpdatedProposal = async () => {
@@ -128,7 +135,7 @@ const ReviewingProposal = () => {
               <></>
             )}
 
-            <Button variant="link" onClick={() => setShowDocumentModal(true)}>
+            <Button onClick={() => setShowDocumentModal(true)}>
               {unsignedContract
                 ? "View and sign updated proposal"
                 : "View Signed proposal"}
@@ -137,7 +144,7 @@ const ReviewingProposal = () => {
         ) : [
             USER_ROLES.ADMIN,
             USER_ROLES.SALES_REP,
-            USER_ROLES.CUSTOMER,
+            USER_ROLES.GENERAL_CONTRACTOR,
           ].includes(auth.user.role) ? (
           <div style={{ textAlign: "center" }}>
             <Card.Text>
@@ -145,10 +152,25 @@ const ReviewingProposal = () => {
                 ? "Please wait for the customer to accept the proposal"
                 : "You can now move to the next state"}
             </Card.Text>
-
-            <Button variant="link" onClick={() => setShowDocumentModal(true)}>
+            <Button
+              variant="link"
+              onClick={() => setShowDocumentModal(true)}
+              className="mb-2"
+            >
               View proposal
             </Button>
+            {signedContract ? (
+              <Form.Group controlId="formDate">
+                <Form.Label aria-required>Installation Start Date</Form.Label>
+                <FormDatePicker
+                  value={scheduledInstallationStartDate}
+                  onChange={setScheduledInstallationStartDate}
+                  minDate={new Date()}
+                />
+              </Form.Group>
+            ) : (
+              <></>
+            )}
 
             {unsignedContract && showDocumentModal ? (
               <DocumentModal
@@ -217,22 +239,29 @@ const ReviewingProposal = () => {
       ].includes(auth.user.role) ? (
         <Card.Footer>
           <Stack style={{ float: "right" }} gap={2} direction="horizontal">
-            <SubmitButton
-              onClick={() => setShowConfirmationModal(true)}
-              className="ml-3"
-            >
-              Start Installation
-            </SubmitButton>
             {USER_ROLES.GENERAL_CONTRACTOR !== auth.user.role ? (
               <SubmitButton
-                onClick={() => setShowConfirmationModal(true)}
+                onClick={() => setShowRejectConfirmationModal(true)}
                 className="ml-3"
+                variant="secondary"
               >
                 Re-upload proposal
               </SubmitButton>
             ) : (
               <></>
             )}
+            <SubmitButton
+              onClick={() => {
+                if (!scheduledInstallationStartDate) {
+                  toast("Please select a date", { type: toast.TYPE.ERROR });
+                  return;
+                }
+                setShowConfirmationModal(true);
+              }}
+              className="ml-3"
+            >
+              Start Installation
+            </SubmitButton>
           </Stack>
         </Card.Footer>
       ) : (

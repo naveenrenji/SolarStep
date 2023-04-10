@@ -3,6 +3,7 @@ import { projectsData } from "../data/index.js";
 import { USER_ROLES } from "../constants.js";
 import * as helpers from "../helpers.js";
 import authorizeRequest from "../middleware/authorizeRequest.js";
+import authenticateProject from "../middleware/authenticateProject.js";
 
 const router = Router();
 
@@ -83,28 +84,16 @@ router.route("/:id/files/:fileId/sign").patch(async (req, res) => {
     return res.status(404).json({ error: e });
   }
 });
-//   .put(async (req, res) => {
-//     try {
-//       const id = req.params.id;
-//       const updatedProject = await projectsData.updateProject(
-//         id,
-//         req.session._id,
-//         req.body
-//       );
-//       return res.status(200).json({ project: updatedProject });
-//     } catch (e) {
-//       return res.status(500).json({ error: e });
-//     }
-//   });
 
-// router.route("/:id/delete").delete(async (req, res) => {
-//   try {
-//     const id = req.params.id;
-//     await projectsData.deleteProject(id, req.session._id);
-//     return res.status(200).json({ message: "Project deleted successfully" });
-//   } catch (e) {
-//     return res.status(500).json({ error: e });
-//   }
-// });
+router
+  .route("/:projectId/authorizations")
+  .get(authorizeRequest(), authenticateProject, async (req, res) => {
+    try {
+      const authorizations = projectsData.getAuthorizations(req.user);
+      res.json({ authorizations });
+    } catch (error) {
+      res.status(400).json({ error: error?.toString() });
+    }
+  });
 
 export default router;

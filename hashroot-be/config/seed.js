@@ -1,7 +1,7 @@
 import { USER_ROLES } from "../constants.js";
-import { userData } from "../data/index.js";
+import { projectsData, userData } from "../data/index.js";
 
-let admin, salesRep;
+let admin, salesRep, customer;
 
 try {
   console.log("Creating Admin User!");
@@ -41,7 +41,7 @@ try {
 
 try {
   console.log("Creating Customer");
-  await userData.createUser(
+  customer = await userData.createUser(
     "Customer",
     "SS",
     "Password@123",
@@ -91,4 +91,23 @@ try {
   });
 } catch (error) {
   console.log("Could not create worker", error);
+}
+
+try {
+  console.log("Creating Project");
+  await projectsData.createProject(
+    admin,
+    customer._id.toString(),
+    salesRep._id.toString(),
+    "Agile Project",
+    {
+      streetAddress: "123 Main St",
+      city: "New York",
+      state: "NY",
+      zipCode: "10001",
+    }
+  );
+  console.log("Project Created");
+} catch (error) {
+  console.log("Could not create project", error);
 }
