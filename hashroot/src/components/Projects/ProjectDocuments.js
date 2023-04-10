@@ -23,10 +23,12 @@ import { downloadProjectDocumentApi } from "../../api/projects";
 import { deleteProjectDocumentApi } from "../../api/projects";
 import { PROJECT_UPLOAD_TYPES } from "../../constants";
 import { capitalize } from "../../utils/user";
+import useProject from "../../hooks/useProject";
 
 const tabs = ["all", ...Object.values(PROJECT_UPLOAD_TYPES)];
 
 const ProjectDocuments = ({ project, onClose }) => {
+  const { updateProject } = useProject();
   const [currentTab, setCurrentTab] = React.useState("all");
 
   const handleDocumentDownload = async (document) => {
@@ -46,10 +48,11 @@ const ProjectDocuments = ({ project, onClose }) => {
   const handleDocumentDelete = async (document) => {
     try {
       toast("Deleting Document...", { type: toast.TYPE.INFO, autoClose: 0 });
-      await deleteProjectDocumentApi(
+      const response = await deleteProjectDocumentApi(
         project._id,
         document.fileId
       );
+      updateProject(response);
       toast("Document Deleted Successfully", {
         type: toast.TYPE.INFO,
         autoClose: 0,

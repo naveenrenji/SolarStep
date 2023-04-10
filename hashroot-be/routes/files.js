@@ -39,10 +39,8 @@ router.route("/:fileId/sign").patch(async (req, res) => {
 
 router.route("/:fileId/delete").delete(async (req, res) => {
   try {
-    let a = await filesData.deletePdfFile(req, res); 
-    if(a==="done"){
-      return res.status(200);
-    }
+    let project = await filesData.deletePdfFile(req, res);
+    return res.status(200).json({ project });
   } catch (e) {
     return res.status(500).json({ error: e.toString() });
   }

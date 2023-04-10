@@ -2,6 +2,7 @@ import uploadFile from "../middleware/uploadFile.js";
 import { getBucket, projects } from "../config/mongoCollections.js";
 import { ObjectId } from "mongodb";
 import { PROJECT_UPLOAD_TYPES } from "../constants.js";
+import { getProjectById } from "./projects.js";
 
 const uploadPdfFile = async (req, res) => {
   try {
@@ -120,7 +121,7 @@ const deletePdfFile = async (req, res) => {
     }
 
     const projectCollection = await projects();
-    const project = await projectCollection.findOneAndUpdate(
+    let project = await projectCollection.findOneAndUpdate(
       {
         _id: new ObjectId(req.project._id),
         "documents.fileId": new ObjectId(fileId),
@@ -139,9 +140,11 @@ const deletePdfFile = async (req, res) => {
       return res.status(400).json({ error: "File not found!" });
     }
 
+
     const bucket = await getBucket();
-    bucket.delete(new ObjectId(fileId));
-    return "done";
+    await bucket.delete(new ObjectId(fileId));
+    project = await getProjectById(req.user, req.project._id.toString());
+    return project;
   } catch (err) {
     return res.status(500).json({ error: err.toString() });
   }
