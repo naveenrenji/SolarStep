@@ -224,11 +224,7 @@ router
     `/${PROJECT_STATUS_KEYS.REJECTED}/${PROJECT_STATUS_KEYS.UPDATING_PROPOSAL}`
   )
   .patch(
-    authorizeRequest([
-      USER_ROLES.ADMIN,
-      USER_ROLES.SALES_REP,
-      USER_ROLES.CUSTOMER,
-    ]),
+    authorizeRequest([USER_ROLES.ADMIN, USER_ROLES.SALES_REP]),
     async (req, res) => {
       try {
         const project = await moveToUpdatingProposal(req.user, req.project);
@@ -257,18 +253,18 @@ router
     ]),
     async (req, res) => {
       try {
-        const { installationDate } = req.body;
+        const { scheduledInstallationStartDate } = req.body;
         const project = await moveToReadyForInstallation(
           req.user,
           req.project,
-          installationDate
+          scheduledInstallationStartDate
         );
         await createProjectLog(
           req.user,
           req.project,
           req.project.status,
           PROJECT_STATUSES.READY_FOR_INSTALLATION,
-          `Installation scheduled on ${installationDate}`
+          `Installation scheduled on ${scheduledInstallationStartDate}`
         );
         res.json({ project });
       } catch (error) {

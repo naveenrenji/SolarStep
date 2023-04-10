@@ -40,7 +40,8 @@ $success: rgb(164, 201, 92);
       width: 10rem;
       margin-bottom: 1rem;
     }
-    svg.secondary, svg.success {
+    svg.secondary,
+    svg.success {
       height: 8rem;
       width: 8rem;
       margin-bottom: 1rem;
@@ -54,6 +55,13 @@ form {
     &[aria-required="true"]::before {
       content: "*";
     }
+  }
+}
+
+.form-label {
+  // color: rgb(81, 156, 195);
+  &[aria-required="true"]::before {
+    content: "*";
   }
 }
 
@@ -143,6 +151,7 @@ a {
   transform: translateX(-50%);
   transition: opacity ease-in-out 0.2s;
   margin-bottom: 0;
+  border-radius: var(--bs-pagination-border-radius);
 }
 
 svg {

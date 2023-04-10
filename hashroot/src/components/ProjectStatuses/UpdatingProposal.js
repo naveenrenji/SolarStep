@@ -15,7 +15,10 @@ import { signContractApi, uploadProjectDocumentApi } from "../../api/projects";
 import { getProjectDocumentDownloadUrl } from "../../utils/files";
 import DocumentModal from "../shared/DocumentModal";
 import Stack from "react-bootstrap/esm/Stack";
-import { moveToReadyForInstallationApi, moveToReviewingProposalApi } from "../../api/projectStatuses";
+import {
+  moveToReadyForInstallationApi,
+  moveToReviewingProposalApi,
+} from "../../api/projectStatuses";
 import FormDatePicker from "../shared/FormDatePicker";
 
 const UpdatingProposal = () => {
@@ -68,8 +71,8 @@ const UpdatingProposal = () => {
       (document) =>
         document.type === PROJECT_UPLOAD_TYPES.contract &&
         document.latest &&
-        document.customerSign &&
-        !document.generalContractorSign
+        !document.customerSign &&
+        document.generalContractorSign
     );
     return contract
       ? {
@@ -85,7 +88,7 @@ const UpdatingProposal = () => {
         document.type === PROJECT_UPLOAD_TYPES.contract &&
         document.latest &&
         document.customerSign &&
-        !document.generalContractorSign
+        document.generalContractorSign
     );
     return contract
       ? {
@@ -123,7 +126,7 @@ const UpdatingProposal = () => {
         }}
       >
         <GrDocumentTime className="primary" />
-        <Card.Text>The new project is getting churned.</Card.Text>
+        <Card.Text>A new proposal is getting churned.</Card.Text>
         {[USER_ROLES.CUSTOMER, USER_ROLES.WORKER].includes(auth.user.role) ? (
           <Card.Text>
             Please wait for the general contractor and sales rep to update the
@@ -151,10 +154,7 @@ const UpdatingProposal = () => {
                   minDate={new Date()}
                 />
               </Form.Group>
-              <Button
-                variant="link"
-                onClick={() => setShowFileUploadModal(true)}
-              >
+              <Button onClick={() => setShowFileUploadModal(true)}>
                 Upload New Proposal
               </Button>
               {showFileUploadModal ? (
@@ -177,9 +177,34 @@ const UpdatingProposal = () => {
               Please wait for the sales rep to move this to the next step so
               that the customer can review.
             </Card.Text>
-            <Button variant="link" onClick={() => setShowDocumentModal(true)}>
-              View GC signed proposal
-            </Button>
+            <Stack
+              direction="horizontal"
+              style={{ justifyContent: "center" }}
+              gap={3}
+            >
+              <Button onClick={() => setShowDocumentModal(true)}>
+                View GC signed proposal
+              </Button>
+              {USER_ROLES.GENERAL_CONTRACTOR !== auth.user.role ? (
+                <Button onClick={() => setShowFileUploadModal(true)}>
+                  Upload a new proposal
+                </Button>
+              ) : (
+                <></>
+              )}
+            </Stack>
+            {showFileUploadModal ? (
+              <FileUploadModal
+                show={showFileUploadModal}
+                onClose={() => setShowFileUploadModal(false)}
+                onFileUpload={handleFileUpload}
+                afterFileUpload={(updatedProject) =>
+                  updateProject(updatedProject)
+                }
+              />
+            ) : (
+              <></>
+            )}
             {showDocumentModal ? (
               <DocumentModal
                 show={showDocumentModal}
@@ -197,7 +222,7 @@ const UpdatingProposal = () => {
               <Card.Text>
                 Please have a look at the new proposal and sign it.
               </Card.Text>
-              <Button variant="link" onClick={() => setShowDocumentModal(true)}>
+              <Button onClick={() => setShowDocumentModal(true)}>
                 View and sign updated proposal
               </Button>
               {showDocumentModal ? (
