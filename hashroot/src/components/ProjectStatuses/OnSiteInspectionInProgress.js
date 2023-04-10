@@ -12,12 +12,16 @@ import ConfirmationModal from "../shared/ConfirmationModal";
 import SubmitButton from "../shared/SubmitButton";
 import FormDatePicker from "../shared/FormDatePicker";
 import { toast } from "react-toastify";
-import { moveToReadyForInstallationApi } from "../../api/projectStatuses";
+import {
+  moveToReadyForInstallationApi,
+  moveToUpdatingProposalApi,
+} from "../../api/projectStatuses";
+import { displayDate } from "../../utils/date";
 
 const OnSiteInspectionInProgress = () => {
   const auth = useAuth();
   const { project, updateProject } = useProject();
-  const [scheduledInstallationDate, setScheduledInstallationDate] =
+  const [scheduledInstallationStartDate, setScheduledInstallationStartDate] =
     React.useState();
   const [showConfirmationModal, setShowConfirmationModal] =
     React.useState(false);
@@ -26,14 +30,21 @@ const OnSiteInspectionInProgress = () => {
 
   const readyForInstallation = async () => {
     return await moveToReadyForInstallationApi(project._id, {
-      scheduledInstallationDate,
+      scheduledInstallationStartDate,
     });
   };
 
   const proposalNeedsUpdate = async () => {
-    console.log(project._id);
-    // return await proposalNeedsUpdateApi(project._id);
+    return await moveToUpdatingProposalApi(project._id);
   };
+
+  const hasMoveAccess = React.useMemo(() => {
+    return [
+      USER_ROLES.ADMIN,
+      USER_ROLES.SALES_REP,
+      USER_ROLES.GENERAL_CONTRACTOR,
+    ].includes(auth.user.role);
+  }, [auth.user.role]);
 
   return (
     <Card className="shadow-sm mt-3 h-100 project-status">
@@ -48,24 +59,23 @@ const OnSiteInspectionInProgress = () => {
       >
         <GrSchedulePlay className="primary" />
         <Card.Text>The On Site Inspection is progress.</Card.Text>
-        <Card.Text>Started Inspection On: {project.inspectionDate}</Card.Text>
+        <Card.Text>
+          Started Inspection On:{" "}
+          {displayDate(project.onSiteInspectionStartedOn)}
+        </Card.Text>
         {[USER_ROLES.WORKER, USER_ROLES.CUSTOMER].includes(auth.user.role) ? (
           <div style={{ textAlign: "center" }}>
             <Card.Text>
               Please wait for general contractor to complete the inspection.
             </Card.Text>
           </div>
-        ) : [
-            USER_ROLES.ADMIN,
-            USER_ROLES.SALES_REP,
-            USER_ROLES.GENERAL_CONTRACTOR,
-          ].includes(auth.user.role) ? (
+        ) : hasMoveAccess ? (
           <div style={{ textAlign: "center" }}>
             <Form.Group className="mb-3" controlId="formDate">
-              <Form.Label aria-required>Inspection Date</Form.Label>
+              <Form.Label aria-required>Installation Start Date</Form.Label>
               <FormDatePicker
-                value={scheduledInstallationDate}
-                onChange={setScheduledInstallationDate}
+                value={scheduledInstallationStartDate}
+                onChange={setScheduledInstallationStartDate}
                 minDate={new Date()}
               />
             </Form.Group>
@@ -106,9 +116,7 @@ const OnSiteInspectionInProgress = () => {
           <></>
         )}
       </Card.Body>
-      {[USER_ROLES.ADMIN, USER_ROLES.GENERAL_CONTRACTOR].includes(
-        auth.user.role
-      ) ? (
+      {hasMoveAccess ? (
         <Card.Footer>
           <Stack style={{ float: "right" }} gap={2} direction="horizontal">
             <SubmitButton
@@ -116,11 +124,11 @@ const OnSiteInspectionInProgress = () => {
               className="ml-3"
               variant="secondary"
             >
-              Proposal needs to be updated
+              Proposal needs update
             </SubmitButton>
             <SubmitButton
               onClick={() => {
-                if (!scheduledInstallationDate) {
+                if (!scheduledInstallationStartDate) {
                   toast("Please select a date for installation", {
                     type: toast.TYPE.ERROR,
                   });

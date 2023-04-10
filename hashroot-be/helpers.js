@@ -1,5 +1,5 @@
 import { ObjectId } from "mongodb";
-import { TASK_STATUSES, USER_ROLES } from "./constants.js";
+import { PROJECT_STATUSES, TASK_STATUSES, USER_ROLES } from "./constants.js";
 
 const checkProjectStatus = (status, varName = "Project Status") => {
   status = checkString(status, varName);

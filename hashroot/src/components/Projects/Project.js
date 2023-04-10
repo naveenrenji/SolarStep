@@ -6,7 +6,7 @@ import { LinkContainer } from "react-router-bootstrap";
 import { GiHamburgerMenu } from "react-icons/gi";
 import { IoIosArrowBack } from "react-icons/io";
 
-import { getProjectApi } from "../../api/projects";
+import { uploadProjectDocumentApi } from "../../api/projects";
 import useProject from "../../hooks/useProject";
 import { getProgressBarPercentage } from "../../utils";
 import ProjectStatuses from "../ProjectStatuses";
@@ -15,21 +15,22 @@ import RouteHeader from "../shared/RouteHeader";
 import Button from "react-bootstrap/esm/Button";
 import ProjectDocuments from "./ProjectDocuments";
 import ViewProjectModal from "../shared/ViewProjectModal";
-
-export const projectLoader = async ({ params }) => {
-  const projects = getProjectApi(params.projectId);
-  return { projects };
-};
+import FileUploadModal from "../shared/FileUploadModal";
 
 const Project = () => {
-  const { project } = useProject();
+  const { project, updateProject } = useProject();
   const [showProjectModal, setShowProjectModal] = React.useState(false);
+  const [showFileUploadModal, setShowFileUploadModal] = React.useState(false);
   const [showProjectDcouments, setShowProjectDocuments] = React.useState(false);
 
   const progress = useMemo(() => {
     if (!project) return 0;
     return getProgressBarPercentage(project.status);
   }, [project]);
+
+  const handleFileUpload = async ({ file, type }) => {
+    return await uploadProjectDocumentApi(project._id, file, type);
+  };
 
   return (
     <>
@@ -47,11 +48,17 @@ const Project = () => {
             flexDirection: "column",
           }}
         >
-          <ProgressBar striped now={progress} label={`${progress}%`} />
+          <ProgressBar
+            striped
+            now={progress}
+            label={`${progress}%`}
+            variant={progress > 99 ? "success" : "primary"}
+          />
           {showProjectDcouments ? (
             <ProjectDocuments
               project={project}
               onClose={() => setShowProjectDocuments(false)}
+              onUploadClick={() => setShowFileUploadModal(true)}
             />
           ) : (
             <>
@@ -97,6 +104,11 @@ const Project = () => {
                       >
                         View Files
                       </Dropdown.Item>
+                      <Dropdown.Item
+                        onClick={() => setShowFileUploadModal(true)}
+                      >
+                        Upload File
+                      </Dropdown.Item>
                     </Dropdown.Menu>
                   </Dropdown>
                 </Card.Body>
@@ -112,6 +124,19 @@ const Project = () => {
                 <></>
               )}
             </>
+          )}
+          {showFileUploadModal ? (
+            <FileUploadModal
+              show={showFileUploadModal}
+              onClose={() => setShowFileUploadModal(false)}
+              onFileUpload={handleFileUpload}
+              afterFileUpload={(updatedProject) =>
+                updateProject(updatedProject)
+              }
+              typeRequired
+            />
+          ) : (
+            <></>
           )}
         </Card.Body>
       </Card>

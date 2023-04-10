@@ -1,15 +1,25 @@
-import React from "react";
+import React, { useMemo } from "react";
 import Button from "react-bootstrap/esm/Button";
 import Card from "react-bootstrap/esm/Card";
 import Stack from "react-bootstrap/esm/Stack";
+import Form from "react-bootstrap/esm/Form";
 import { GrDocumentUser } from "react-icons/gr";
 
-import { USER_ROLES } from "../../constants";
+import { PROJECT_UPLOAD_TYPES, USER_ROLES } from "../../constants";
 import useAuth from "../../hooks/useAuth";
 import useProject from "../../hooks/useProject";
 import ConfirmationModal from "../shared/ConfirmationModal";
 
 import SubmitButton from "../shared/SubmitButton";
+import DocumentModal from "../shared/DocumentModal";
+import {
+  moveToReadyForInstallationApi,
+  moveToUpdatingProposalAfterRejectionApi,
+} from "../../api/projectStatuses";
+import { getProjectDocumentDownloadUrl } from "../../utils/files";
+import { signContractApi } from "../../api/projects";
+import FormDatePicker from "../shared/FormDatePicker";
+import { toast } from "react-toastify";
 
 // TODO: Update this code to include signing
 
@@ -20,15 +30,59 @@ const ReviewingProposal = () => {
     React.useState(false);
   const [showRejectConfirmationModal, setShowRejectConfirmationModal] =
     React.useState(false);
+  const [showDocumentModal, setShowDocumentModal] = React.useState(false);
+  const [scheduledInstallationStartDate, setScheduledInstallationStartDate] =
+    React.useState("");
+
+  const unsignedContract = useMemo(() => {
+    const contract = project?.documents?.find(
+      (document) =>
+        document.type === PROJECT_UPLOAD_TYPES.contract &&
+        document.latest &&
+        document.generalContractorSign &&
+        !document.customerSign
+    );
+    return contract
+      ? {
+          ...contract,
+          url: getProjectDocumentDownloadUrl(project._id, contract?.fileId),
+        }
+      : null;
+  }, [project]);
+
+  const signedContract = useMemo(() => {
+    const contract = project?.documents?.find(
+      (document) =>
+        document.type === PROJECT_UPLOAD_TYPES.contract &&
+        document.latest &&
+        document.generalContractorSign &&
+        document.customerSign
+    );
+    return contract
+      ? {
+          ...contract,
+          url: getProjectDocumentDownloadUrl(project._id, contract?.fileId),
+        }
+      : null;
+  }, [project]);
 
   const onCustomerAcceptsUpdatedProposal = async () => {
-    console.log(project._id);
-    // return await gcUpdatesProposalApi(project._id);
+    if (!signedContract) {
+      throw new Error("Contract not signed");
+    }
+    return await moveToReadyForInstallationApi(project._id, {
+      scheduledInstallationStartDate,
+    });
   };
 
   const onCustomerRejectsUpdatedProposal = async () => {
-    console.log(project._id);
-    // return await gcUpdatesProposalApi(project._id);
+    return await moveToUpdatingProposalAfterRejectionApi(project._id);
+  };
+
+  const onSignContract = async (customerSign) => {
+    return await signContractApi(project._id, unsignedContract.fileId, {
+      customerSign,
+    });
   };
 
   return (
@@ -43,25 +97,102 @@ const ReviewingProposal = () => {
         }}
       >
         <GrDocumentUser className="primary" />
-        <Card.Text>The project is assigned to General Contractor.</Card.Text>
-        {[USER_ROLES.GENERAL_CONTRACTOR, USER_ROLES.WORKER].includes(
-          auth.user.role
-        ) ? (
+        <Card.Text>The project is being reviewed by customer</Card.Text>
+        {[USER_ROLES.WORKER].includes(auth.user.role) ? (
           <Card.Text>
             Please wait for the customer to accept the proposal
           </Card.Text>
+        ) : auth.user.role === USER_ROLES.CUSTOMER ? (
+          <div style={{ textAlign: "center" }}>
+            <Card.Text>
+              {unsignedContract
+                ? "Please verify and sign the updated proposal so that the installation can begin. If you are not satisfied with the updated proposal, you can speak to the sales rep and get it ammended."
+                : "Please wait for the sales rep to the next step."}
+            </Card.Text>
+
+            {unsignedContract && showDocumentModal ? (
+              <DocumentModal
+                show={showDocumentModal}
+                onClose={() => setShowDocumentModal(false)}
+                title="GC Signed Contract"
+                file={unsignedContract?.url}
+                signRequired
+                onSign={onSignContract}
+                afterSign={(updatedProject) => updateProject(updatedProject)}
+              />
+            ) : (
+              <></>
+            )}
+
+            {signedContract && showDocumentModal ? (
+              <DocumentModal
+                show={showDocumentModal}
+                onClose={() => setShowDocumentModal(false)}
+                title="Signed Contract"
+                file={signedContract?.url}
+              />
+            ) : (
+              <></>
+            )}
+
+            <Button onClick={() => setShowDocumentModal(true)}>
+              {unsignedContract
+                ? "View and sign updated proposal"
+                : "View Signed proposal"}
+            </Button>
+          </div>
         ) : [
             USER_ROLES.ADMIN,
-            USER_ROLES.CUSTOMER,
             USER_ROLES.SALES_REP,
+            USER_ROLES.GENERAL_CONTRACTOR,
           ].includes(auth.user.role) ? (
           <div style={{ textAlign: "center" }}>
             <Card.Text>
-              Please verify and sign the updated proposal and upload it here so
-              that the installation can begin
+              {unsignedContract
+                ? "Please wait for the customer to accept the proposal"
+                : "You can now move to the next state"}
             </Card.Text>
-            <Button variant="link">View Proposal</Button>
-            <Button variant="link">Upload Signed Updated Proposal</Button>
+            <Button
+              variant="link"
+              onClick={() => setShowDocumentModal(true)}
+              className="mb-2"
+            >
+              View proposal
+            </Button>
+            {signedContract ? (
+              <Form.Group controlId="formDate">
+                <Form.Label aria-required>Installation Start Date</Form.Label>
+                <FormDatePicker
+                  value={scheduledInstallationStartDate}
+                  onChange={setScheduledInstallationStartDate}
+                  minDate={new Date()}
+                />
+              </Form.Group>
+            ) : (
+              <></>
+            )}
+
+            {unsignedContract && showDocumentModal ? (
+              <DocumentModal
+                show={showDocumentModal}
+                onClose={() => setShowDocumentModal(false)}
+                title="GC Signed Contract"
+                file={unsignedContract?.url}
+              />
+            ) : (
+              <></>
+            )}
+
+            {signedContract && showDocumentModal ? (
+              <DocumentModal
+                show={showDocumentModal}
+                onClose={() => setShowDocumentModal(false)}
+                title="Signed Contract"
+                file={signedContract?.url}
+              />
+            ) : (
+              <></>
+            )}
             {showConfirmationModal ? (
               <ConfirmationModal
                 key="accept"
@@ -90,6 +221,8 @@ const ReviewingProposal = () => {
                 confirmText="Yes, move to next state"
                 cancelText="No, cancel"
                 type="danger"
+                showComment
+                commentRequired
               />
             ) : (
               <></>
@@ -99,20 +232,35 @@ const ReviewingProposal = () => {
           <></>
         )}
       </Card.Body>
-      {[USER_ROLES.ADMIN, USER_ROLES.SALES_REP].includes(auth.user.role) ? (
+      {[
+        USER_ROLES.ADMIN,
+        USER_ROLES.SALES_REP,
+        USER_ROLES.GENERAL_CONTRACTOR,
+      ].includes(auth.user.role) ? (
         <Card.Footer>
           <Stack style={{ float: "right" }} gap={2} direction="horizontal">
+            {USER_ROLES.GENERAL_CONTRACTOR !== auth.user.role ? (
+              <SubmitButton
+                onClick={() => setShowRejectConfirmationModal(true)}
+                className="ml-3"
+                variant="secondary"
+              >
+                Re-upload proposal
+              </SubmitButton>
+            ) : (
+              <></>
+            )}
             <SubmitButton
-              onClick={() => setShowConfirmationModal(true)}
+              onClick={() => {
+                if (!scheduledInstallationStartDate) {
+                  toast("Please select a date", { type: toast.TYPE.ERROR });
+                  return;
+                }
+                setShowConfirmationModal(true);
+              }}
               className="ml-3"
             >
               Start Installation
-            </SubmitButton>
-            <SubmitButton
-              onClick={() => setShowConfirmationModal(true)}
-              className="ml-3"
-            >
-              Re-upload proposal
             </SubmitButton>
           </Stack>
         </Card.Footer>

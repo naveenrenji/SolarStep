@@ -1,8 +1,7 @@
 import React, { useCallback, useEffect, useMemo } from "react";
 import { Outlet, useParams } from "react-router";
 
-import { getProjectApi } from "../api/projects";
-
+import { getProjectApi, getProjectAuthorizationsApi } from "../api/projects";
 import ErrorCard from "../components/shared/ErrorCard";
 import Loader from "../components/shared/Loader";
 import ProjectContext from "../config/ProjectContext";
@@ -10,6 +9,7 @@ import ProjectContext from "../config/ProjectContext";
 const ProjectLayout = () => {
   const { projectId } = useParams();
   const [project, setProject] = React.useState();
+  const [authorizations, setAuthorizations] = React.useState();
   const [loading, setLoading] = React.useState(true);
   const [error, setError] = React.useState(null);
 
@@ -18,6 +18,8 @@ const ProjectLayout = () => {
       setLoading(true);
       const data = await getProjectApi(projectId);
       setProject(data);
+      const authData = await getProjectAuthorizationsApi(projectId);
+      setAuthorizations(authData);
     } catch (err) {
       setError(err?.response?.data?.error || "Could not fetch project");
     } finally {
@@ -34,8 +36,8 @@ const ProjectLayout = () => {
   }, []);
 
   const projectContextValue = useMemo(() => {
-    return { project, updateProject };
-  }, [project, updateProject]);
+    return { project, authorizations, updateProject };
+  }, [project, authorizations, updateProject]);
 
   return (
     <ProjectContext.Provider value={projectContextValue}>

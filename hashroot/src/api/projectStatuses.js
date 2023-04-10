@@ -39,7 +39,7 @@ export const gcRejectProposalApi = async (projectId, { comment }) => {
   const {
     data: { project },
   } = await http.patch(
-    `/projects/${projectId}/status/${PROJECT_STATUS_KEYS.READY_TO_BE_ASSIGNED_TO_GC}/rejected`,
+    `/projects/${projectId}/status/REJECTED/${PROJECT_STATUS_KEYS.READY_TO_BE_ASSIGNED_TO_GC}`,
     { comment }
   );
 
@@ -69,7 +69,7 @@ export const moveToOnSiteInspectionInProgressApi = async (
   const {
     data: { project },
   } = await http.patch(
-    `/projects/${projectId}/status/${PROJECT_STATUS_KEYS.ON_SITE_INSPECTION_IN_PROGRESS}}`,
+    `/projects/${projectId}/status/${PROJECT_STATUS_KEYS.ON_SITE_INSPECTION_IN_PROGRESS}`,
     {
       onSiteInspectionStartedOn,
     }
@@ -78,16 +78,46 @@ export const moveToOnSiteInspectionInProgressApi = async (
   return project;
 };
 
+export const moveToUpdatingProposalApi = async (projectId) => {
+  const {
+    data: { project },
+  } = await http.patch(
+    `/projects/${projectId}/status/${PROJECT_STATUS_KEYS.UPDATING_PROPOSAL}`
+  );
+
+  return project;
+};
+
+export const moveToReviewingProposalApi = async (projectId) => {
+  const {
+    data: { project },
+  } = await http.patch(
+    `/projects/${projectId}/status/${PROJECT_STATUS_KEYS.REVIEWING_PROPOSAL}`
+  );
+
+  return project;
+};
+
+export const moveToUpdatingProposalAfterRejectionApi = async (projectId) => {
+  const {
+    data: { project },
+  } = await http.patch(
+    `/projects/${projectId}/status/${PROJECT_STATUS_KEYS.REJECTED}/${PROJECT_STATUS_KEYS.UPDATING_PROPOSAL}`
+  );
+
+  return project;
+};
+
 export const moveToReadyForInstallationApi = async (
   projectId,
-  { scheduledInstallationDate }
+  { scheduledInstallationStartDate }
 ) => {
   const {
     data: { project },
   } = await http.patch(
     `/projects/${projectId}/status/${PROJECT_STATUS_KEYS.READY_FOR_INSTALLATION}`,
     {
-      scheduledInstallationDate,
+      scheduledInstallationStartDate,
     }
   );
 
@@ -101,7 +131,7 @@ export const moveToStartInstallationApi = async (
   const {
     data: { project },
   } = await http.patch(
-    `/projects/${projectId}/status/${PROJECT_STATUS_KEYS.INSTALLATION_IN_PROGRESS}`,
+    `/projects/${projectId}/status/${PROJECT_STATUS_KEYS.INSTALLATION_STARTED}`,
     {
       installationStartedOn,
     }
@@ -121,6 +151,26 @@ export const moveToValidatingPermitsApi = async (
     {
       installationCompletedOn,
     }
+  );
+
+  return project;
+};
+
+export const moveToClosingOutApi = async (projectId) => {
+  const {
+    data: { project },
+  } = await http.patch(
+    `/projects/${projectId}/status/${PROJECT_STATUS_KEYS.CLOSING_OUT}`
+  );
+
+  return project;
+};
+
+export const moveToCompleteApi = async (projectId) => {
+  const {
+    data: { project },
+  } = await http.patch(
+    `/projects/${projectId}/status/${PROJECT_STATUS_KEYS.COMPLETED}`
   );
 
   return project;

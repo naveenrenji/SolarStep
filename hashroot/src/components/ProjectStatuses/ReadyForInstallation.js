@@ -17,11 +17,18 @@ const ReadyForInstallation = () => {
     React.useState(false);
 
   const startInstallation = async () => {
-    console.log(project._id);
     return await moveToStartInstallationApi(project._id, {
       installationStartedOn: new Date(),
     });
   };
+
+  const hasMoveAccess = React.useMemo(() => {
+    return [
+      USER_ROLES.ADMIN,
+      USER_ROLES.SALES_REP,
+      USER_ROLES.GENERAL_CONTRACTOR,
+    ].includes(auth.user.role);
+  }, [auth.user.role]);
 
   return (
     <Card className="shadow-sm mt-3 h-100">
@@ -37,17 +44,13 @@ const ReadyForInstallation = () => {
         <Card.Text>The project is ready for installation.</Card.Text>
         <Card.Text>
           Installation Start Date:{" "}
-          {displayDate(project?.scheduledInstallationDate)}
+          {displayDate(project?.scheduledInstallationStartDate)}
         </Card.Text>
         {[USER_ROLES.WORKER, USER_ROLES.CUSTOMER].includes(auth.user.role) ? (
           <Card.Text>
             Please wait for the general contractor to start the installation
           </Card.Text>
-        ) : [
-            USER_ROLES.ADMIN,
-            USER_ROLES.GENERAL_CONTRACTOR,
-            USER_ROLES.SALES_REP,
-          ].includes(auth.user.role) ? (
+        ) : hasMoveAccess ? (
           <div style={{ textAlign: "center" }}>
             <Card.Text>
               Do you want to start the installation process?
@@ -73,11 +76,7 @@ const ReadyForInstallation = () => {
           <></>
         )}
       </Card.Body>
-      {[
-        USER_ROLES.ADMIN,
-        USER_ROLES.GENERAL_CONTRACTOR,
-        USER_ROLES.SALES_REP,
-      ].includes(auth.user.role) ? (
+      {hasMoveAccess ? (
         <Card.Footer>
           <div style={{ marginLeft: "auto", marginRight: 0, display: "block" }}>
             <SubmitButton

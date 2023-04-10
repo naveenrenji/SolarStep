@@ -39,7 +39,7 @@ const TaskListCard = ({ task, onTaskClick, onStatusChange, onDelete }) => {
   );
 
   const toBeCompletedIn = useMemo(() => {
-    return daysRemaining(new Date(task.expectedCompletionDate), new Date());
+    return daysRemaining(new Date(), new Date(task.expectedCompletionDate));
   }, [task]);
 
   const completedOn = useMemo(() => {
@@ -76,7 +76,7 @@ const TaskListCard = ({ task, onTaskClick, onStatusChange, onDelete }) => {
         </FormText>
         <br />
         <FormText>
-          <small>GC: {task.generalContractor.email}</small>
+          <small>Created By: {task?.createdBy?.email}</small>
         </FormText>
         <br />
         {task.status !== TASK_STATUSES.COMPLETED ? (

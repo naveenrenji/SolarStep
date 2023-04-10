@@ -22,6 +22,7 @@ export const PROJECT_STATUS_KEYS = {
   VALIDATING_PERMITS: "VALIDATING_PERMITS",
   CLOSING_OUT: "CLOSING_OUT",
   COMPLETED: "COMPLETED",
+  REJECTED: "REJECTED",
 };
 
 export const PROJECT_STATUSES = {
@@ -50,5 +51,6 @@ export const PROJECT_UPLOAD_TYPES = {
   contract: "contract",
   permit: "permit",
   inspection: "inspection",
+  invoice: "invoice",
   other: "other",
 };

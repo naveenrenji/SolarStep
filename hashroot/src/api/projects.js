@@ -59,3 +59,11 @@ export const signContractApi = async (projectId, documentId, body) => {
   } = await http.patch(`/projects/${projectId}/files/${documentId}/sign`, body);
   return project;
 };
+
+export const getProjectAuthorizationsApi = async (projectId) => {
+  const {
+    data: { authorizations },
+  } = await http.get(`/projects/${projectId}/authorizations`);
+
+  return authorizations;
+};

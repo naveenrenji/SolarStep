@@ -53,7 +53,11 @@ const Projects = () => {
       setProjects(response.projects);
       setTotalPages(response.totalPages);
     } catch (error) {
-      setError(error);
+      setError(
+        error?.response?.data?.message ||
+          error.message ||
+          "Could not get projects"
+      );
     } finally {
       setPageLoading(false);
       setLoading(false);
