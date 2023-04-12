@@ -1,6 +1,10 @@
 import { ObjectId } from "mongodb";
 import { PROJECT_STATUSES, TASK_STATUSES, USER_ROLES } from "./constants.js";
 
+const isUpperCase = (ch) => {
+  return ch.charCodeAt() >= 65 && ch.charCodeAt() <= 90;
+}
+
 const checkProjectStatus = (status, varName = "Project Status") => {
   status = checkString(status, varName);
   if (!Object.values(PROJECT_STATUSES).includes(status)) {
@@ -130,11 +134,12 @@ const checkPassword = (password) => {
   }
   let hasUpperCase = false;
   for (let i = 0; i < password.length; i++) {
-    if (password.charAt(i) === password.charAt(i).toUpperCase()) {
+    if (isUpperCase(password.charAt(i))) {
       hasUpperCase = true;
+      break;
     }
   }
-  if (!hasSpecialChar) {
+  if (!hasUpperCase) {
     throw "Password must have upper case.";
   }
   return password;
@@ -158,7 +163,7 @@ const checkRolesArray = (roles) => {
   });
 };
 
-const checkIdArray = (ids, varName) => {
+const checkIdArray = (ids, varName = "idArray") => {
   if (!Array.isArray(ids)) {
     throw new Error(`${varName} is not an array`);
   }
@@ -169,9 +174,9 @@ const checkIdArray = (ids, varName) => {
 };
 
 // checkId function checks whether the id parameter is provided, of type string and is not an empty string.
-const checkId = (id, varName) => {
+const checkId = (id, varName = "id") => {
   if (!id) throw `Error: You must provide a ${varName}`;
-  if (typeof id !== "string") throw `Error:${varName} must be a string`;
+  if (typeof id !== "string") throw `Error: ${varName} must be a string`;
   id = id.trim();
   if (id.length === 0)
     throw `Error: ${varName} cannot be an empty string or just spaces`;
