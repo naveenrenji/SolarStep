@@ -229,3 +229,17 @@ describe("checkId", () => {
     );
   });
 });
+
+describe("checkIdArray", () => {
+  it("should throw an error if idArray is not an Array", () => {
+    expect(() => helpers.checkIdArray(123)).toThrow(
+      "idArray is not an array"
+    );
+  });
+
+  it("should throw an error if idArray has invalid ids", () => {
+    expect(() => helpers.checkIdArray(["", "  "])).toThrow(
+      "Error: You must provide a id in idArray"
+    );
+  });
+});
