@@ -178,32 +178,32 @@ describe("checkPassword", () => {
   it("should throw an error if the password is an empty string", () => {
     expect(() => helpers.checkPassword("     ")).toThrow(
       "Password cannot be an empty string."
-    )
-  })
+    );
+  });
 
   it("should throw an error if the password has length less than 8", () => {
     expect(() => helpers.checkPassword("Abcd12@")).toThrow(
       "Password cannot be less than 8 digits."
-    )
-  })
-  
+    );
+  });
+
   it("should throw an error if the password does not have a number", () => {
     expect(() => helpers.checkPassword("Abcdefg@")).toThrow(
       "Password does not have a number."
-    )
-  })
+    );
+  });
 
   it("should throw an error if the password does not have a special character", () => {
     expect(() => helpers.checkPassword("Abcd1234")).toThrow(
       "Password must have special characters included."
-    )
-  })
+    );
+  });
 
   it("should throw an error if the password does not have an uppercase character", () => {
     expect(() => helpers.checkPassword("abcd1234@")).toThrow(
       "Password must have upper case."
-    )
-  })
+    );
+  });
 
   it("should return the string if valid", () => {
     expect(helpers.checkPassword("Abcd1234@")).toBe("Abcd1234@");
@@ -212,15 +212,11 @@ describe("checkPassword", () => {
 
 describe("checkId", () => {
   it("should throw an error if no id is provided", () => {
-    expect(() => helpers.checkId()).toThrow(
-      `Error: You must provide a id`
-    );
+    expect(() => helpers.checkId()).toThrow(`Error: You must provide a id`);
   });
 
   it("should throw an error if id is not a string", () => {
-    expect(() => helpers.checkId(123)).toThrow(
-      `Error: id must be a string`
-    );
+    expect(() => helpers.checkId(123)).toThrow(`Error: id must be a string`);
   });
 
   it("should throw an error if id is empty", () => {
@@ -232,14 +228,25 @@ describe("checkId", () => {
 
 describe("checkIdArray", () => {
   it("should throw an error if idArray is not an Array", () => {
-    expect(() => helpers.checkIdArray(123)).toThrow(
-      "idArray is not an array"
-    );
+    expect(() => helpers.checkIdArray(123)).toThrow("idArray is not an array");
   });
 
   it("should throw an error if idArray has invalid ids", () => {
     expect(() => helpers.checkIdArray(["", "  "])).toThrow(
       "Error: You must provide a id in idArray"
+    );
+  });
+});
+describe("checkEmail", () => {
+  it("should throw an error if email is not in email format", () => {
+    expect(() => helpers.checkEmail("solarstep")).toThrow(
+      "Invalid email address!"
+    );
+  });
+
+  it("should return the email is in email format", () => {
+    expect(helpers.checkEmail("admin@solarstep.com")).toBe(
+      "admin@solarstep.com"
     );
   });
 });
