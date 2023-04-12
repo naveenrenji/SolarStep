@@ -174,9 +174,9 @@ const checkIdArray = (ids, varName) => {
 };
 
 // checkId function checks whether the id parameter is provided, of type string and is not an empty string.
-const checkId = (id, varName) => {
+const checkId = (id, varName = "id") => {
   if (!id) throw `Error: You must provide a ${varName}`;
-  if (typeof id !== "string") throw `Error:${varName} must be a string`;
+  if (typeof id !== "string") throw `Error: ${varName} must be a string`;
   id = id.trim();
   if (id.length === 0)
     throw `Error: ${varName} cannot be an empty string or just spaces`;

@@ -209,3 +209,23 @@ describe("checkPassword", () => {
     expect(helpers.checkPassword("Abcd1234@")).toBe("Abcd1234@");
   });
 });
+
+describe("checkId", () => {
+  it("should throw an error if no id is provided", () => {
+    expect(() => helpers.checkId()).toThrow(
+      `Error: You must provide a id`
+    );
+  });
+
+  it("should throw an error if id is not a string", () => {
+    expect(() => helpers.checkId(123)).toThrow(
+      `Error: id must be a string`
+    );
+  });
+
+  it("should throw an error if id is empty", () => {
+    expect(() => helpers.checkId("   ")).toThrow(
+      `Error: id cannot be an empty string or just spaces`
+    );
+  });
+});
