@@ -1,5 +1,18 @@
 import { PROJECT_STATUSES, USER_ROLES } from "../constants.js";
 import * as helpers from "../helpers.js";
+import { userData } from "../data/index.js";
+
+let createdUser;
+beforeAll(async () => {
+  createdUser = await userData.createUser(
+    "Test",
+    "User",
+    "Abcd@1234",
+    "test@ss.com",
+    USER_ROLES.ADMIN,
+    { _id: 0 }
+  );
+});
 
 describe("checkProjectStatus", () => {
   it("should throw an error if status is not a string", () => {
