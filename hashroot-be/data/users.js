@@ -279,7 +279,7 @@ const loginUser = async (email, password) => {
       accessToken: jwt.sign({ id: user._id, email: user.email }, "secret"),
     };
   } else {
-    throw "Either the email or password is invalid";
+    throw "Password provided is invalid.";
   }
 };
 

@@ -4,7 +4,7 @@ import { checkId, checkPassword, checkString } from "../helpers.js";
 import { comparePasswords, hashPassword } from "./users.js";
 
 const updateUserById = async (user, updates) => {
-  checkId(user._id);
+  checkId(user._id, "userId");
   const { firstName, lastName, oldPassword, newPassword } = updates;
   checkString(firstName, "firstName");
   checkString(lastName, "lastName");
