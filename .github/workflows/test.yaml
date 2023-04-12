@@ -2,7 +2,7 @@ name: Node.js CI
 
 on:
   push:
-    branches: [mongo-db-test-setup]
+    branches: [dev]
   pull_request:
     branches: [dev]
 
@@ -21,7 +21,7 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: ${{ matrix.node-version }}
-       - name: Start MongoDB
+      - name: Start MongoDB
         uses: supercharge/mongodb-github-action@1.8.0
         with:
           mongodb-version: ${{ matrix.mongodb-version }}
