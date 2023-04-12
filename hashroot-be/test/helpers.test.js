@@ -250,3 +250,56 @@ describe("checkEmail", () => {
     );
   });
 });
+
+describe("checkAddress", () => {
+  it("should throw an error if address does not have streetAddress", () => {
+    let address = {};
+    address.zipCode = "07030";
+    address.city = "Hoboken";
+    address.state = "NJ";
+    expect(() => helpers.checkAddress(address)).toThrow(
+      "Error: Street Address is required"
+    );
+  });
+
+  it("should throw an error if address does not have zipCode", () => {
+    let address = {};
+    address.streetAddress = "Somewhere";
+    address.city = "Hoboken";
+    address.state = "NJ";
+    expect(() => helpers.checkAddress(address)).toThrow(
+      "Error: Zip Code is required"
+    );
+  });
+
+  it("should throw an error if address does not have city", () => {
+    let address = {};
+    address.streetAddress = "Somewhere";
+    address.zipCode = "07030";
+    address.state = "NJ";
+    expect(() => helpers.checkAddress(address)).toThrow(
+      "Error: City is required"
+    );
+  });
+
+  it("should throw an error if address does not have state", () => {
+    let address = {};
+    address.streetAddress = "Somewhere";
+    address.zipCode = "07030";
+    address.city = "Hoboken";
+    expect(() => helpers.checkAddress(address)).toThrow(
+      "Error: State is required"
+    );
+  });
+
+  it("should return the email is in email format", () => {
+    let address = {};
+    address.streetAddress = "Somewhere";
+    address.zipCode = "07030";
+    address.city = "Hoboken";
+    address.state = "NJ";
+    expect(helpers.checkAddress(address)).toBe(
+      address
+    );
+  });
+});
