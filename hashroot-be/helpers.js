@@ -163,7 +163,7 @@ const checkRolesArray = (roles) => {
   });
 };
 
-const checkIdArray = (ids, varName) => {
+const checkIdArray = (ids, varName = "idArray") => {
   if (!Array.isArray(ids)) {
     throw new Error(`${varName} is not an array`);
   }
