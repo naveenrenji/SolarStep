@@ -305,7 +305,7 @@ describe("checkAddress", () => {
     );
   });
 
-  it("should return the email is in email format", () => {
+  it("should return the address if address is valid", () => {
     let address = {};
     address.streetAddress = "Somewhere";
     address.zipCode = "07030";
