@@ -161,3 +161,51 @@ describe("checkString", () => {
     expect(helpers.checkString("test")).toBe("test");
   });
 });
+
+describe("checkPassword", () => {
+  it("should throw an error if there is no password", () => {
+    expect(() => helpers.checkPassword()).toThrow(
+      "You must provide a password for the user."
+    );
+  });
+
+  it("should throw an error if password is not a string", () => {
+    expect(() => helpers.checkPassword(123)).toThrow(
+      "Password must be of type string."
+    );
+  });
+
+  it("should throw an error if the password is an empty string", () => {
+    expect(() => helpers.checkPassword("     ")).toThrow(
+      "Password cannot be an empty string."
+    )
+  })
+
+  it("should throw an error if the password has length less than 8", () => {
+    expect(() => helpers.checkPassword("Abcd12@")).toThrow(
+      "Password cannot be less than 8 digits."
+    )
+  })
+  
+  it("should throw an error if the password does not have a number", () => {
+    expect(() => helpers.checkPassword("Abcdefg@")).toThrow(
+      "Password does not have a number."
+    )
+  })
+
+  it("should throw an error if the password does not have a special character", () => {
+    expect(() => helpers.checkPassword("Abcd1234")).toThrow(
+      "Password must have special characters included."
+    )
+  })
+
+  it("should throw an error if the password does not have an uppercase character", () => {
+    expect(() => helpers.checkPassword("abcd1234@")).toThrow(
+      "Password must have upper case."
+    )
+  })
+
+  it("should return the string if valid", () => {
+    expect(helpers.checkPassword("Abcd1234@")).toBe("Abcd1234@");
+  });
+});

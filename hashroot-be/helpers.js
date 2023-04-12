@@ -1,6 +1,10 @@
 import { ObjectId } from "mongodb";
 import { PROJECT_STATUSES, TASK_STATUSES, USER_ROLES } from "./constants.js";
 
+const isUpperCase = (ch) => {
+  return ch.charCodeAt() >= 65 && ch.charCodeAt() <= 90;
+}
+
 const checkProjectStatus = (status, varName = "Project Status") => {
   status = checkString(status, varName);
   if (!Object.values(PROJECT_STATUSES).includes(status)) {
@@ -130,11 +134,12 @@ const checkPassword = (password) => {
   }
   let hasUpperCase = false;
   for (let i = 0; i < password.length; i++) {
-    if (password.charAt(i) === password.charAt(i).toUpperCase()) {
+    if (isUpperCase(password.charAt(i))) {
       hasUpperCase = true;
+      break;
     }
   }
-  if (!hasSpecialChar) {
+  if (!hasUpperCase) {
     throw "Password must have upper case.";
   }
   return password;
