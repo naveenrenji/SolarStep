@@ -10,7 +10,7 @@ import { getPaginatedProjectsApi } from "../../api/projects";
 const CustomOption = (props) => (
   <div ref={props.innerRef} {...props.innerProps}>
     <div style={{ padding: "8px" }}>
-      <p style={{ marginBottom: 0 }}>{props.data.label}</p>
+      <p style={{ marginBottom: 0 }}>ID: {props.data.label}</p>
       {props.data.projectName ? (
         <small style={{ color: "grey" }}>{props.data.projectName}</small>
       ) : (
@@ -75,7 +75,7 @@ const ProjectSelect = ({
       });
 
       return projects.map((opt) => ({
-        label: opt.projectName || opt._id,
+        label: opt._id,
         projectName: opt.projectName,
         value: opt._id,
       }));
