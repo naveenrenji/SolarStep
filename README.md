@@ -2,14 +2,14 @@
 
 ## Team
 - Anirudh Chintha
-- Anmol Agarwal
+- Anmol Agrawal
 - Atishay Jain
 - Naveen Mathews Renji
 - Rajguru Gandhinathan
 - Vaibhav Chauthe
 
 ## Professor
-Zhongyuan Yu
+Dr. Zhongyuan Yu
 
 ## Clients
 - Hester Li
