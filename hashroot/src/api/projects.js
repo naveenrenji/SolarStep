@@ -60,3 +60,12 @@ export const getProjectAuthorizationsApi = async (projectId) => {
 
   return authorizations;
 };
+
+
+export const getProjectEnergyUsageApi = async (projectId) => {
+  const {
+    data: { project },
+  } = await http.get(`/projects/${projectId}/energy-usage`);
+
+  return project;
+};
