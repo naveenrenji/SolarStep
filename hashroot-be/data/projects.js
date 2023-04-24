@@ -231,9 +231,23 @@ const getAuthorizations = (currentUser) => {
   );
 };
 
+const getCompletedProjects = async (currentUser) => {
+  if (!currentUser) throw "User not logged in";
+
+  const projectCollection = await projects();
+  let completedProjects = [];
+  for (let project in projectCollection) {
+    if (project.status === "COMPLETED") {
+      completedProjects.concat(project);
+    }
+  }
+  return completedProjects;
+};
+
 export {
   createProject,
   projects,
+  getCompletedProjects,
   getProjectById,
   getPaginatedProjects,
   signDocument,
