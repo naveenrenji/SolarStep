@@ -18,6 +18,7 @@ import { CreateUser, Users } from "./components/Users";
 import { CreateTask, Tasks } from "./components/Tasks";
 import ProjectLayout from "./hoc/ProjectLayout";
 import TaskLayout from "./hoc/TaskLayout";
+import ProjectDashboard from "./components/ProjectDashbaord";
 
 function App() {
   return (
@@ -81,6 +82,7 @@ function App() {
                 </RequiresAuth>
               }
             />
+            <Route path="dashboard" element={<ProjectDashboard />} />
             <Route
               path=":projectId"
               element={
