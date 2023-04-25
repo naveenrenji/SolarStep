@@ -231,9 +231,33 @@ const getAuthorizations = (currentUser) => {
   );
 };
 
+const getCompletedProjects = async (currentUser) => {
+  if (!currentUser) throw "User not logged in";
+
+  const projectCollection = await projects();
+  let completedProjects = [];
+  for (let project in projectCollection) {
+    if (project.status === "COMPLETED") {
+      completedProjects.concat(project);
+    }
+  }
+  return completedProjects;
+};
+
+const getEnergyUsage = async (currentUser, id) => {
+  if (!currentUser) throw "User not logged in";
+
+  const project = await getProjectById(currentUser, id);
+  const energyUsed = {kwhUsed: 1000, solarCost: 20, traditionalCost: 50};
+
+  return { ...project, energyUsed};
+};
+
 export {
   createProject,
   projects,
+  getCompletedProjects,
+  getEnergyUsage,
   getProjectById,
   getPaginatedProjects,
   signDocument,
