@@ -1,0 +1,42 @@
+.homepage {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .primary-image-container {
+    width: 100%;
+    overflow: hidden;
+  }
+  
+  .primary-image {
+    width: 100%;
+    object-fit: cover;
+  }
+  
+  .text-center {
+    margin: 20px;
+    font-size: 1.5rem;
+  }
+  
+  .image-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 15px;
+  }
+  
+  .secondary-image {
+    width: 100%;
+    object-fit: cover;
+  }
+  
+  .info-image-container {
+    margin: 20px;
+    max-width: 800px;
+  }
+  
+  .info-image {
+    width: 100%;
+    object-fit: contain;
+  }
+  
