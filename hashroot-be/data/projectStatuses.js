@@ -11,7 +11,6 @@ import {
   USER_ROLES,
 } from "../constants.js";
 import { checkProjectStatus } from "../helpers.js";
-import { getProjectById } from "./projects.js";
 import { getAllTasks } from "./tasks.js";
 
 const createProjectLog = async (
@@ -50,6 +49,38 @@ const createProjectLog = async (
   return true;
 };
 
+const updateProjectStatus = async (
+  currentUser,
+  project,
+  status,
+  updates = {}
+) => {
+  if (!currentUser) throw "User not logged in";
+  
+  const projectCollections = await projects();
+  const updateFields = {
+    ...updates,
+    status: status,
+    updatedAt: new Date(),
+  };
+
+  const updatedProject = await projectCollections.findOneAndUpdate(
+    { _id: new ObjectId(project._id) },
+    {
+      $set: updateFields,
+    },
+    { returnDocument: "after" }
+  );
+
+  if (!updatedProject.value) {
+    throw new Error(`Failed to update project to ${status} status`);
+  }
+
+  await createProjectLog(currentUser, project, project.status, status);
+
+  return updatedProject.value;
+};
+
 const updateProjectStatusToAssignedToGC = async (
   currentUser,
   project,
@@ -68,32 +99,14 @@ const updateProjectStatusToAssignedToGC = async (
 
   const status = PROJECT_STATUSES.ASSIGNED_TO_GC;
 
-  let projectCollections = await projects();
-  const updatedProject = await projectCollections.findOneAndUpdate(
-    { _id: new ObjectId(project._id) },
-    {
-      $set: {
-        status: status,
-        generalContractor: {
-          _id: new ObjectId(gc._id),
-          email: gc.email,
-        },
-        updatedAt: new Date(),
-      },
+  const updates = {
+    generalContractor: {
+      _id: new ObjectId(gc._id),
+      email: gc.email,
     },
-    { returnDocument: "after" }
-  );
-  if (!updatedProject.value) {
-    throw new Error("Failed to update project");
-  }
-  await createProjectLog(
-    currentUser,
-    project,
-    project.status,
-    PROJECT_STATUSES.ASSIGNED_TO_GC
-  );
+  };
 
-  return updatedProject.value;
+  return await updateProjectStatus(currentUser, project, status, updates);
 };
 
 const acceptProjectByGC = async (currentUser, project) => {
@@ -111,55 +124,18 @@ const acceptProjectByGC = async (currentUser, project) => {
   }
   const status = PROJECT_STATUSES.GC_ACCEPTED;
 
-  let projectCollections = await projects();
-  const updatedProjectLog = await projectCollections.findOneAndUpdate(
-    { _id: new ObjectId(project._id) },
-    {
-      $set: {
-        status: status,
-      },
-    },
-    { returnDocument: "after" }
-  );
-  if (updatedProjectLog.lastErrorObject.n !== 1 || !updatedProjectLog.value) {
-    throw new Error("Status for GC Accepted could not be changed.");
-  }
-
-  await createProjectLog(currentUser, project, project.status, status);
-
-  const updatedProject = await getProjectById(
-    currentUser,
-    project._id.toString()
-  );
-  return updatedProject;
+  return await updateProjectStatus(currentUser, project, status);
 };
 
 const rejectProjectByGC = async (currentUser, project, comment) => {
   if (!currentUser) throw new Error("User not logged in");
   const status = PROJECT_STATUSES.READY_TO_BE_ASSIGNED_TO_GC;
 
-  let projectCollections = await projects();
-  const updatedProjectLog = await projectCollections.findOneAndUpdate(
-    { _id: new ObjectId(project._id) },
-    {
-      $set: {
-        status: status,
-        generalContractor: {},
-      },
-    },
-    { returnDocument: "after" }
-  );
-  if (updatedProjectLog.lastErrorObject.n !== 1 || !updatedProjectLog.value) {
-    throw new Error("Status for Project Rejected by GC could not be changed.");
-  }
+  const updates = {
+    generalContractor: {},
+  };
 
-  await createProjectLog(currentUser, project, project.status, status, comment);
-
-  const updatedProject = await getProjectById(
-    currentUser,
-    project._id.toString()
-  );
-  return updatedProject;
+  return await updateProjectStatus(currentUser, project, status, updates);
 };
 
 const moveToReadyToBeAssignedToGC = async (currentUser, project) => {
@@ -177,83 +153,9 @@ const moveToReadyToBeAssignedToGC = async (currentUser, project) => {
   }
   const status = PROJECT_STATUSES.READY_TO_BE_ASSIGNED_TO_GC;
 
-  let projectCollections = await projects();
-  const updatedProjectLog = await projectCollections.findOneAndUpdate(
-    { _id: new ObjectId(project._id) },
-    {
-      $set: {
-        status: status,
-      },
-    },
-    { returnDocument: "after" }
-  );
-  if (updatedProjectLog.lastErrorObject.n !== 1 || !updatedProjectLog.value) {
-    throw new Error(
-      "Status for Ready to be Assigned to GC could not be changed."
-    );
-  }
-
-  const updatedProject = await getProjectById(
-    currentUser,
-    project._id.toString()
-  );
-  return updatedProject;
+  return await updateProjectStatus(currentUser, project, status);
 };
 
-const moveToOnSiteInspectionScheduled = async (
-  currentUser,
-  project,
-  onSiteInspectionDate
-) => {
-  if (!currentUser) throw "User not logged in";
-  const status = PROJECT_STATUSES.ON_SITE_INSPECTION_SCHEDULED;
-
-  let projectCollections = await projects();
-  const updatedProjectLog = await projectCollections.findOneAndUpdate(
-    { _id: new ObjectId(project._id) },
-    {
-      $set: {
-        status: status,
-        onSiteInspectionDate: new Date(onSiteInspectionDate),
-      },
-    },
-    { returnDocument: "after" }
-  );
-  if (updatedProjectLog.lastErrorObject.n !== 1 || !updatedProjectLog.value) {
-    throw new Error("Status for On-Site Inspection could not be changed.");
-  }
-
-  const updatedProject = await getProjectById(
-    currentUser,
-    project._id.toString()
-  );
-  return updatedProject;
-};
-
-const moveToOnSiteInspectionInProgress = async (currentUser, project) => {
-  if (!currentUser) throw "User not logged in";
-  const status = PROJECT_STATUSES.ON_SITE_INSPECTION_IN_PROGRESS;
-
-  let projectCollections = await projects();
-  const updatedProjectLog = await projectCollections.findOneAndUpdate(
-    { _id: new ObjectId(project._id) },
-    {
-      $set: {
-        status: status,
-        onSiteInspectionStartedOn: new Date(),
-      },
-    },
-    { returnDocument: "after" }
-  );
-  if (updatedProjectLog.lastErrorObject.n !== 1 || !updatedProjectLog.value) {
-    throw new Error("Status for On-Site Inspection could not be changed.");
-  }
-  const updatedProject = await getProjectById(
-    currentUser,
-    project._id.toString()
-  );
-  return updatedProject;
-};
 
 const moveToReviewingProposal = async (currentUser, project) => {
   if (!currentUser) throw "User not logged in";
@@ -270,48 +172,79 @@ const moveToReviewingProposal = async (currentUser, project) => {
   }
   const status = PROJECT_STATUSES.REVIEWING_PROPOSAL;
 
-  let projectCollections = await projects();
-  const updatedProjectLog = await projectCollections.findOneAndUpdate(
-    { _id: new ObjectId(project._id) },
-    {
-      $set: {
-        status: status,
-      },
-    },
-    { returnDocument: "after" }
-  );
-  if (updatedProjectLog.lastErrorObject.n !== 1 || !updatedProjectLog.value) {
-    throw new Error("Status for Reviewing Proposal could not be changed.");
-  }
-  const updatedProject = await getProjectById(
-    currentUser,
-    project._id.toString()
-  );
-  return updatedProject;
+  return await updateProjectStatus(currentUser, project, status);
 };
 
 const moveToUpdatingProposal = async (currentUser, project) => {
   if (!currentUser) throw "User not logged in";
   const status = PROJECT_STATUSES.UPDATING_PROPOSAL;
 
-  let projectCollections = await projects();
-  const updatedProjectLog = await projectCollections.findOneAndUpdate(
-    { _id: new ObjectId(project._id) },
-    {
-      $set: {
-        status: status,
-      },
-    },
-    { returnDocument: "after" }
-  );
-  if (updatedProjectLog.lastErrorObject.n !== 1 || !updatedProjectLog.value) {
-    throw new Error("Status for Updating Proposal could not be changed.");
+  return await updateProjectStatus(currentUser, project, status);
+};
+
+
+const moveToInstallationStarted = async (currentUser, project) => {
+  if (!currentUser) throw "User not logged in";
+  if (
+    !project.documents.find(
+      (doc) =>
+        doc.type === PROJECT_UPLOAD_TYPES.contract &&
+        doc.latest &&
+        doc.customerSign &&
+        doc.generalContractorSign
+    )
+  ) {
+    throw new Error("Contract not signed by customer or General contractor");
   }
-  const updatedProject = await getProjectById(
-    currentUser,
-    project._id.toString()
-  );
-  return updatedProject;
+  const status = PROJECT_STATUSES.INSTALLATION_STARTED;
+
+  return await updateProjectStatus(currentUser, project, status);
+};
+
+const projectComplete = async (currentUser, project) => {
+  if (!currentUser) throw "User not logged in";
+
+  const status = PROJECT_STATUSES.COMPLETED;
+
+  if (project.status === status) {
+    throw "Project status is already completed";
+  }
+
+  return await updateProjectStatus(currentUser, project, status);
+};
+
+const projectClosingOut = async (currentUser, project) => {
+  if (!currentUser) throw "User not logged in";
+
+  const status = PROJECT_STATUSES.CLOSING_OUT;
+
+  return await updateProjectStatus(currentUser, project, status);
+};
+
+const moveToOnSiteInspectionScheduled = async (
+  currentUser,
+  project,
+  onSiteInspectionDate
+) => {
+  if (!currentUser) throw "User not logged in";
+  const status = PROJECT_STATUSES.ON_SITE_INSPECTION_SCHEDULED;
+
+  const updates = {
+    onSiteInspectionDate: new Date(onSiteInspectionDate),
+  };
+
+  return await updateProjectStatus(currentUser, project, status, updates);
+};
+
+const moveToOnSiteInspectionInProgress = async (currentUser, project) => {
+  if (!currentUser) throw "User not logged in";
+  const status = PROJECT_STATUSES.ON_SITE_INSPECTION_IN_PROGRESS;
+
+  const updates = {
+    onSiteInspectionStartedOn: new Date(),
+  };
+
+  return await updateProjectStatus(currentUser, project, status, updates);
 };
 
 const moveToReadyForInstallation = async (
@@ -333,121 +266,11 @@ const moveToReadyForInstallation = async (
   }
   const status = PROJECT_STATUSES.READY_FOR_INSTALLATION;
 
-  let projectCollections = await projects();
-  const updatedProjectLog = await projectCollections.findOneAndUpdate(
-    { _id: new ObjectId(project._id) },
-    {
-      $set: {
-        status: status,
-        scheduledInstallationStartDate: new Date(
-          scheduledInstallationStartDate
-        ),
-      },
-    },
-    { returnDocument: "after" }
-  );
-  if (updatedProjectLog.lastErrorObject.n !== 1 || !updatedProjectLog.value) {
-    throw new Error("Status for scheduling Installation could not be changed.");
-  }
-  const updatedProject = await getProjectById(
-    currentUser,
-    project._id.toString()
-  );
-  return updatedProject;
-};
+  const updates = {
+    scheduledInstallationStartDate: new Date(scheduledInstallationStartDate),
+  };
 
-const moveToInstallationStarted = async (currentUser, project) => {
-  if (!currentUser) throw "User not logged in";
-  if (
-    !project.documents.find(
-      (doc) =>
-        doc.type === PROJECT_UPLOAD_TYPES.contract &&
-        doc.latest &&
-        doc.customerSign &&
-        doc.generalContractorSign
-    )
-  ) {
-    throw new Error("Contract not signed by customer or General contractor");
-  }
-  const status = PROJECT_STATUSES.INSTALLATION_STARTED;
-
-  let projectCollections = await projects();
-  const updatedProjectLog = await projectCollections.findOneAndUpdate(
-    { _id: new ObjectId(project._id) },
-    {
-      $set: {
-        status: status,
-        installationStartedOn: new Date(),
-      },
-    },
-    { returnDocument: "after" }
-  );
-  if (updatedProjectLog.lastErrorObject.n !== 1 || !updatedProjectLog.value) {
-    throw new Error("Status for installation started could not be changed.");
-  }
-  const updatedProject = await getProjectById(
-    currentUser,
-    project._id.toString()
-  );
-  return updatedProject;
-};
-
-const projectComplete = async (currentUser, project) => {
-  if (!currentUser) throw "User not logged in";
-
-  const status = PROJECT_STATUSES.COMPLETED;
-
-  if (project.status === status) {
-    throw "Project status is already completed";
-  }
-
-  let projectCollections = await projects();
-  const updatedProjectLog = await projectCollections.findOneAndUpdate(
-    { _id: new ObjectId(project._id) },
-    {
-      $set: {
-        status: status,
-        completedAt: new Date(),
-      },
-    },
-    { returnDocument: "after" }
-  );
-
-  if (updatedProjectLog.lastErrorObject.n !== 1 || !updatedProjectLog.value) {
-    throw new Error("Status for Projects could not be changed to Completed.");
-  }
-
-  const updatedProject = await getProjectById(
-    currentUser,
-    project._id.toString()
-  );
-  return updatedProject;
-};
-
-const projectClosingOut = async (currentUser, project) => {
-  if (!currentUser) throw "User not logged in";
-
-  const status = PROJECT_STATUSES.CLOSING_OUT;
-
-  let projectCollections = await projects();
-  const updatedProjectLog = await projectCollections.findOneAndUpdate(
-    { _id: new ObjectId(project._id) },
-    {
-      $set: {
-        status: status,
-      },
-    },
-    { returnDocument: "after" }
-  );
-  if (updatedProjectLog.lastErrorObject.n !== 1 || !updatedProjectLog.value) {
-    throw new Error("Status for Projects could not be changed to Closing Out.");
-  }
-  const updatedProject = await getProjectById(
-    currentUser,
-    project._id.toString()
-  );
-
-  return updatedProject;
+  return await updateProjectStatus(currentUser, project, status, updates);
 };
 
 const projectValidatingPermits = async (currentUser, project) => {
@@ -464,28 +287,13 @@ const projectValidatingPermits = async (currentUser, project) => {
 
   const status = PROJECT_STATUSES.VALIDATING_PERMITS;
 
-  let projectCollections = await projects();
-  const updatedProjectLog = await projectCollections.findOneAndUpdate(
-    { _id: new ObjectId(project._id) },
-    {
-      $set: {
-        status: status,
-        installationCompletedAt: new Date(),
-      },
-    },
-    { returnDocument: "after" }
-  );
+  const updates = {
+    installationCompletedAt: new Date(),
+  };
 
-  if (updatedProjectLog.lastErrorObject.n !== 1 || !updatedProjectLog.value) {
-    throw new Error("Status for On-Site Inspection could not be changed.");
-  }
-
-  const updatedProject = await getProjectById(
-    currentUser,
-    project._id.toString()
-  );
-  return updatedProject;
+  return await updateProjectStatus(currentUser, project, status, updates);
 };
+
 
 export {
   createProjectLog,
