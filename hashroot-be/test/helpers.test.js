@@ -120,7 +120,7 @@ describe("canViewProject", () => {
     ).toBe(false);
   });
 
-  it("should return true if currentUser is worker and currentUser's ID matches a worker's ID in project's workers array", () => {
+  it("should return true if currentUser is worker and currentUser's ID matches a worker's ID in project's workers array with status INSTALLATION_STARTED", () => {
     expect(
       helpers.canViewProject(
         {
@@ -128,6 +128,7 @@ describe("canViewProject", () => {
           _id: "123",
         },
         {
+          status: PROJECT_STATUSES.INSTALLATION_STARTED,
           workers: [
             {
               _id: "123",
@@ -136,6 +137,25 @@ describe("canViewProject", () => {
         }
       )
     ).toBe(true);
+  });
+
+  it("should return false if currentUser is worker and currentUser's ID matches a worker's ID in project's workers array when status is something else", () => {
+    expect(
+      helpers.canViewProject(
+        {
+          role: USER_ROLES.WORKER,
+          _id: "123",
+        },
+        {
+          status: PROJECT_STATUSES.VALIDATING_PERMITS,
+          workers: [
+            {
+              _id: "123",
+            },
+          ],
+        }
+      )
+    ).toBe(false);
   });
 
   it("should return false if currentUser is worker and currentUser's ID does not match a worker's ID in project's workers array", () => {
@@ -311,8 +331,6 @@ describe("checkAddress", () => {
     address.zipCode = "07030";
     address.city = "Hoboken";
     address.state = "NJ";
-    expect(helpers.checkAddress(address)).toBe(
-      address
-    );
+    expect(helpers.checkAddress(address)).toBe(address);
   });
 });
