@@ -82,7 +82,21 @@ function App() {
                 </RequiresAuth>
               }
             />
-            <Route path="dashboard" element={<ProjectDashboard />} />
+            <Route
+              path="dashboard"
+              element={
+                <RequiresAuth
+                  roles={[
+                    USER_ROLES.SALES_REP,
+                    USER_ROLES.ADMIN,
+                    USER_ROLES.CUSTOMER,
+                    USER_ROLES.GENERAL_CONTRACTOR,
+                  ]}
+                >
+                  <ProjectDashboard />
+                </RequiresAuth>
+              }
+            />
             <Route
               path=":projectId"
               element={

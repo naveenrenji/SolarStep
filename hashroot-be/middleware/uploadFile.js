@@ -2,11 +2,12 @@ import util from "util";
 import multer from "multer";
 import { GridFsStorage } from "multer-gridfs-storage";
 import { mongoConfig } from "../config/settings.js";
+import { dbConnection } from "../config/mongoConnection.js";
 
 const maxSize = 2 * 1024 * 1024;
 
 let storage = new GridFsStorage({
-  url: mongoConfig.serverUrl + mongoConfig.database,
+  db: dbConnection(),
   options: { useNewUrlParser: true, useUnifiedTopology: true },
   file: (_, file) => {
     return {
