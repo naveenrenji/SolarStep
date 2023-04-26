@@ -22,6 +22,20 @@ const ProjectsCard = () => {
             <LinkContainer to="/projects">
               <Button variant="primary">View Projects</Button>
             </LinkContainer>
+            {[
+              USER_ROLES.ADMIN,
+              USER_ROLES.SALES_REP,
+              USER_ROLES.CUSTOMER,
+            ].includes(auth.user.role) ? (
+              <LinkContainer
+                to={`/projects/dashboard`}
+                style={{ marginLeft: "12px" }}
+              >
+                <Button variant="secondary">View Completed Projects</Button>
+              </LinkContainer>
+            ) : (
+              <></>
+            )}
           </div>
           {[USER_ROLES.ADMIN, USER_ROLES.SALES_REP].includes(auth.user.role) ? (
             <div>

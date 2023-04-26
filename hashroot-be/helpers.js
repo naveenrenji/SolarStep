@@ -3,7 +3,7 @@ import { PROJECT_STATUSES, TASK_STATUSES, USER_ROLES } from "./constants.js";
 
 const isUpperCase = (ch) => {
   return ch.charCodeAt() >= 65 && ch.charCodeAt() <= 90;
-}
+};
 
 const checkProjectStatus = (status, varName = "Project Status") => {
   status = checkString(status, varName);
@@ -27,8 +27,10 @@ const canViewProject = (currentUser, project) => {
         currentUser._id.toString() === project.generalContractor._id.toString()
       );
     case USER_ROLES.WORKER:
-      return !!project.workers.find(
-        (worker) => worker._id.toString() === currentUser._id
+      return (
+        !!project.workers.find(
+          (worker) => worker._id.toString() === currentUser._id
+        ) && project.status === PROJECT_STATUSES.INSTALLATION_STARTED
       );
     default:
       return false;

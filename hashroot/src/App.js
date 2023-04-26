@@ -18,6 +18,7 @@ import { CreateUser, Users } from "./components/Users";
 import { CreateTask, Tasks } from "./components/Tasks";
 import ProjectLayout from "./hoc/ProjectLayout";
 import TaskLayout from "./hoc/TaskLayout";
+import ProjectDashboard from "./components/ProjectDashbaord";
 
 function App() {
   return (
@@ -78,6 +79,21 @@ function App() {
               element={
                 <RequiresAuth roles={[USER_ROLES.SALES_REP, USER_ROLES.ADMIN]}>
                   <CreateProject />
+                </RequiresAuth>
+              }
+            />
+            <Route
+              path="dashboard"
+              element={
+                <RequiresAuth
+                  roles={[
+                    USER_ROLES.SALES_REP,
+                    USER_ROLES.ADMIN,
+                    USER_ROLES.CUSTOMER,
+                    USER_ROLES.GENERAL_CONTRACTOR,
+                  ]}
+                >
+                  <ProjectDashboard />
                 </RequiresAuth>
               }
             />

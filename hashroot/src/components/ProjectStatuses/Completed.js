@@ -5,13 +5,11 @@ import { LinkContainer } from "react-router-bootstrap";
 
 import { USER_ROLES } from "../../constants";
 import useAuth from "../../hooks/useAuth";
-import useProject from "../../hooks/useProject";
 
 // TODO: Build Dashboard page(Sprint 4?)
 
 const Completed = () => {
   const auth = useAuth();
-  const { project } = useProject();
 
   return (
     <Card className="shadow-sm mt-3 h-100">
@@ -34,7 +32,7 @@ const Completed = () => {
             <Card.Text>
               Click the button below to view the project dashboard
             </Card.Text>
-            <LinkContainer to={`/projects/${project._id}/dashboard`}>
+            <LinkContainer to={`/projects/dashboard`}>
               <Button variant="link">View Dashboard</Button>
             </LinkContainer>
           </div>

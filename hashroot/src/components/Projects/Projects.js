@@ -95,10 +95,14 @@ const Projects = () => {
             createButtonText="+ Create a project"
             createLink="/projects/create"
             onSearch={handleSubmit}
-            options={Object.values(PROJECT_STATUSES).map((status) => ({
-              label: status,
-              value: status,
-            }))}
+            options={
+              auth.user.role === USER_ROLES.WORKER
+                ? []
+                : Object.values(PROJECT_STATUSES).map((status) => ({
+                    label: status,
+                    value: status,
+                  }))
+            }
             hideCreateLink={
               ![USER_ROLES.ADMIN, USER_ROLES.SALES_REP].includes(auth.user.role)
             }
@@ -117,7 +121,24 @@ const Projects = () => {
               {projects.length ? (
                 projects.map((project) => (
                   <tr key={project._id}>
-                    <td>{project._id}</td>
+                    <td>
+                      <LinkContainer
+                        to={
+                          project.status === PROJECT_STATUSES.COMPLETED
+                            ? `/projects/dashboard`
+                            : `/projects/${project._id}`
+                        }
+                      >
+                        <Button
+                          variant="link"
+                          title="Edit"
+                          className="m-1 p-0"
+                          style={{ cursor: "pointer" }}
+                        >
+                          {project._id}
+                        </Button>
+                      </LinkContainer>
+                    </td>
                     <td>{project.projectName}</td>
                     <td>{project.address?.streetAddress}</td>
                     <td>{project.user.email}</td>

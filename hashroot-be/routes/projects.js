@@ -96,4 +96,26 @@ router
     }
   });
 
+router
+  .route("/:projectId/energy-usage")
+  .get(
+    authorizeRequest([
+      USER_ROLES.ADMIN,
+      USER_ROLES.CUSTOMER,
+      USER_ROLES.SALES_REP,
+    ]),
+    authenticateProject,
+    async (req, res) => {
+      try {
+        const project = await projectsData.getEnergyUsage(
+          req.user,
+          req.params.projectId
+        );
+        res.json({ project });
+      } catch (error) {
+        res.status(400).json({ error: error?.toString() });
+      }
+    }
+  );
+
 export default router;

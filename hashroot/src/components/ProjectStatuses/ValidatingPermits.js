@@ -9,8 +9,6 @@ import ConfirmationModal from "../shared/ConfirmationModal";
 import SubmitButton from "../shared/SubmitButton";
 import { moveToClosingOutApi } from "../../api/projectStatuses";
 
-// TODO: Update this code to include permit documents to be uploaded
-
 const ValidatingPermits = () => {
   const auth = useAuth();
   const { project, updateProject } = useProject();
@@ -22,11 +20,7 @@ const ValidatingPermits = () => {
   };
 
   const hasMoveAccess = React.useMemo(() => {
-    return [
-      USER_ROLES.ADMIN,
-      USER_ROLES.GENERAL_CONTRACTOR,
-      USER_ROLES.SALES_REP,
-    ].includes(auth.user.role);
+    return [USER_ROLES.ADMIN, USER_ROLES.SALES_REP].includes(auth.user.role);
   }, [auth.user.role]);
 
   return (

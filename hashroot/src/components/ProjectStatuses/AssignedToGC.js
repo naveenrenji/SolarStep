@@ -56,9 +56,11 @@ const AssignedToGC = () => {
   };
 
   const hasMoveAccess = React.useMemo(() => {
-    return [USER_ROLES.ADMIN, USER_ROLES.GENERAL_CONTRACTOR].includes(
-      auth.user.role
-    );
+    return [
+      USER_ROLES.ADMIN,
+      USER_ROLES.GENERAL_CONTRACTOR,
+      USER_ROLES.SALES_REP,
+    ].includes(auth.user.role);
   }, [auth.user.role]);
 
   return (

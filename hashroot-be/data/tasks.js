@@ -12,8 +12,6 @@ const getAllTasks = async (currentUser, projectId) => {
   const findQuery = { projectId: new ObjectId(projectId) };
   if (currentUser.role === USER_ROLES.WORKER) {
     findQuery["workers._id"] = new ObjectId(currentUser._id);
-  } else if (currentUser.role === USER_ROLES.GENERAL_CONTRACTOR) {
-    findQuery["generalContractor._id"] = new ObjectId(currentUser._id);
   }
 
   const taskCollection = await tasks();
@@ -103,8 +101,6 @@ const getTaskById = async (currentUser, projectId, taskId) => {
   };
   if (currentUser.role === USER_ROLES.WORKER) {
     findQuery["workers._id"] = new ObjectId(currentUser._id);
-  } else if (currentUser.role === USER_ROLES.GENERAL_CONTRACTOR) {
-    findQuery["generalContractor._id"] = new ObjectId(currentUser._id);
   }
   const taskCollection = await tasks();
   const task = await taskCollection.findOne(findQuery);
@@ -147,9 +143,6 @@ const updateTask = async (
     _id: new ObjectId(taskId),
     projectId: new ObjectId(projectId),
   };
-  if (currentUser.role === USER_ROLES.GENERAL_CONTRACTOR) {
-    findQuery["generalContractor._id"] = new ObjectId(currentUser._id);
-  }
 
   const taskCollection = await tasks();
   const updatedTask = {

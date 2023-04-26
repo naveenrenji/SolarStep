@@ -7,7 +7,6 @@ import { toast } from "react-toastify";
 import { updateTaskApi } from "../../api/tasks";
 import { USER_ROLES } from "../../constants";
 
-import UserSelect from "../shared/UserSelect";
 import SubmitButton from "../shared/SubmitButton";
 import SelectUserOptsBody from "../shared/SelectUserOptsBody";
 
@@ -137,16 +136,6 @@ const ViewOrUpdateTaskModal = ({
                 value={new Date(
                   task.expectedCompletionDate
                 ).toLocaleDateString()}
-                disabled
-              />
-            </Form.Group>
-            <Form.Group className="mb-3" controlId="formBasicLastName">
-              <Form.Label aria-required>General Contractor</Form.Label>
-              <UserSelect
-                value={{
-                  value: task.generalContractor._id,
-                  label: task.generalContractor.email,
-                }}
                 disabled
               />
             </Form.Group>

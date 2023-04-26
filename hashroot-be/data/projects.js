@@ -92,7 +92,10 @@ const getPaginatedProjects = async (currentUser, page, search, statuses) => {
   }
 
   const statusesQuery = {};
-  if (statuses?.length) {
+  if(currentUser.role === USER_ROLES.WORKER){
+    statusesQuery.status = PROJECT_STATUSES.INSTALLATION_STARTED
+  }
+  else if (statuses?.length) {
     statusesQuery.status = { $in: statuses };
   }
 
@@ -248,9 +251,13 @@ const getEnergyUsage = async (currentUser, id) => {
   if (!currentUser) throw "User not logged in";
 
   const project = await getProjectById(currentUser, id);
-  const energyUsed = {kwhUsed: 1000, solarCost: 20, traditionalCost: 50};
-
-  return { ...project, energyUsed};
+  const energyUsed = {
+    kwhUsed: 1000,
+    kwhGenerated: 1200,
+    solarCost: 20,
+    traditionalCost: 50,
+  };
+  return { ...project, energyUsed };
 };
 
 export {
