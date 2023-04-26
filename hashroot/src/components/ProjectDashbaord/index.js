@@ -9,15 +9,19 @@ import RouteHeader from "../shared/RouteHeader";
 import Loader from "../shared/Loader";
 
 const ProjectDashboard = () => {
-  const [project, setProject] = React.useState({});
+  const [project, setProject] = React.useState();
   const [loading, setLoading] = React.useState(null);
 
-  const onProjectSelect = async ({ _id }) => {
+  const onProjectSelect = async ({ value }) => {
     try {
+      if (!value) {
+        setProject();
+        return;
+      }
       setLoading(true);
       setProject();
-      const project = await getProjectEnergyUsageApi(_id);
-      setProject(project);
+      const data = await getProjectEnergyUsageApi(value);
+      setProject(data);
     } catch (e) {
       toast(
         e?.response?.data?.error ||
@@ -51,8 +55,21 @@ const ProjectDashboard = () => {
           >
             {loading ? (
               <Loader />
-            ) : project ? (
-              <>Write code here</>
+            ) : project?._id ? (
+              <>
+                <p>Energy used: {project.energyUsed.kwhUsed} kwh</p>
+                <p>Energy generated: {project.energyUsed.kwhGenerated} kwh</p>
+                <p>Cost with Solar energy: ${project.energyUsed.solarCost}</p>
+                <p>
+                  Cost with traditional energy: $
+                  {project.energyUsed.traditionalCost}
+                </p>
+                <p>
+                  Savings: $
+                  {project.energyUsed.traditionalCost -
+                    project.energyUsed.solarCost}
+                </p>
+              </>
             ) : (
               <p style={{ textAlign: "center", marginBottom: 0 }}>
                 No project selected

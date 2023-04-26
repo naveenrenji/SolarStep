@@ -248,9 +248,14 @@ const getEnergyUsage = async (currentUser, id) => {
   if (!currentUser) throw "User not logged in";
 
   const project = await getProjectById(currentUser, id);
-  const energyUsed = {kwhUsed: 1000, solarCost: 20, traditionalCost: 50};
+  const energyUsed = {
+    kwhUsed: 1000,
+    kwhGenerated: 1200,
+    solarCost: 20,
+    traditionalCost: 50,
+  };
 
-  return { ...project, energyUsed};
+  return { ...project, energyUsed };
 };
 
 export {
