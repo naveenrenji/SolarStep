@@ -92,7 +92,10 @@ const getPaginatedProjects = async (currentUser, page, search, statuses) => {
   }
 
   const statusesQuery = {};
-  if (statuses?.length) {
+  if(currentUser.role === USER_ROLES.WORKER){
+    statusesQuery.status = PROJECT_STATUSES.INSTALLATION_STARTED
+  }
+  else if (statuses?.length) {
     statusesQuery.status = { $in: statuses };
   }
 
