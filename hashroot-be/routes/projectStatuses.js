@@ -4,6 +4,7 @@ import {
   PROJECT_STATUSES,
   PROJECT_STATUS_KEYS,
   USER_ROLES,
+  AUTHORIZED_ROLES_FOR_MARKING_PROJECT_STATUS
 } from "../constants.js";
 import {
   createProjectLog,
@@ -28,7 +29,8 @@ const router = Router();
 router
   .route(`/${PROJECT_STATUS_KEYS.READY_TO_BE_ASSIGNED_TO_GC}`)
   .patch(
-    authorizeRequest([USER_ROLES.ADMIN, USER_ROLES.SALES_REP]),
+    authorizeRequest(AUTHORIZED_ROLES_FOR_MARKING_PROJECT_STATUS[
+      PROJECT_STATUS_KEYS.READY_TO_BE_ASSIGNED_TO_GC]),
     async (req, res) => {
       try {
         const project = await moveToReadyToBeAssignedToGC(
@@ -51,7 +53,8 @@ router
 router
   .route(`/${PROJECT_STATUS_KEYS.ASSIGNED_TO_GC}`)
   .patch(
-    authorizeRequest([USER_ROLES.ADMIN, USER_ROLES.SALES_REP]),
+    authorizeRequest(AUTHORIZED_ROLES_FOR_MARKING_PROJECT_STATUS[PROJECT_STATUS_KEYS.ASSIGNED_TO_GC]
+      ),
     async (req, res) => {
       try {
         const project = await updateProjectStatusToAssignedToGC(
@@ -69,11 +72,8 @@ router
 router
   .route(`/${PROJECT_STATUS_KEYS.GC_ACCEPTED}`)
   .patch(
-    authorizeRequest([
-      USER_ROLES.ADMIN,
-      USER_ROLES.SALES_REP,
-      USER_ROLES.GENERAL_CONTRACTOR,
-    ]),
+    authorizeRequest(AUTHORIZED_ROLES_FOR_MARKING_PROJECT_STATUS[
+      PROJECT_STATUS_KEYS.GC_ACCEPTED]),
     async (req, res) => {
       try {
         const project = await acceptProjectByGC(
@@ -116,11 +116,8 @@ router
 router
   .route(`/${PROJECT_STATUS_KEYS.ON_SITE_INSPECTION_SCHEDULED}`)
   .patch(
-    authorizeRequest([
-      USER_ROLES.ADMIN,
-      USER_ROLES.SALES_REP,
-      USER_ROLES.GENERAL_CONTRACTOR,
-    ]),
+    authorizeRequest(AUTHORIZED_ROLES_FOR_MARKING_PROJECT_STATUS[
+      PROJECT_STATUS_KEYS.ON_SITE_INSPECTION_SCHEDULED]),
     async (req, res) => {
       try {
         const { onSiteInspectionDate } = req.body;
@@ -146,11 +143,8 @@ router
 router
   .route(`/${PROJECT_STATUS_KEYS.ON_SITE_INSPECTION_IN_PROGRESS}`)
   .patch(
-    authorizeRequest([
-      USER_ROLES.ADMIN,
-      USER_ROLES.SALES_REP,
-      USER_ROLES.GENERAL_CONTRACTOR,
-    ]),
+    authorizeRequest(AUTHORIZED_ROLES_FOR_MARKING_PROJECT_STATUS[
+      PROJECT_STATUS_KEYS.ON_SITE_INSPECTION_IN_PROGRESS]),
     async (req, res) => {
       try {
         const { onSiteInspectionStartedOn } = req.body;
@@ -176,11 +170,8 @@ router
 router
   .route(`/${PROJECT_STATUS_KEYS.UPDATING_PROPOSAL}`)
   .patch(
-    authorizeRequest([
-      USER_ROLES.ADMIN,
-      USER_ROLES.SALES_REP,
-      USER_ROLES.GENERAL_CONTRACTOR,
-    ]),
+    authorizeRequest(AUTHORIZED_ROLES_FOR_MARKING_PROJECT_STATUS[
+      PROJECT_STATUS_KEYS.UPDATING_PROPOSAL]),
     async (req, res) => {
       try {
         const project = await moveToUpdatingProposal(req.user, req.project);
@@ -201,7 +192,8 @@ router
 router
   .route(`/${PROJECT_STATUS_KEYS.REVIEWING_PROPOSAL}`)
   .patch(
-    authorizeRequest([USER_ROLES.ADMIN, USER_ROLES.SALES_REP]),
+    authorizeRequest(AUTHORIZED_ROLES_FOR_MARKING_PROJECT_STATUS[
+      PROJECT_STATUS_KEYS.REVIEWING_PROPOSAL]),
     async (req, res) => {
       try {
         const project = await moveToReviewingProposal(req.user, req.project);
@@ -246,11 +238,8 @@ router
 router
   .route(`/${PROJECT_STATUS_KEYS.READY_FOR_INSTALLATION}`)
   .patch(
-    authorizeRequest([
-      USER_ROLES.ADMIN,
-      USER_ROLES.SALES_REP,
-      USER_ROLES.GENERAL_CONTRACTOR,
-    ]),
+    authorizeRequest(AUTHORIZED_ROLES_FOR_MARKING_PROJECT_STATUS[
+      PROJECT_STATUS_KEYS.READY_FOR_INSTALLATION]),
     async (req, res) => {
       try {
         const { scheduledInstallationStartDate } = req.body;
@@ -276,11 +265,8 @@ router
 router
   .route(`/${PROJECT_STATUS_KEYS.INSTALLATION_STARTED}`)
   .patch(
-    authorizeRequest([
-      USER_ROLES.ADMIN,
-      USER_ROLES.SALES_REP,
-      USER_ROLES.GENERAL_CONTRACTOR,
-    ]),
+    authorizeRequest(AUTHORIZED_ROLES_FOR_MARKING_PROJECT_STATUS[
+      PROJECT_STATUS_KEYS.INSTALLATION_STARTED]),
     async (req, res) => {
       try {
         const { installationDate } = req.body;
@@ -302,7 +288,8 @@ router
 router
   .route(`/${PROJECT_STATUS_KEYS.COMPLETED}`)
   .patch(
-    authorizeRequest([USER_ROLES.ADMIN, USER_ROLES.SALES_REP]),
+    authorizeRequest(AUTHORIZED_ROLES_FOR_MARKING_PROJECT_STATUS[
+      PROJECT_STATUS_KEYS.COMPLETED]),
     async (req, res) => {
       try {
         const project = await projectComplete(req.user, req.project);
@@ -322,7 +309,8 @@ router
 router
   .route(`/${PROJECT_STATUS_KEYS.CLOSING_OUT}`)
   .patch(
-    authorizeRequest([USER_ROLES.ADMIN, USER_ROLES.SALES_REP]),
+    authorizeRequest(AUTHORIZED_ROLES_FOR_MARKING_PROJECT_STATUS[
+      PROJECT_STATUS_KEYS.CLOSING_OUT]),
     async (req, res) => {
       try {
         const project = await projectClosingOut(req.user, req.project);
@@ -342,7 +330,8 @@ router
 router
   .route(`/${PROJECT_STATUS_KEYS.VALIDATING_PERMITS}`)
   .patch(
-    authorizeRequest([USER_ROLES.ADMIN, USER_ROLES.SALES_REP]),
+    authorizeRequest(AUTHORIZED_ROLES_FOR_MARKING_PROJECT_STATUS[
+      PROJECT_STATUS_KEYS.VALIDATING_PERMITS]),
     async (req, res) => {
       try {
         const project = await projectValidatingPermits(req.user, req.project);
