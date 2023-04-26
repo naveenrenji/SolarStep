@@ -46,6 +46,13 @@ export const downloadProjectDocumentApi = async (projectId, fileId) => {
   return await http.get(`/projects/${projectId}/files/${fileId}/download`);
 };
 
+export const deleteProjectDocumentApi = async (projectId, fileId) => {
+  const {
+    data: { project },
+  } = await http.delete(`/projects/${projectId}/files/${fileId}/delete`);
+  return project;
+}
+
 export const signContractApi = async (projectId, documentId, body) => {
   const {
     data: { project },

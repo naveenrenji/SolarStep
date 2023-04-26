@@ -18,12 +18,16 @@ import {
   BsFillStarFill,
   BsFillFileEarmarkDiffFill,
 } from "react-icons/bs";
-// import { AiFillDelete } from "react-icons/ai";
+import { AiFillDelete } from "react-icons/ai";
 
 import { PROJECT_UPLOAD_TYPES } from "../../constants";
 import { capitalize } from "../../utils/user";
 import { downloadProjectDocumentApi } from "../../api/projects";
 import { getProjectDocumentDownloadUrl } from "../../utils/files";
+import { deleteProjectDocumentApi } from "../../api/projects";
+import useProject from "../../hooks/useProject";
+
+const { updateProject } = useProject();
 
 import DocumentModal from "../shared/DocumentModal";
 
@@ -53,6 +57,23 @@ const ProjectDocuments = ({ project, onClose, onUploadClick }) => {
       toast(error?.response?.data?.error || "Error downloading document", {
         type: toast.TYPE.ERROR,
       });
+    }
+  };
+
+  const handleDocumentDelete = async (document) => {
+    try {
+      toast("Deleting Document...", { type: toast.TYPE.INFO, autoClose: 0 });
+      const response = await deleteProjectDocumentApi(
+        project._id,
+        document.fileId
+      );
+      updateProject(response);
+      toast("Document Deleted Successfully", {
+        type: toast.TYPE.INFO,
+        autoClose: 0,
+      });
+    } catch (e) {
+      toast(" Error Deleting document");
     }
   };
 
@@ -113,6 +134,7 @@ const ProjectDocuments = ({ project, onClose, onUploadClick }) => {
                     document={document}
                     onClick={handleDocumentView}
                     handleDocumentDownload={handleDocumentDownload}
+                    handleDocumentDelete={handleDocumentDelete}
                     key={document._id}
                   />
                 ))}
@@ -191,11 +213,10 @@ const DocumentItem = ({
             className="link"
             onClick={() => handleDocumentDownload(document)}
           />
-          {/* TODO: Need to implement delete file? */}
-          {/* <AiFillDelete
+          <AiFillDelete
             className="link"
             onClick={() => handleDocumentDelete(document)}
-          /> */}
+          />
         </Stack>
       </Card.Footer>
     </Card>

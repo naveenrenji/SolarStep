@@ -2,6 +2,7 @@ import uploadFile from "../middleware/uploadFile.js";
 import { getBucket, projects } from "../config/mongoCollections.js";
 import { ObjectId } from "mongodb";
 import { PROJECT_UPLOAD_TYPES } from "../constants.js";
+import { getProjectById } from "./projects.js";
 
 const uploadPdfFile = async (req, res) => {
   try {
@@ -115,4 +116,41 @@ const downloadPdfFile = async (req, res) => {
   }
 };
 
-export { uploadPdfFile, downloadPdfFile };
+const deletePdfFile = async (req, res) => {
+  try {
+    const { fileId } = req.params;
+    if (!fileId) {
+      return res.status(400).json({ error: "File Id is required!" });
+    }
+
+    const projectCollection = await projects();
+    let project = await projectCollection.findOneAndUpdate(
+      {
+        _id: new ObjectId(req.project._id),
+        "documents.fileId": new ObjectId(fileId),
+      },
+      {
+        $pull: {
+          documents: {
+            fileId: new ObjectId(fileId),
+          },
+        },
+      },
+      { returnDocument: "after" }
+    );
+
+    if (!project.value) {
+      return res.status(400).json({ error: "File not found!" });
+    }
+
+
+    const bucket = await getBucket();
+    await bucket.delete(new ObjectId(fileId));
+    project = await getProjectById(req.user, req.project._id.toString());
+    return project;
+  } catch (err) {
+    return res.status(500).json({ error: err.toString() });
+  }
+};
+
+export { uploadPdfFile, downloadPdfFile, deletePdfFile };
