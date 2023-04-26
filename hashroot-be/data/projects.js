@@ -257,7 +257,6 @@ const getEnergyUsage = async (currentUser, id) => {
     solarCost: 20,
     traditionalCost: 50,
   };
-
   return { ...project, energyUsed };
 };
 

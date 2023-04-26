@@ -37,7 +37,7 @@ const createTask = async (
   }
 
   title = helpers.checkString(title, "title");
-  description = helpers.checkString(title, "description");
+  description = helpers.checkString(description, "description");
   // TODO: Validate expectedCompletionDate
   workerIds = helpers.checkIdArray(workerIds, "Worker Ids");
 
@@ -125,7 +125,7 @@ const updateTask = async (
 
   taskId = helpers.checkId(taskId, "Task Id");
   title = helpers.checkString(title, "title");
-  description = helpers.checkString(title, "description");
+  description = helpers.checkString(description, "description");
   workerIds = helpers.checkIdArray(workerIds, "Worker Ids");
 
   const userCollection = await users();
