@@ -36,6 +36,16 @@ const Header = () => {
           </Navbar.Brand>
         </LinkContainer>
         <Navbar.Toggle />
+        <div
+          style={{
+            marginLeft: "320px",
+            color: "white",
+            fontWeight: "bold",
+            fontSize: "24px",
+          }}
+        >
+          {auth?.user?.role?.toUpperCase()}
+        </div>
         <Navbar.Collapse className="justify-content-end">
           <Nav>
             <LinkContainer to="/">
