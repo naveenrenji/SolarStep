@@ -68,9 +68,8 @@ const Homepage = () => {
       </div>
       <div className="footer">
         <p>
-          © 2023 Solar Step. All rights reserved by CS555 Professor Dr Yu, Mrs
-          Hester and her Team - Naveen, Anirudh, Anmol, Atishay, Rajguru and
-          Vaibhav.
+          © 2023 Solar Step. All rights reserved by team hashroot. Special thanks to
+           Dr. Zhongyuan Yu and Mrs. Yiqun Li.
         </p>
       </div>
     </div>
